@@ -1,0 +1,28 @@
+{
+  "queries": [
+    {
+      "id": "skill_activation",
+      "description": "Verify the continuous-learning skill can be activated",
+      "query": "Use the continuous-learning skill to evaluate the current session",
+      "expected": "The skill should load and provide instructions for session evaluation"
+    },
+    {
+      "id": "session_evaluation",
+      "description": "Verify session evaluation extracts patterns",
+      "query": "Run the session evaluator script on a sample session transcript",
+      "expected": "The script should detect patterns and save learned skills"
+    },
+    {
+      "id": "config_validation",
+      "description": "Verify configuration file is valid",
+      "query": "Check that config.json contains valid settings for the continuous-learning skill",
+      "expected": "Config should have min_session_length, learned_skills_path, and auto_approve settings"
+    },
+    {
+      "id": "learned_skill_creation",
+      "description": "Verify learned skills are created in the correct location",
+      "query": "After running the evaluator, check that learned skills were saved to the learned skills path",
+      "expected": "Learned skill directories should exist with SKILL.md files"
+    }
+  ]
+}

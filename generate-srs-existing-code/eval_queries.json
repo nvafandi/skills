@@ -1,0 +1,22 @@
+[
+  { "query": "generate SRS from the existing codebase", "should_trigger": true },
+  { "query": "create a Software Requirements Specification for this project", "should_trigger": true },
+  { "query": "write software requirements from source code", "should_trigger": true },
+  { "query": "generate requirements specification documentation from code", "should_trigger": true },
+  { "query": "create system requirements documentation from the codebase", "should_trigger": true },
+  { "query": "generate SRS for the payment service", "should_trigger": true },
+  { "query": "write software requirements specification for the order management module", "should_trigger": true },
+  { "query": "document the system requirements from existing code", "should_trigger": true },
+  { "query": "generate requirements spec for the user authentication feature", "should_trigger": true },
+  { "query": "create functional and non-functional requirements from code", "should_trigger": true },
+  { "query": "migrate my Spring Boot app to Quarkus", "should_trigger": false },
+  { "query": "review this Quarkus service for compliance", "should_trigger": false },
+  { "query": "generate Gherkin scenarios for payment processing", "should_trigger": false },
+  { "query": "write unit tests for my service", "should_trigger": false },
+  { "query": "debug the application performance issues", "should_trigger": false },
+  { "query": "deploy the service to Kubernetes", "should_trigger": false },
+  { "query": "configure the database connection", "should_trigger": false },
+  { "query": "implement the business logic for payments", "should_trigger": false },
+  { "query": "fix the bug in the authentication flow", "should_trigger": false },
+  { "query": "refactor the service layer code", "should_trigger": false }
+]

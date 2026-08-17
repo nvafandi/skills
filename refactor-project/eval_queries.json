@@ -1,0 +1,22 @@
+[
+  { "query": "refactor my Quarkus project to engineering standards", "should_trigger": true },
+  { "query": "refactor quarkus code that was migrated from spring boot", "should_trigger": true },
+  { "query": "improve code quality of my migrated quarkus project", "should_trigger": true },
+  { "query": "clean up my quarkus project after migration", "should_trigger": true },
+  { "query": "apply engineering standards to my quarkus service", "should_trigger": true },
+  { "query": "restructure my quarkus project architecture", "should_trigger": true },
+  { "query": "fix field injection in my quarkus code", "should_trigger": true },
+  { "query": "refactor my quarkus project to use constructor injection", "should_trigger": true },
+  { "query": "wrap my quarkus endpoints in ApiResponse", "should_trigger": true },
+  { "query": "remove spring leftovers from my quarkus project", "should_trigger": true },
+  { "query": "migrate my Spring Boot application to Quarkus", "should_trigger": false },
+  { "query": "create a new Quarkus REST service from scratch", "should_trigger": false },
+  { "query": "what is Quarkus and how does it compare to Spring Boot", "should_trigger": false },
+  { "query": "debug my Quarkus native image build failure", "should_trigger": false },
+  { "query": "how to configure quarkus datasource for postgresql", "should_trigger": false },
+  { "query": "write a unit test for my Quarkus service", "should_trigger": false },
+  { "query": "set up CI/CD pipeline for Quarkus microservices", "should_trigger": false },
+  { "query": "how to deploy Quarkus app to Kubernetes", "should_trigger": false },
+  { "query": "add health check endpoint to my Quarkus service", "should_trigger": false },
+  { "query": "explain the difference between JAX-RS and Spring MVC", "should_trigger": false }
+]
