@@ -1,0 +1,22 @@
+[
+  { "query": "migrate my Spring Boot application to Quarkus", "should_trigger": true },
+  { "query": "convert my spring boot project to quarkus", "should_trigger": true },
+  { "query": "migrate spring to quarkus using openrewrite", "should_trigger": true },
+  { "query": "run the SpringBootToQuarkus recipe on my project", "should_trigger": true },
+  { "query": "port my spring boot 3 service to quarkus", "should_trigger": true },
+  { "query": "apply org.openrewrite.quarkus.spring.SpringBootToQuarkus recipe", "should_trigger": true },
+  { "query": "move my spring boot codebase to quarkus framework", "should_trigger": true },
+  { "query": "replace spring boot dependencies with quarkus extensions", "should_trigger": true },
+  { "query": "migrate spring boot 2 to quarkus", "should_trigger": true },
+  { "query": "upgrade spring boot project to quarkus", "should_trigger": true },
+  { "query": "what is Quarkus and how does it compare to Spring Boot", "should_trigger": false },
+  { "query": "refactor my existing Quarkus project", "should_trigger": false },
+  { "query": "debug my Quarkus native image build failure", "should_trigger": false },
+  { "query": "create a new Quarkus REST service from scratch", "should_trigger": false },
+  { "query": "add health check endpoint to my Quarkus service", "should_trigger": false },
+  { "query": "how to configure quarkus datasource for postgresql", "should_trigger": false },
+  { "query": "write a unit test for my Quarkus service", "should_trigger": false },
+  { "query": "migrate my Spring Boot application to Micronaut", "should_trigger": false },
+  { "query": "upgrade my spring boot app from 2.7 to 3.2", "should_trigger": false },
+  { "query": "explain the difference between JAX-RS and Spring MVC", "should_trigger": false }
+]
