@@ -50,7 +50,7 @@ All scripts:
 - Are non-interactive (no TTY prompts)
 - Return meaningful exit codes (0 = success, 1 = error)
 
-## Step 1: Analyze
+## Phase 1: Analyze
 
 Scan the Quarkus project to understand what needs to be refactored:
 
@@ -60,16 +60,17 @@ Scan the Quarkus project to understand what needs to be refactored:
 - **Java code**: Search for Quarkus annotations (JAX-RS, CDI, Panache, Qute) and identify code smells
 - **Architecture**: Check package structure, layered architecture compliance, naming conventions
 - **Configuration**: Read `application.properties`/`application.yml`, check for hardcoded values
-- **Tests**: Check for `@QuarkusTest`, `@InjectMock`, REST Assured usage
 - **Engineering standards**: Run the validation checks from `references/engineering-standards.md`
 
 Present a summary table with area, findings, and complexity. Include a **Dependency freshness** row comparing the project's Quarkus version with the latest stable from Context7. Inform the user that the refactoring will proceed using the internal engineering standards.
 
 **Stop here and wait for the user's response before continuing.** Do not ask about git workflow or anything else in the same message.
 
+> **Phase 1 Gate**: Analysis complete — user must confirm to proceed to Phase 2.
+
 ## Step 2: Git branch (optional)
 
-After the analysis summary, check if the target project is a git repository. If it is, propose the git workflow:
+After the analysis summary (Phase 1 complete), check if the target project is a git repository. If it is, propose the git workflow:
 
 > **Refactoring workflow:** Each refactoring run can be isolated in its own branch (`feature/JIRA-TICKET-NUMBER`) created from `master`. The branch will contain a single commit with all changes plus a refactoring report. A draft PR against `master` will be created for review — it is never merged, it serves as a permanent diff and discussion record. **Would you like to use this workflow?**
 
@@ -77,32 +78,26 @@ After the analysis summary, check if the target project is a git repository. If 
 - **User declines** → skip git management entirely, proceed with refactoring in the current branch.
 - **Not a git repo** → inform the user, skip git management, proceed normally.
 
-## Step 3: Execute Modules
+## Phase 2: Build System
 
-## Instructions
+Migrate the build descriptor and configuration files from Spring Boot to Quarkus.
 
-- Execute the instructions of the modules according to the following Decision Gate Table
-- Always log which Module and Gate check is evaluated and the status using the format:
-  Gate result: <STATUS> and <CONDITION_EVALUATED>
+> **Phase 2 Gate**: Build system configured — proceed to Phase 3 if PASS, else fix and retry.
 
 ### Decision Gate Table
 
 - For each module, evaluate whether it applies to this project. A module executes only when its gate status is: **PASS**.
-- Inspect the project to determine the gate result — do not rely on blind grep commands; use your understanding of the codebase.
+- Inspect the project to determine the gate result.
 
 | Module                          | Gate Check                                                                                                                | Gate Result                                                                              |
 |---------------------------------|---------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
 | [jdk](modules/jdk.md)           | JDK 21+ required                                   | **ALWAYS** -- stop refactoring if < 21 |
 | [build](modules/build.md)       | Quarkus BOM/plugins/extensions in `pom.xml`, or Quarkus plugin in `build.gradle(.kts)` | **PASS** if Quarkus build markers found; **SKIP** otherwise                          |
-| [code](modules/code.md)         | Quarkus annotations in Java sources (`@Path`, `@ApplicationScoped`, `@Inject`, `@Entity`, etc.) | **PASS** if Quarkus annotations found; **SKIP** otherwise                                 |
-| [testing](modules/testing.md)   | Quarkus test annotations in test sources (`@QuarkusTest`, `@InjectMock`, `@TestHTTPResource`) | **PASS** if Quarkus tests found; **SKIP** otherwise                                       |
-| [cleanup](modules/cleanup.md)   | Leftover Spring artifacts, unused dependencies, stale configuration | **PASS** if Spring artifacts or unused code found; **SKIP** otherwise |
-| [validation](modules/validation.md) | Post-refactoring compliance with internal engineering standards | **ALWAYS** — runs after cleanup                                                          |
 
 ### Execution Protocol
 
 ```
-FOR module IN [build, code, testing, cleanup, validation]:
+FOR module IN [jdk, build]:
 
   1. EVALUATE — inspect the project for the gate condition
   2. DECIDE
@@ -116,13 +111,109 @@ FOR module IN [build, code, testing, cleanup, validation]:
   6. LOG — mark checkbox as done
 ```
 
-### Running Individual Modules
+> **Phase 2 Output**: Build system migrated, compile successful — proceed to Phase 3.
 
-To run a single module outside the full refactoring flow, read its file directly:
+---
 
-- "Read `modules/build.md` and execute it"
-- "Run only the testing module"
-- "Re-run the cleanup module"
+## Phase 3: Code Migration
+
+Refactor all Java source code in the Quarkus project to comply with engineering standards.
+
+> **Phase 3 Gate**: Code refactored — proceed to Phase 4 if PASS, else fix and retry.
+
+### Decision Gate Table
+
+- For each module, evaluate whether it applies to this project. A module executes only when its gate status is: **PASS**.
+
+| Module                          | Gate Check                                                                                                                | Gate Result                                                                              |
+|---------------------------------|---------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
+| [code](modules/code.md)         | Quarkus annotations in Java sources (`@Path`, `@ApplicationScoped`, `@Inject`, `@Entity`, etc.) | **PASS** if Quarkus annotations found; **SKIP** otherwise                                 |
+
+### Execution Protocol
+
+```
+FOR module IN [code]:
+
+  1. EVALUATE — inspect the project for the gate condition
+  2. DECIDE
+     IF gate == ALWAYS → proceed to step 3
+     IF gate == PASS   → proceed to step 3
+     IF gate == SKIP   → log "Module {name}: SKIPPED — {reason}", mark checkbox, continue
+  3. LOAD — read the module file and relevant reference files
+  4. EXECUTE — follow the module instructions, adapting to Quarkus refactoring
+  5. COMPILE — run the project's compile command (`./mvnw clean compile -DskipTests` for Maven, `./gradlew clean compileJava -x test` for Gradle)
+     Fails → diagnose and fix before proceeding
+  6. LOG — mark checkbox as done
+```
+
+> **Phase 3 Output**: Code refactored to comply with engineering standards — proceed to Phase 4.
+
+---
+
+## Phase 4: Cleanup
+
+Remove leftover Spring artifacts, unused dependencies, stale configuration, and dead code that survived the migration.
+
+> **Phase 4 Gate**: Cleanup complete — proceed to Phase 5 if PASS, else fix and retry.
+
+### Decision Gate Table
+
+- For each module, evaluate whether it applies to this project. A module executes only when its gate status is: **PASS**.
+
+| Module                          | Gate Check                                                                                                                | Gate Result                                                                              |
+|---------------------------------|---------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
+| [cleanup](modules/cleanup.md)   | Leftover Spring artifacts, unused dependencies, stale configuration | **PASS** if Spring artifacts or unused code found; **SKIP** otherwise |
+
+### Execution Protocol
+
+```
+FOR module IN [cleanup]:
+
+  1. EVALUATE — inspect the project for the gate condition
+  2. DECIDE
+     IF gate == ALWAYS → proceed to step 3
+     IF gate == PASS   → proceed to step 3
+     IF gate == SKIP   → log "Module {name}: SKIPPED — {reason}", mark checkbox, continue
+  3. LOAD — read the module file and relevant reference files
+  4. EXECUTE — follow the module instructions, adapting to Quarkus refactoring
+  5. COMPILE — run the project's compile command (`./mvnw clean compile -DskipTests` for Maven, `./gradlew clean compileJava -x test` for Gradle)
+     Fails → diagnose and fix before proceeding
+  6. LOG — mark checkbox as done
+```
+
+> **Phase 4 Output**: Spring artifacts removed, codebase clean — proceed to Phase 5.
+
+---
+
+## Phase 5: Verify
+
+Run final verification checks. A check fails = stop and fix before continuing.
+
+| # | Check | Command (Maven / Gradle) | Pass criteria |
+|---|-------|---------|---------------|
+| 1 | **Builds** | `./mvnw clean package -DskipTests` / `./gradlew clean build -x test` | Exit code 0, no compilation errors |
+| 2 | **No Spring deps** | Search build file for `org.springframework` | Zero Spring dependencies |
+| 3 | **Has Quarkus** | Search build file for `io.quarkus` | Quarkus BOM and at least one extension present |
+| 4 | **Starts up** | `./mvnw quarkus:dev` / `./gradlew quarkusDev` | App starts, `curl http://localhost:8080/q/health` returns UP |
+
+> **Phase 5 Gate**: All 4 checks pass — refactoring successful, build works. Proceed to Step 6: Refactoring Review.
+
+### Execution Protocol
+
+```
+FOR module IN [validation]:
+
+  1. EVALUATE — inspect the project for the gate condition
+  2. DECIDE
+     IF gate == ALWAYS → proceed to step 3
+     IF gate == PASS   → proceed to step 3
+     IF gate == SKIP   → log "Module {name}: SKIPPED — {reason}", mark checkbox, continue
+  3. LOAD — read the module file and relevant reference files
+  4. EXECUTE — follow the module instructions, adapting to Quarkus refactoring
+  5. COMPILE — run the project's compile command (`./mvnw clean compile -DskipTests` for Maven, `./gradlew clean compileJava -x test` for Gradle)
+     Fails → diagnose and fix before proceeding
+  6. LOG — mark checkbox as done
+```
 
 The module will use the current project state with Quarkus refactoring strategy.
 
