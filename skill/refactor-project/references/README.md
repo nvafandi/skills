@@ -6,10 +6,9 @@ Reference files for the `refactor-project` skill. These provide lookup tables, s
 
 | File | Purpose |
 |---|---|
-| [engineering-standards.md](engineering-standards.md) | PruForce engineering standards from `ptpla-cbv-pf-engineering-prompts` — architecture, naming, quality gates checklist |
+| [engineering-standards.md](engineering-standards.md) | PruForce engineering standards — architecture, naming, quality gates checklist |
 | [refactoring-patterns.md](refactoring-patterns.md) | Quarkus-specific refactoring patterns, code smells, and improvement recipes |
 | [quick-reference.md](quick-reference.md) | Code snippets, common issues/solutions, build commands, performance tips, security considerations |
-
-## Related Skills
-
-- [migrate-spring-to-quarkus](../../migrate-spring-to-quarkus/SKILL.md) — the migration skill whose rules this refactoring skill applies
+| [lombok-rules.md](lombok-rules.md) | Lombok annotation removal rules and Quarkus/Java replacements |
+| [context7-queries.md](context7-queries.md) | Context7 library IDs and queries for checking latest dependency versions and patterns |
+| [solid-principles.md](solid-principles.md) | SOLID principle definitions, detection patterns, and refactoring recipes |

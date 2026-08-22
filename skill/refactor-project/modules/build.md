@@ -108,5 +108,5 @@ compileJava {
 ## Watch out
 
 - **Build tool wrapper**: If the project has `mvnw`/`gradlew`, always use `./mvnw` or `./gradlew` instead of the system-installed `mvn` or `gradle` command.
-- **Lombok**: Should have been removed during migration. If still present, remove it and rewrite annotations (see `migrate-spring-to-quarkus` skill's `modules/code.md` for Lombok rules).
+- **Lombok**: Should have been removed during migration. If still present, remove it and rewrite annotations (see [references/lombok-rules.md](../references/lombok-rules.md) for Lombok removal rules).
 - **OpenPDF**: If JasperReports was replaced with OpenPDF, verify the version is explicitly specified (not managed by Quarkus BOM).

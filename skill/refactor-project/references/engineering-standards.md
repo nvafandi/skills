@@ -1,6 +1,6 @@
 # PruForce Engineering Standards
 
-This reference file contains the architectural and coding standards that all Quarkus services must follow. It is based on `ptpla-cbv-pf-engineering-prompts/documentation/README.md` and the `migrate-spring-to-quarkus` skill.
+This reference file contains the architectural and coding standards that all Quarkus services must follow. It is maintained internally for this skill.
 
 ## Core Principles
 
