@@ -4,7 +4,7 @@ description: >
   Use this skill when refactoring a Quarkus project that has already been migrated from Spring Boot. Use when the user wants to refactor, improve, restructure, or clean up a Quarkus codebase, mentions "refactor quarkus", "improve quarkus code", "clean up migrated project", "restructure quarkus service", or asks about applying engineering standards to an existing Quarkus project. Even if they don't explicitly mention "refactor", use this skill when the user wants to improve code quality, apply engineering standards, fix architectural issues, or optimize a Quarkus project that was previously migrated from Spring Boot.
 license: PT. Prudential Life Indonesia
 metadata:
-  author: Irsyad Jamal Pratama Putra - https://github.com/Irsyad-Putra1-Consultant_pru
+  author: Nurvan Afandi
 ---
 
 # Quarkus Project Refactoring
