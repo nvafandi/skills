@@ -1,10 +1,14 @@
 # Module: Code
 
-Refactor all Java source code in the Quarkus project to comply with engineering standards from `migrate-spring-to-quarkus` skill.
+Refactor all Java source code in the Quarkus project to comply with internal engineering standards.
 
-Load [references/engineering-standards.md](../references/engineering-standards.md) before starting. It contains the architectural and coding standards from `ptpla-cbv-pf-engineering-prompts` that all Quarkus services must follow.
+Load [references/engineering-standards.md](../references/engineering-standards.md) before starting. It contains the architectural and coding standards that all Quarkus services must follow.
 
 Load [references/refactoring-patterns.md](../references/refactoring-patterns.md) before starting. It contains Quarkus-specific refactoring patterns, code smells, and improvement recipes.
+
+Load [references/solid-principles.md](../references/solid-principles.md) before starting. It contains SOLID principle definitions, detection patterns, and refactoring recipes for each principle.
+
+Load [references/lombok-rules.md](../references/lombok-rules.md) before starting. It contains Lombok annotation removal rules and Quarkus/Java replacements.
 
 ## What to do
 
@@ -23,6 +27,11 @@ Load [references/refactoring-patterns.md](../references/refactoring-patterns.md)
 - [ ] Add logging to service classes
 - [ ] Add OpenAPI documentation annotations
 - [ ] Convert manual `for`/`for-each`/`while` collection loops to Java Streams
+- [ ] Verify classes follow SRP — each class has one reason to change
+- [ ] Check for OCP violations — replace switch/if-else chains with strategy/extension patterns
+- [ ] Verify LSP compliance — subtypes are substitutable without surprise behavior
+- [ ] Check ISP — interfaces are focused, no class implements unused methods
+- [ ] Verify DIP — depend on abstractions, not concrete implementations
 - [ ] Compile: `./mvnw clean compile -DskipTests` (Maven) or `./gradlew clean compileJava -x test` (Gradle)
 
 ## Refactoring Patterns
@@ -338,6 +347,231 @@ TodoResponse found = todos.stream()
         .orElse(null);
 ```
 
+## SOLID Principles Refactoring Patterns
+
+Load [references/solid-principles.md](../references/solid-principles.md) for full definitions, detection tables, and validation checklists.
+
+### 13. God Class → SRP Split (Single Responsibility)
+
+```java
+// BEFORE: God class — multiple reasons to change
+@ApplicationScoped
+public class OrderService {
+    private final EntityManager em;
+    private final EmailService emailService;
+    private final PaymentGateway paymentGateway;
+    private final ReportGenerator reportGenerator;
+
+    OrderService(EntityManager em, EmailService emailService,
+                 PaymentGateway paymentGateway, ReportGenerator reportGenerator) {
+        this.em = em;
+        this.emailService = emailService;
+        this.paymentGateway = paymentGateway;
+        this.reportGenerator = reportGenerator;
+    }
+
+    @Transactional public OrderResponse createOrder(CreateOrderRequest request) { /* ... */ }
+    @Transactional public void cancelOrder(Long orderId) { /* ... */ }
+    public void sendOrderConfirmation(Long orderId) { /* ... */ }
+    public void processPayment(Long orderId, PaymentRequest payment) { /* ... */ }
+    public byte[] generateOrderReport(Long orderId) { /* ... */ }
+}
+
+// AFTER: Each service has one reason to change
+@ApplicationScoped
+public class OrderService {
+    private final OrderRepository repository;
+    private final OrderMapper mapper;
+
+    OrderService(OrderRepository repository, OrderMapper mapper) {
+        this.repository = repository;
+        this.mapper = mapper;
+    }
+
+    @Transactional
+    public OrderResponse createOrder(CreateOrderRequest request) {
+        Order entity = mapper.toEntity(request);
+        Order saved = repository.save(entity);
+        return mapper.toResponse(saved);
+    }
+
+    @Transactional
+    public void cancelOrder(Long orderId) {
+        Order order = repository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException(orderId));
+        order.cancel();
+    }
+}
+
+@ApplicationScoped
+public class OrderNotificationService {
+    private final EmailService emailService;
+    OrderNotificationService(EmailService emailService) { this.emailService = emailService; }
+    public void sendOrderConfirmation(Long orderId) { /* ... */ }
+}
+
+@ApplicationScoped
+public class OrderPaymentService {
+    private final PaymentGateway paymentGateway;
+    private final OrderRepository repository;
+    OrderPaymentService(PaymentGateway paymentGateway, OrderRepository repository) {
+        this.paymentGateway = paymentGateway;
+        this.repository = repository;
+    }
+    @Transactional
+    public void processPayment(Long orderId, PaymentRequest payment) { /* ... */ }
+}
+```
+
+### 14. Switch Chain → Strategy Pattern (Open/Closed)
+
+```java
+// BEFORE: Must modify this method every time a new type is added
+@ApplicationScoped
+public class PaymentService {
+    @Transactional
+    public void processPayment(PaymentRequest request) {
+        switch (request.type()) {
+            case "CREDIT_CARD": processCreditCard(request); break;
+            case "BANK_TRANSFER": processBankTransfer(request); break;
+            default: throw new IllegalArgumentException("Unknown: " + request.type());
+        }
+    }
+}
+
+// AFTER: Open for extension, closed for modification
+public interface PaymentStrategy {
+    String type();
+    void process(PaymentRequest request);
+}
+
+@ApplicationScoped
+public class CreditCardPaymentStrategy implements PaymentStrategy {
+    @Override public String type() { return "CREDIT_CARD"; }
+    @Override public void process(PaymentRequest request) { /* ... */ }
+}
+
+@ApplicationScoped
+public class PaymentService {
+    private final Map<String, PaymentStrategy> strategies;
+
+    PaymentService(Set<PaymentStrategy> strategySet) {
+        this.strategies = strategySet.stream()
+                .collect(Collectors.toMap(PaymentStrategy::type, s -> s));
+    }
+
+    @Transactional
+    public void processPayment(PaymentRequest request) {
+        PaymentStrategy strategy = strategies.get(request.type());
+        if (strategy == null) {
+            throw new IllegalArgumentException("Unknown: " + request.type());
+        }
+        strategy.process(request);
+    }
+}
+```
+
+### 15. Fat Interface → Segregated Interfaces (Interface Segregation)
+
+```java
+// BEFORE: Fat interface — implementers forced to implement unused methods
+public interface UserService {
+    UserResponse findById(Long id);
+    List<UserResponse> findAll();
+    UserResponse create(CreateUserRequest request);
+    UserResponse update(Long id, UpdateUserRequest request);
+    void delete(Long id);
+    byte[] exportToCsv();
+    void importFromCsv(InputStream file);
+    UserStatistics getStatistics();
+}
+
+@ApplicationScoped
+public class ReadOnlyUserService implements UserService {
+    @Override public UserResponse findById(Long id) { /* ... */ }
+    @Override public List<UserResponse> findAll() { /* ... */ }
+    @Override public UserResponse create(CreateUserRequest request) {
+        throw new UnsupportedOperationException("Read-only");
+    }
+    // ... all other methods throw UnsupportedOperationException
+}
+
+// AFTER: Segregated interfaces — each client depends only on what it uses
+public interface UserReadService {
+    UserResponse findById(Long id);
+    List<UserResponse> findAll();
+}
+
+public interface UserWriteService {
+    UserResponse create(CreateUserRequest request);
+    UserResponse update(Long id, UpdateUserRequest request);
+    void delete(Long id);
+}
+
+public interface UserExportService {
+    byte[] exportToCsv();
+    void importFromCsv(InputStream file);
+}
+
+@ApplicationScoped
+public class UserReadServiceImpl implements UserReadService {
+    @Override public UserResponse findById(Long id) { /* ... */ }
+    @Override public List<UserResponse> findAll() { /* ... */ }
+}
+
+// Clients inject only what they need
+@ApplicationScoped
+public class UserResource {
+    private final UserReadService readService;
+    private final UserWriteService writeService;
+    UserResource(UserReadService readService, UserWriteService writeService) {
+        this.readService = readService;
+        this.writeService = writeService;
+    }
+}
+```
+
+### 16. Concrete Dependencies → Interface Injection (Dependency Inversion)
+
+```java
+// BEFORE: DIP violation — depends on concrete implementation
+@ApplicationScoped
+public class OrderService {
+    private final PanacheOrderRepository repository;  // concrete class
+    private final JacksonObjectMapper mapper;          // concrete class
+
+    OrderService(PanacheOrderRepository repository, JacksonObjectMapper mapper) {
+        this.repository = repository;
+        this.mapper = mapper;
+    }
+}
+
+// AFTER: DIP compliant — depends on abstractions
+@ApplicationScoped
+public class OrderRepository implements PanacheRepository<Order> {
+    public Optional<Order> findByOrderNumber(String orderNumber) {
+        return find("orderNumber", orderNumber).firstResultOptional();
+    }
+}
+
+@ApplicationScoped
+public class OrderMapper {
+    public Order toEntity(CreateOrderRequest request) { /* ... */ }
+    public OrderResponse toResponse(Order entity) { /* ... */ }
+}
+
+@ApplicationScoped
+public class OrderService {
+    private final OrderRepository repository;   // abstraction
+    private final OrderMapper mapper;            // abstraction
+
+    OrderService(OrderRepository repository, OrderMapper mapper) {
+        this.repository = repository;
+        this.mapper = mapper;
+    }
+}
+```
+
 ## Engineering Standards Compliance
 
 While refactoring code, ensure all services comply with the standards in [references/engineering-standards.md](../references/engineering-standards.md). Key requirements:
@@ -352,6 +586,7 @@ While refactoring code, ensure all services comply with the standards in [refere
 - Package structure: `com.prudential.pruforce.aob.{function}.{layer}`
 - File naming: `{Domain}Resource.java`, `{Domain}Service.java`, `{Domain}Repository.java`, etc.
 - Use Java Streams for collection iteration (filter/map/collect) instead of manual `for`/`for-each` loops
+- Follow SOLID principles — see [references/solid-principles.md](../references/solid-principles.md)
 
 ## Watch out
 
@@ -360,3 +595,8 @@ While refactoring code, ensure all services comply with the standards in [refere
 - **No silent changes**: Every file modification must be intentional and traceable
 - **Check for Spring leftovers**: Search for `org.springframework` imports that should have been removed during migration
 - **Lombok**: Should have been removed during migration. If still present, rewrite annotations to standard Java
+- **SRP**: Don't create god classes — split services handling multiple concerns (DB + email + payment + reporting)
+- **OCP**: Avoid switch/if-else chains that require modification for new types — use strategy pattern or map-based dispatch
+- **LSP**: Ensure subtypes don't throw unexpected exceptions or change method semantics
+- **ISP**: Don't force implementers to override methods they don't need — split fat interfaces
+- **DIP**: Don't depend on concrete implementations — inject interfaces, not classes

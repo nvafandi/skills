@@ -10,6 +10,7 @@ Remove leftover Spring artifacts, unused dependencies, stale configuration, and 
 - [ ] Remove orphaned Spring config files (`application-*.properties/yml` that have no Quarkus equivalent)
 - [ ] Remove unused imports and dead code
 - [ ] Remove commented-out code blocks
+- [ ] Use Context7 to verify Spring→Quarkus replacements for ambiguous patterns
 - [ ] Compile: `./mvnw clean compile -DskipTests` (Maven) or `./gradlew clean compileJava -x test` (Gradle)
 
 ## Leftover Spring imports
@@ -24,6 +25,27 @@ For each hit:
 - If the class has a Quarkus/Jakarta equivalent → replace the import
 - If it's an unused import → delete it
 - If it's still needed (Spring compat strategy) → leave it, but verify the corresponding `quarkus-spring-*` extension is in the build file
+
+## Context7 Verification (Optional but Recommended)
+
+When a Spring import, annotation, dependency, or config property is found and the correct Quarkus replacement is unclear, use Context7 to verify the current equivalent:
+
+1. Identify the Spring pattern found
+2. Query Context7 with the specific pattern
+3. Replace with the Quarkus/Jakarta equivalent returned
+
+See [references/context7-queries.md](../references/context7-queries.md) → **Spring Boot Smell Detection** section for specific queries.
+
+### Examples
+
+| Found Spring pattern | Context7 query | Quarkus replacement |
+|---|---|---|
+| `import org.springframework.web.bind.annotation.GetMapping` | `@GetMapping migration to Quarkus` | `import jakarta.ws.rs.GET` |
+| `@Service` on a class | `@Service Quarkus CDI equivalent` | `@ApplicationScoped` |
+| `spring-boot-starter-data-jpa` in pom.xml | `spring-boot-starter-data-jpa Quarkus equivalent` | `quarkus-hibernate-orm-panache` |
+| `spring.datasource.url` in properties | `spring.datasource.url Quarkus property` | `quarkus.datasource.jdbc.url` |
+| `@SpringBootTest` in tests | `@SpringBootTest Quarkus testing` | `@QuarkusTest` |
+| `@Transactional` from Spring | `@Transactional Spring to jakarta migration` | `jakarta.transaction.Transactional` |
 
 ## Unused Spring dependencies
 

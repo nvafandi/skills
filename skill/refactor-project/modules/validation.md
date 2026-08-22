@@ -1,12 +1,13 @@
 # Module: Validation
 
-Validate that all refactored services comply with the engineering standards from `ptpla-cbv-pf-engineering-prompts`.
+Validate that all refactored services comply with the internal engineering standards.
 
 **Executes after:** `cleanup` module (always runs last)
 
 ## Reference Files
 
-- [references/engineering-standards.md](../references/engineering-standards.md) — contains the quality gates checklist and standards from `ptpla-cbv-pf-engineering-prompts`
+- [references/engineering-standards.md](../references/engineering-standards.md) — contains the quality gates checklist and internal engineering standards
+- [references/solid-principles.md](../references/solid-principles.md) — contains SOLID principle definitions, detection patterns, and validation checklists
 
 ## Instructions
 
@@ -30,6 +31,7 @@ Execute the following checks in order. If any check fails, stop and fix before c
 | 12 | **Validation** | Verify `@NotNull`, `@NotBlank`, `@Size`, `@Valid` annotations on request DTOs | Bean Validation present |
 | 13 | **Streams** | Search for manual `for`/`for-each`/`while` loops iterating collections in service/repository code | Collection iteration uses Java Streams (filter/map/collect) |
 | 14 | **CDI** | Verify no `@Inject` on private fields/methods, no `@Named` for DI resolution, no dummy no-args constructors | Package-private or constructor injection; `@Identifier` for string qualifiers |
+| 15 | **SOLID** | Verify SRP (focused classes), OCP (no switch chains), ISP (focused interfaces), DIP (interface injection) | All 5 SOLID principles followed — see [references/solid-principles.md](../references/solid-principles.md) |
 
 ## Report Format
 
@@ -39,14 +41,23 @@ After validation, present results in this format:
 ## Validation Report: [app-name]
 
 ### Summary
-- Standards: PruForce Engineering Standards (ptpla-cbv-pf-engineering-prompts)
-- Checks passed: [X/14]
-- Checks failed: [Y/14]
+- Standards: PruForce Engineering Standards
+- Checks passed: [X/15]
+- Checks failed: [Y/15]
 
 ### Failed Checks
 | # | Check | File | Issue | Required Fix |
 |---|-------|------|-------|---------------|
 | 1 | [check name] | [file path] | [description] | [fix recommendation] |
+
+### SOLID Compliance
+| Principle | Status | Violations |
+|-----------|--------|------------|
+| SRP | PASS/FAIL | [description] |
+| OCP | PASS/FAIL | [description] |
+| LSP | PASS/FAIL | [description] |
+| ISP | PASS/FAIL | [description] |
+| DIP | PASS/FAIL | [description] |
 
 ### Compliance Status
 - **Fully Compliant:** YES/NO
@@ -55,7 +66,7 @@ After validation, present results in this format:
 
 ## Compliance Rules
 
-- **All 14 checks must PASS** for the refactoring to be considered complete.
+- **All 15 checks must PASS** for the refactoring to be considered complete.
 - If any check fails, provide specific file paths and line numbers where the issue occurs.
 - Common non-compliant patterns:
   - `@Inject` on fields → move to constructor injection
@@ -68,6 +79,11 @@ After validation, present results in this format:
   - `@Inject` on private members → use package-private modifiers (per Quarkus CDI reference)
   - `@Named` for DI resolution → replace with `@Identifier`
   - Dummy no-args constructors → remove (Quarkus generates them)
+  - God classes handling multiple concerns → split into focused services (SRP)
+  - Switch/if-else chains for type dispatch → use strategy pattern or map-based dispatch (OCP)
+  - Subtypes throwing unexpected exceptions → ensure consistent contracts (LSP)
+  - Fat interfaces with unused methods → split into segregated interfaces (ISP)
+  - Concrete class injection → inject interfaces via constructor (DIP)
 
 ## What to do
 

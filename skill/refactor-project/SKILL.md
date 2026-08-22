@@ -9,7 +9,7 @@ metadata:
 
 # Quarkus Project Refactoring
 
-Modular, gate-driven refactoring of Quarkus projects that have already been migrated from Spring Boot. Applies the engineering standards and rules from the `migrate-spring-to-quarkus` skill to improve code quality, architecture, and compliance.
+Modular, gate-driven refactoring of Quarkus projects that have already been migrated from Spring Boot. Applies the engineering standards internally to improve code quality, architecture, and compliance.
 
 ## Critical Rules
 
@@ -28,9 +28,11 @@ Load the relevant reference file when working on a module:
 
 | Reference | Use during |
 |---|---|
-| [references/engineering-standards.md](references/engineering-standards.md) | All modules: PruForce engineering standards from `ptpla-cbv-pf-engineering-prompts` — architecture, naming, quality gates checklist |
+| [references/engineering-standards.md](references/engineering-standards.md) | All modules: PruForce engineering standards — architecture, naming, quality gates checklist |
 | [references/refactoring-patterns.md](references/refactoring-patterns.md) | Code module: Quarkus-specific refactoring patterns, code smells, and improvement recipes |
-| [references/quick-reference.md](references/quick-reference.md) | Code snippets, common issues, performance tips, security considerations from `ptpla-cbv-pf-engineering-prompts` |
+| [references/quick-reference.md](references/quick-reference.md) | Code snippets, common issues, performance tips, security considerations |
+| [references/lombok-rules.md](references/lombok-rules.md) | Code module: Lombok annotation removal rules and Quarkus/Java replacements |
+| [references/context7-queries.md](references/context7-queries.md) | All modules: Context7 library IDs and queries for checking latest dependency versions and patterns |
 
 ## Available Scripts
 
@@ -53,13 +55,15 @@ All scripts:
 Scan the Quarkus project to understand what needs to be refactored:
 
 - **Build system**: Read the build file (`pom.xml` for Maven, `build.gradle` or `build.gradle.kts` for Gradle) — Quarkus version, extensions, dependencies
+- **Dependencies**: Use Context7 to query the latest Quarkus stable version and verify the project's dependencies against current releases (see [references/context7-queries.md](references/context7-queries.md))
+- **Spring leftovers**: Search for remaining Spring imports, annotations, dependencies, and config properties. For ambiguous replacements, query Context7 to verify the current Quarkus equivalent (see [references/context7-queries.md](references/context7-queries.md) → Spring Boot Smell Detection)
 - **Java code**: Search for Quarkus annotations (JAX-RS, CDI, Panache, Qute) and identify code smells
 - **Architecture**: Check package structure, layered architecture compliance, naming conventions
 - **Configuration**: Read `application.properties`/`application.yml`, check for hardcoded values
 - **Tests**: Check for `@QuarkusTest`, `@InjectMock`, REST Assured usage
 - **Engineering standards**: Run the validation checks from `references/engineering-standards.md`
 
-Present a summary table with area, findings, and complexity. Inform the user that the refactoring will proceed using the engineering standards from `migrate-spring-to-quarkus` skill.
+Present a summary table with area, findings, and complexity. Include a **Dependency freshness** row comparing the project's Quarkus version with the latest stable from Context7. Inform the user that the refactoring will proceed using the internal engineering standards.
 
 **Stop here and wait for the user's response before continuing.** Do not ask about git workflow or anything else in the same message.
 
@@ -93,7 +97,7 @@ After the analysis summary, check if the target project is a git repository. If 
 | [code](modules/code.md)         | Quarkus annotations in Java sources (`@Path`, `@ApplicationScoped`, `@Inject`, `@Entity`, etc.) | **PASS** if Quarkus annotations found; **SKIP** otherwise                                 |
 | [testing](modules/testing.md)   | Quarkus test annotations in test sources (`@QuarkusTest`, `@InjectMock`, `@TestHTTPResource`) | **PASS** if Quarkus tests found; **SKIP** otherwise                                       |
 | [cleanup](modules/cleanup.md)   | Leftover Spring artifacts, unused dependencies, stale configuration | **PASS** if Spring artifacts or unused code found; **SKIP** otherwise |
-| [validation](modules/validation.md) | Post-refactoring compliance with engineering standards from `ptpla-cbv-pf-engineering-prompts` | **ALWAYS** — runs after cleanup                                                          |
+| [validation](modules/validation.md) | Post-refactoring compliance with internal engineering standards | **ALWAYS** — runs after cleanup                                                          |
 
 ### Execution Protocol
 
