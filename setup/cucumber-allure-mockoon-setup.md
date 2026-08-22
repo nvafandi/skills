@@ -772,10 +772,16 @@ Ikuti urutan ini pada project Quarkus baru / lain:
    `@BeforeAll`/`@AfterAll` ke `MockoonServer.start()/shutdown()`.
 7. **Buat file environment mockoon** `src/test/resources/mockoon/<name>.json`
    dengan route endpoint eksternal yang Anda butuhkan (Bab 6.3).
-8. **Overwrite URL eksternal** aplikasi ke mock: buat file config test
-   (`deployment/config/application-test.properties`) dan arahkan setiap URL upstream
-   (mis. `aob-transaction.url.start-bpm`) ke `http://127.0.0.1:3000/<path>` (Bab 9.1).
-   Lalu load file tsb via `quarkus.config.locations` di `application.properties` (test).
+8. **Overwrite URL eksternal** aplikasi ke mock:
+   - Jika `deployment/config/application-test.properties` belum ada:
+     ```bash
+     mkdir -p deployment/config
+     cp src/main/resources/application.properties deployment/config/application-test.properties
+     ```
+   - Cari semua URL eksternal: `grep -E "\.url\.|\.endpoint\.|\.base-url" src/main/resources/application.properties`
+   - Tanyakan URL mana yang perlu di-override ke Mockoon
+   - Override di `application-test.properties` (lihat Bab 9.1.1)
+   - Load file test via `quarkus.config.locations` di `application.properties` (test).
 9. **Tulis feature file** `src/test/resources/features/<modul>/<Nama>.feature` (Bab 9.3).
 10. **Jalankan**: `mvn test -Dtest=CucumberTest` lalu `mvn allure:serve` utk laporan.
 
@@ -804,6 +810,46 @@ aplikasi, yang perlu dimock. Ikuti bagian sesuai kasus.
    tetap bisa meng-override ke env asli saat dibutuhkan.
 
    Ganti nama key (`my-new-call`) dan path mock sesuai kebutuhan nyata Anda.
+
+### 9.1.1 Membuat `deployment/config/application-test.properties`
+
+Jika file `deployment/config/application-test.properties` belum ada, buat dengan langkah berikut:
+
+1. **Copy dari `application.properties`** yang sudah ada:
+   ```bash
+   mkdir -p deployment/config
+   cp src/main/resources/application.properties deployment/config/application-test.properties
+   ```
+
+2. **Buat daftar URL eksternal** yang perlu di-override ke Mockoon.
+   Cari semua property URL di `application.properties`:
+   ```bash
+   grep -E "\.url\.|\.endpoint\.|\.base-url" src/main/resources/application.properties
+   ```
+
+3. **Override URL** di `application-test.properties` ke Mockoon:
+   ```properties
+   # Contoh override URL eksternal -> Mockoon
+   aob-transaction.url.start-bpm=${URL_START_BPM:http://127.0.0.1:3000/api/startbpm}
+   aob-transaction.url.document=${URL_DOCUMENT:http://127.0.0.1:3000/api/document}
+   aob-transaction.url.update-migration=${URL_UPDATE_MIGRATION:http://127.0.0.1:3000/api/updateMigration}
+   ```
+
+4. **Tanyakan URL mana saja** yang perlu di-override:
+   - Jalankan grep untuk menemukan semua URL di `application.properties`
+   - Untuk setiap URL, tanyakan apakah perlu di-mock atau tidak
+   - Jika ya, tentukan path mock di Mockoon yang sesuai
+
+5. **Load file test** di `application.properties` (test profile):
+   ```properties
+   # Di src/test/resources/application.properties
+   %test.quarkus.config.locations=deployment/config/application-test.properties
+   ```
+
+> **Tips**: Gunakan env variable sebagai default agar bisa di-override saat testing ke env asli:
+> ```properties
+> some.url=${SOME_URL:http://127.0.0.1:3000/api/someEndpoint}
+> ```
 
 ### 9.2 (a) Endpoint baru di aplikasi ini
 
