@@ -96,7 +96,7 @@ src/main/java/com/prudential/pruforce/aob/{function}/
 │   └── impl/
 │       └── {Domain}ServiceImpl.java   # Service implementation
 ├── repository/
-│   └── {Domain}Repository.java        # Repository interface/Panache
+│   └── {Domain}Repository.java        # Repository interface (Panache: extends PanacheRepository); *optional: impl/ directory *optional: {Domain}RepositoryImpl.java *implementation class
 └── config/
     └── {Domain}Config.java            # Configuration
 ```
