@@ -105,7 +105,8 @@ dan managed oleh **Allure BOM** (`allure-bom`) + **Quarkus BOM** (`quarkus-bom`)
 
 ### 3.1 Opsi Allure 3 (default, recommended)
 
-Allure 3 menggunakan Node.js runtime internal (tidak perlu install Node.js global).
+Allure 3 menggunakan **Maven plugin** (`allure-maven`) yang mengelola semua secara internal.
+Tidak perlu install Node.js atau npx - plugin akan memprovision Node.js runtime otomatis.
 
 ```xml
 <properties>
@@ -163,8 +164,15 @@ Plugin untuk generate laporan (di dalam `<build><plugins>`):
     <groupId>io.qameta.allure</groupId>
     <artifactId>allure-maven</artifactId>
     <version>2.12.0</version>
+    <!-- Tidak perlu reportVersion untuk Allure 3 (default) -->
 </plugin>
 ```
+
+**Cara kerja Allure 3 dengan Maven:**
+1. Plugin `allure-maven` akan memprovision Node.js runtime internal secara otomatis
+2. Runtime disimpan di `${project.basedir}/.allure/` (di-gitignore)
+3. Semua command menggunakan Maven: `mvn allure:report`, `mvn allure:serve`
+4. Tidak perlu install apapun selain Maven
 
 ### 3.2 Opsi Allure 2 (legacy)
 
@@ -187,8 +195,10 @@ Jika project masih menggunakan Allure 2, set `reportVersion` ke `2.x`:
 </plugin>
 ```
 
-> **Catatan**: Allure 2 membutuhkan binary Allure CLI secara lokal atau di-download otomatis.
-> Allure 3 menggunakan Node.js runtime internal yang di-provision otomatis oleh plugin.
+> **Catatan**: 
+> - **Allure 2**: Membutuhkan binary Allure CLI secara lokal atau di-download otomatis oleh plugin.
+> - **Allure 3**: Menggunakan Maven plugin (`allure-maven`) yang memprovision Node.js runtime internal.
+>   Tidak perlu install Node.js, npm, atau npx - semuanya di-handle oleh Maven.
 
 ### 3.3 Perbandingan Allure 2 vs 3
 
@@ -196,11 +206,13 @@ Jika project masih menggunakan Allure 2, set `reportVersion` ke `2.x`:
 |-------|----------|----------|
 | **Versi plugin** | `2.12.0` + `reportVersion=2.x` | `2.12.0` (default) |
 | **BOM version** | `2.29.1` | `3.4.1` |
-| **Runtime** | Allure CLI (Java) | Node.js internal |
-| **Install Node.js** | Tidak perlu | Tidak perlu (di-provision otomatis) |
+| **Runtime** | Allure CLI (Java) | Node.js internal (via Maven plugin) |
+| **Install Node.js** | Tidak perlu | Tidak perlu (di-provision Maven plugin) |
+| **Install npx** | Tidak perlu | Tidak perlu |
 | **Report output** | `target/allure-report/index.html` | `target/site/allure-maven/index.html` |
 | **Config files** | `allure.properties` | `allurerc.js/json/yaml` |
 | **JDK minimum** | JDK 8+ | JDK 17+ |
+| **Setup** | Maven plugin | Maven plugin (otomatis) |
 
 | Baris | Arti |
 |------|------|
@@ -637,6 +649,8 @@ Cucumber scenario dijalankan
    - `io.qameta.allure:allure-junit-platform` (listener JUnit Platform)
    - `allure-bom` di `dependencyManagement` agar versi konsisten.
 1. **Plugin** `io.qameta.allure:allure-maven` (versi `2.12.0`) di `<build><plugins>`.
+   - **Allure 3**: Tidak perlu konfigurasi tambahan (default)
+   - **Allure 2**: Tambahkan `<reportVersion>2.39.0</reportVersion>`
 1. **Registrasi listener** di `cucumber.properties`:
    ```properties
    cucumber.plugin=pretty,io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm
@@ -646,6 +660,9 @@ Cucumber scenario dijalankan
    # Allure 2
    allure.results.directory=target/allure-results
    ```
+
+> **Allure 3 - Maven Only**: Tidak perlu install Node.js, npm, atau npx.
+> Plugin `allure-maven` akan memprovision semua secara otomatis melalui Maven.
 
 ### 7.3 Generate & lihat laporan
 
@@ -704,15 +721,18 @@ history:
   enabled: true
 ```
 
-**Allure 3 specific properties:**
+**Allure 3 Maven plugin properties:**
 
 | Property | Default | Deskripsi |
 |----------|---------|-----------|
-| `allure.install.directory` | `${project.basedir}/.allure` | Lokasi instalasi runtime |
-| `allure.node.version` | `v24.14.1` | Versi Node.js internal |
-| `allure.npm.registry` | `https://registry.npmjs.org` | NPM registry |
-| `allure.config.path` | auto-detect | Path ke config file |
+| `allure.install.directory` | `${project.basedir}/.allure` | Lokasi instalasi runtime (managed Maven) |
+| `allure.node.version` | `v24.14.1` | Versi Node.js internal (auto-provision) |
+| `allure.npm.registry` | `https://registry.npmjs.org` | NPM registry (untuk download package) |
+| `allure.config.path` | auto-detect | Path ke config file (`allurerc.*`) |
 | `allure.history.enabled` | `true` | Aktifkan trend history |
+
+> **Catatan**: Semua properties di atas dikonfigurasi melalui Maven plugin, bukan npx atau CLI manual.
+> Plugin `allure-maven` menangani provisioning, instalasi, dan eksekusi secara otomatis.
 
 ### 7.5 Opsi tambahan
 
