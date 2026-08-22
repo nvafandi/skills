@@ -34,7 +34,7 @@ Load the relevant reference file when working on a module:
 
 ## Available Scripts
 
-The following scripts are bundled in the `scripts/` directory. Run them from the skill root directory using relative paths.
+The following scripts are bundled in the `scripts` directory. Run them from the skill root directory using relative paths.
 
 | Script | Purpose | Usage |
 |---|---|---|

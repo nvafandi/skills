@@ -87,7 +87,7 @@ The skill is available as a regular Cline skill. When the user asks to evaluate 
 
 ### Option 2: Automatic Evaluation
 
-To run automatically at the end of each session, add a hook to your Cline settings. Cline supports custom instructions and rules. Add the following to your Cline settings or `.clinerules/`:
+To run automatically at the end of each session, add a hook to your Cline settings. Cline supports custom instructions and rules. Add the following to your Cline settings or `../../rules/.clinerules`:
 
 ```json
 {
