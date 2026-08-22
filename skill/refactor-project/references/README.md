@@ -12,4 +12,4 @@ Reference files for the `refactor-project` skill. These provide lookup tables, s
 | [lombok-rules.md](lombok-rules.md) | Lombok annotation removal rules and Quarkus/Java replacements |
 | [context7-queries.md](context7-queries.md) | Context7 library IDs and queries for checking latest dependency versions and patterns |
 | [solid-principles.md](solid-principles.md) | SOLID principle definitions, detection patterns, and refactoring recipes |
-| [coding-style.md](https://github.com/quarkusio/quarkus/blob/main/.agents/skills/coding-style/SKILL.md) | Quarkus coding style conventions and formatting guidelines |
+| [coding-style.md](coding-style.md) | Quarkus coding style conventions and formatting guidelines
