@@ -1,0 +1,114 @@
+# Quarkus Coding Style Conventions
+
+This reference file contains the coding style conventions and formatting guidelines for Quarkus project development. Maintained internally for this skill.
+
+## Java Code Conventions
+
+### File Structure
+- Package structure: `com.prudential.pruforce.aob.{function}.{layer}`
+- File naming: `{Domain}Resource.java`, `{Domain}Service.java`, `{Domain}Repository.java`, etc.
+- Directory structure:
+  ```
+  src/main/java/com/prudential/pruforce/aob/{function}/
+  ├── api/
+  │   └── {Domain}Resource.java
+  ├── service/
+  │   ├── {Domain}Service.java           # Service interface
+  │   └── impl/
+  │       └── {Domain}ServiceImpl.java   # Service implementation
+  ├── repository/
+  │   └── {Domain}Repository.java        # Repository interface (Panache)
+  └── config/
+      └── {Domain}Config.java
+  ```
+
+### Code Formatting
+- **Indentation**: 2 spaces (no tabs)
+- **Line length**: Maximum 120 characters
+- **Braces**: K&R style (braces on same line as control structure)
+- **Imports**: 
+  - Group imports: static imports, then Jakarta EE, then Quarkus, then project-specific
+  - Separate groups with blank lines
+  - Static imports: `static java.util.stream.Collectors.toList*;`
+- **Blank lines**:
+  - Between import groups
+  - Between class members (method, field)
+  - Before closing brace of class (optional)
+
+### Naming Conventions
+- **Classes**: `PascalCase` (e.g., `TodoService`, `OrderRepository`)
+- **Methods**: `camelCase` (e.g., `findById`, `saveOrder`)
+- **Fields**: `camelCase`, private by default (but use constructor injection)
+- **Constants**: `UPPER_SNAKE_CASE` with `final` keyword (e.g., `MAX_PAGE_SIZE`)
+- **Interfaces**: `PascalCase` ending (optional) or `camelCase` (e.g., `TodoService`, `PaymentService`)
+- **Exceptions**: Ends with `Exception` (e.g., `TodoNotFoundException`)
+
+### Annotations
+- **Class annotations** (top to bottom):
+  1. `@ApplicationScoped` (or other scope)
+  2. `@TransactionManagement(TransactionManagementType.BEAN)` (if needed)
+  2. `@InterruptibleThread` (if needed)
+- **Method annotations** (top to bottom):
+  1. `@Override` (if overriding)
+  2. `@Transactional` (only on write operations)
+  3. `@WebMethod` / `@SOAPMessageHandler` (if JAX-WS)
+  3. `@Resource` (JDBC data source)
+- **Field annotations** (if using constructor injection, minimize field annotations):
+  - `@Inject` only on constructor parameters
+  - `@Qualifier` for disambiguation
+  - `@Named` only for Qute templates, not DI
+
+### Logging
+- **Logger name**: `Logger.getLogger(ClassName.class)` 
+- **Log level**: Use appropriate levels (`info`, `debug`, `warn`, `error`)
+- **Log format**: Include meaningful context (method name, operation ID, etc.)
+- **Never log**: Passwords, tokens, PII, full SQL queries
+
+### Constructor Injection
+- **Required**: All dependencies via constructor
+- **Optional**: Use `javax.inject.Optional` or default values
+- **Null safety**: Use `@NonNull` or `Objects.requireNonNull()` in method bodies
+- **Builder pattern**: For complex objects, use manual builder or Java records
+
+### Records (Java 16+)
+- Use for DTOs/value objects
+- Immutable by default
+- Canonical constructor, `equals`, `hashCode`, `toString` auto-generated
+- Package-private or public, as appropriate
+
+### Error Handling
+- **Custom exceptions**: Extend `DomainException`
+- **Global handler**: `@ServerExceptionMapper` in global exception handler
+- **Error response**: Wrap in `ApiResponse.error(status, message)`
+- **HTTP status codes**: Use appropriate codes (404, 400, 500, etc.)
+- **Validation**: Use Bean Validation (`@Valid`, `@NotNull`, `@Size`) on DTOs
+
+### API Responses
+- **Wrapper**: All responses wrapped in `ApiResponse<T>`
+- **Success**: `ApiResponse.success(data, message)`
+- **Error**: `ApiResponse.error(status, message)`
+- **Null handling**: Never return null directly; use `Optional` or `ApiResponse.error`
+
+### Quarkus-Specific Conventions
+- **CDI**: Use `@ApplicationScoped` by default; `@RequestScoped` only when needed
+- **JTA**: Use `@Transactional` only on write operations; `@Transactional(readOnly = true)` on read operations
+- **Database**: Use Panache Repository pattern; `@Entity` with `@Id` and `@GeneratedValue`
+- **Build**: Use Quarkus BOM for dependency management; `quarkus-maven-plugin` or `io.quarkus` Gradle plugin
+- **Native**: Avoid private field injection; use constructor injection or package-private fields
+- **Dev Services**: Use Quarkus Dev Services for databases; no local database setup needed
+
+### Security
+- **Never log**: Sensitive data (passwords, tokens, PII)
+- **Input validation**: Validate all request DTOs with Bean Validation
+- **Error messages**: Sanitize error messages; don't expose stack traces
+- **HTTPS**: Use HTTPS in production; configure TLS
+- **CORS**: Configure via `quarkus.http.cors` properties
+
+### Testing (Guidelines, not strict requirements)
+- Use `@QuarkusTest` for integration tests
+- Use Mockito for unit test mocks
+- Use REST Assured for HTTP endpoint testing
+- Test data cleanup between tests
+- Edge cases: null, empty, invalid input
+
+> **Note**: This is a style guide, not a strict enforcement mechanism. Use judgment and consistency within the team. For strict enforcement, consult the team's internal coding standards.
