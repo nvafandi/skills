@@ -147,6 +147,7 @@ Before refactoring or generating any service, verify:
 - [ ] **CDI:** No private member injection (use package-private or constructor injection)
 - [ ] **CDI:** `@Inject` not on private constructors/fields in bean classes
 - [ ] **CDI:** Bean classes avoid private observer/producer methods
+- [ ] **Lombok:** Lombok annotations (@Data, @Builder, @RequiredArgsConstructor, @Slf4j, @NonNull) applied where appropriate; verify native mode compatibility
 
 ## Common Mistakes to Avoid
 

@@ -8,7 +8,7 @@ Load [references/refactoring-patterns.md](../references/refactoring-patterns.md)
 
 Load [references/solid-principles.md](../references/solid-principles.md) before starting. It contains SOLID principle definitions, detection patterns, and refactoring recipes for each principle.
 
-Load [references/lombok-rules.md](../references/lombok-rules.md) before starting. It contains Lombok annotation removal rules and Quarkus/Java replacements.
+Load [references/lombok-rules.md](../references/lombok-rules.md) before starting. It contains Lombok annotation usage rules and Quarkus patterns.
 
 ## What to do
 
@@ -594,7 +594,7 @@ While refactoring code, ensure all services comply with the standards in [refere
 - **Don't break the build**: Compile after each change
 - **No silent changes**: Every file modification must be intentional and traceable
 - **Check for Spring leftovers**: Search for `org.springframework` imports that should have been removed during migration
-- **Lombok**: Should have been removed during migration. If still present, rewrite annotations to standard Java
+- **Lombok**: Apply Lombok annotations (@Data, @Builder, @RequiredArgsConstructor, @Slf4j, @NonNull) to reduce boilerplate. Verify native mode compatibility if applicable
 - **SRP**: Don't create god classes — split services handling multiple concerns (DB + email + payment + reporting)
 - **OCP**: Avoid switch/if-else chains that require modification for new types — use strategy pattern or map-based dispatch
 - **LSP**: Ensure subtypes don't throw unexpected exceptions or change method semantics
