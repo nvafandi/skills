@@ -11,7 +11,15 @@ This reference file contains the coding style conventions and formatting guideli
   ```
   src/main/java/com/prudential/pruforce/aob/{function}/
   ├── api/
-  │   └── {Domain}Resource.java
+  │   ├── rest/
+  │   │   └── {Domain}Resource.java
+  │   ├── dto/
+  │   │   ├── request/
+  │   │   │   ├── Create{Domain}Request.java
+  │   │   │   └── Update{Domain}Request.java
+  │   │   └── response/
+  │   │       └── {Domain}Response.java
+  │   └── ApiResponse.java               # Shared response wrapper
   ├── service/
   │   ├── {Domain}Service.java           # Service interface
   │   └── impl/
@@ -20,8 +28,17 @@ This reference file contains the coding style conventions and formatting guideli
   │   ├── {Domain}Repository.java        # Repository interface (extends PanacheRepository)
   │   └── impl/
   │       └── {Domain}RepositoryImpl.java # Repository implementation
-  └── config/
-      └── {Domain}Config.java
+  ├── entity/
+  │   └── {Domain}.java                  # JPA entity (audit fields, @Version)
+  ├── mapper/
+  │   └── {Domain}Mapper.java            # DTO ↔ Entity conversion
+  ├── exception/
+  │   ├── {Domain}Exception.java         # Base domain exception
+  │   └── GlobalExceptionHandler.java    # @ServerExceptionMapper
+  ├── config/
+  │   └── {Domain}Config.java
+  └── util/
+      └── {Domain}Utils.java             # Only if truly reusable logic exists
   ```
 
 ### Code Formatting

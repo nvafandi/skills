@@ -90,17 +90,34 @@ The following directory structure is expected after successful Quarkus refactori
 ```
 src/main/java/com/prudential/pruforce/aob/{function}/
 ├── api/
-│   └── {Domain}Resource.java          # REST Resource (controller)
+│   ├── rest/
+│   │   └── {Domain}Resource.java      # REST Resource (controller)
+│   ├── dto/
+│   │   ├── request/
+│   │   │   ├── Create{Domain}Request.java
+│   │   │   └── Update{Domain}Request.java
+│   │   └── response/
+│   │       └── {Domain}Response.java
+│   └── ApiResponse.java               # Shared response wrapper
 ├── service/
 │   ├── {Domain}Service.java           # Service interface
 │   └── impl/
 │       └── {Domain}ServiceImpl.java   # Service implementation
 ├── repository/
-│   ├── {Domain}Repository.java         # Repository interface (extends PanacheRepository)
+│   ├── {Domain}Repository.java        # Repository interface (extends PanacheRepository)
 │   └── impl/
 │       └── {Domain}RepositoryImpl.java # Repository implementation
-└── config/
-    └── {Domain}Config.java            # Configuration
+├── entity/
+│   └── {Domain}.java                  # JPA entity (audit fields, @Version — see references/entity-mapper-metrics.md)
+├── mapper/
+│   └── {Domain}Mapper.java            # DTO ↔ Entity conversion (see references/entity-mapper-metrics.md)
+├── exception/
+│   ├── {Domain}Exception.java         # Base domain exception
+│   └── GlobalExceptionHandler.java    # @ServerExceptionMapper
+├── config/
+│   └── {Domain}Config.java            # Configuration
+└── util/
+    └── {Domain}Utils.java             # Only if truly reusable logic exists
 ```
 
 ### Summary
@@ -110,6 +127,9 @@ src/main/java/com/prudential/pruforce/aob/{function}/
 - **Key modifications:**
   - Interface/Implementation pattern adopted for services and repositories
   - impl/ directories created for service and repository implementations
+  - DTOs split into request/response packages under api/dto with Bean Validation
+  - Mapper layer converts DTO ↔ Entity (see references/entity-mapper-metrics.md)
+  - Custom exceptions extend DomainException, handled by GlobalExceptionHandler
   - All annotations migrated to Quarkus equivalents
   - Constructor injection replacing field injection
   - Lombok configured with annotation processor (see references/lombok-rules.md)

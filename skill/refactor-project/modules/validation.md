@@ -17,7 +17,7 @@ Execute the following checks in order. If any check fails, stop and fix before c
 
 | # | Check | Validation Method | Pass Criteria |
 | --- | ------- | ------------------- | --------------- |
-| 1 | **Architecture** | Verify each service has all 5 layers: API (Resource), Service, Repository, Entity, Config | All layers present |
+| 1 | **Architecture** | Verify each service has all layers: API (Resource + DTOs), Service, Repository, Entity, Mapper, Exception, Config | All layers present |
 | 2 | **Naming** | Check package structure follows `com.prudential.pruforce.aob.{function}.{layer}` | Correct package naming |
 | 3 | **Injection** | Search for `@Inject` on fields (should only be on constructors or with `@Inject` on final fields via constructor) | No field injection; constructor injection only |
 | 4 | **DTOs** | Verify Request/Response DTOs exist and have `@Valid` on request DTOs in resource parameters | Separate Request/Response DTOs with `@Valid` |
@@ -92,4 +92,4 @@ After validation, present results in this format:
 3. Document any violations with file paths and line numbers
 4. Provide fix recommendations for each violation
 5. Stop refactoring if critical compliance issues are found
-6. Proceed to Step 4 (Verify the Refactoring) when all checks pass
+6. Proceed to Step 4 (Verify the Refactoring) when all checks pass
