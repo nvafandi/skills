@@ -143,9 +143,8 @@ src/main/java/com/prudential/pruforce/aob/{function}/
 
 This module should be run during:
 
-1. **Step 1: Analyze** - Capture baseline before any changes
-2. **Step 3: Execute Modules** - Run after all other modules complete
-3. **Step 5: Validation Report** - Include comparison in final output
+1. **Phase 1: Analyze** — Capture baseline before any changes
+2. **Step 5: Validation Report** — Capture final state after verification passes, generate the comparison, and include it in the refactoring output
 
 ## Usage
 

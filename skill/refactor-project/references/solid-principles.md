@@ -66,10 +66,9 @@ public class OrderService {
 
 ```java
 // AFTER: Each class has one reason to change
+@Slf4j
 @ApplicationScoped
 public class OrderService {
-
-    private static final Logger LOG = Logger.getLogger(OrderService.class);
 
     private final OrderRepository repository;
     private final OrderMapper mapper;
@@ -81,7 +80,7 @@ public class OrderService {
 
     @Transactional
     public OrderResponse createOrder(CreateOrderRequest request) {
-        LOG.info("Creating order: {}", request);
+        log.info("Creating order: {}", request);
         Order entity = mapper.toEntity(request);
         Order saved = repository.save(entity);
         return mapper.toResponse(saved);
@@ -89,7 +88,7 @@ public class OrderService {
 
     @Transactional
     public void cancelOrder(Long orderId) {
-        LOG.info("Cancelling order: {}", orderId);
+        log.info("Cancelling order: {}", orderId);
         Order order = repository.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
         order.cancel();
@@ -102,10 +101,9 @@ public class OrderService {
     }
 }
 
+@Slf4j
 @ApplicationScoped
 public class OrderNotificationService {
-
-    private static final Logger LOG = Logger.getLogger(OrderNotificationService.class);
 
     private final EmailService emailService;
 
@@ -114,15 +112,14 @@ public class OrderNotificationService {
     }
 
     public void sendOrderConfirmation(Long orderId) {
-        LOG.info("Sending confirmation for order: {}", orderId);
+        log.info("Sending confirmation for order: {}", orderId);
         emailService.send(orderId, "Order confirmed");
     }
 }
 
+@Slf4j
 @ApplicationScoped
 public class OrderPaymentService {
-
-    private static final Logger LOG = Logger.getLogger(OrderPaymentService.class);
 
     private final PaymentGateway paymentGateway;
     private final OrderRepository repository;
@@ -134,7 +131,7 @@ public class OrderPaymentService {
 
     @Transactional
     public void processPayment(Long orderId, PaymentRequest payment) {
-        LOG.info("Processing payment for order: {}", orderId);
+        log.info("Processing payment for order: {}", orderId);
         Order order = repository.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
         paymentGateway.charge(order.getTotalAmount(), payment);
@@ -511,10 +508,9 @@ public class OrderMapper {
     }
 }
 
+@Slf4j
 @ApplicationScoped
 public class OrderService {
-
-    private static final Logger LOG = Logger.getLogger(OrderService.class);
 
     // Depends on abstractions — implementations injected by CDI
     private final OrderRepository repository;
@@ -527,7 +523,7 @@ public class OrderService {
 
     @Transactional
     public OrderResponse createOrder(CreateOrderRequest request) {
-        LOG.info("Creating order: {}", request);
+        log.info("Creating order: {}", request);
         Order entity = mapper.toEntity(request);
         repository.persist(entity);
         return mapper.toResponse(entity);

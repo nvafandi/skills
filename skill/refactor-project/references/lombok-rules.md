@@ -9,8 +9,8 @@ Lombok is **supported** in Quarkus JVM mode. For native mode, ensure proper conf
 ### When to Use Lombok
 - **DTOs**: Use `@Data`, `@Builder`, `@Value` for concise data carriers
 - **Entities**: Use `@Data`, `@NoArgsConstructor` with `@Entity` (JPA requires no-arg constructor)
-- **Services**: Use `@RequiredArgsConstructor` for constructor injection
-- **Logging**: Prefer JBoss Logging (`org.jboss.logging.Logger`) — the Quarkus default; avoid `@Slf4j`
+- **Services**: Use explicit constructor injection — do not use `@RequiredArgsConstructor`
+- **Logging**: Use `@Slf4j` — one annotation replaces manual logger declarations
 - **Validation**: Use `@NonNull` for method parameters
 
 ## Lombok Annotation Usage
@@ -22,8 +22,8 @@ Lombok is **supported** in Quarkus JVM mode. For native mode, ensure proper conf
 | `@Value` | Immutable value object (equivalent to `final` fields + `@Data`) |
 | `@NoArgsConstructor` | Generates no-argument constructor (required by JPA) |
 | `@AllArgsConstructor` | Generates all-argument constructor |
-| `@RequiredArgsConstructor` | Constructor with `final`/`@NonNull` fields (ideal for DI) |
-| `@Slf4j` | Not recommended — use JBoss Logging (`org.jboss.logging.Logger`), the Quarkus default |
+| `@RequiredArgsConstructor` | Not recommended for services — write the constructor explicitly so injection points stay visible and package-private |
+| `@Slf4j` | Generates a `log` field (SLF4J) — preferred for logging; Quarkus routes SLF4J to JBoss Log Manager automatically |
 | `@NonNull` | Generates null checks on method parameters |
 | `@EqualsAndHashCode` | Customize `equals`/`hashCode` |
 | `@ToString` | Customize `toString` |
@@ -72,18 +72,20 @@ public class Todo {
 
 > **Important**: JPA requires `@NoArgsConstructor` (package-private or public). Use `@Data` + `@NoArgsConstructor` instead of explicit getters/setters.
 
-## 3. `@RequiredArgsConstructor` → Constructor Injection
+## 3. Services → Explicit Constructor Injection
 
 ```java
-// Service with Lombok constructor injection
+// Write the constructor explicitly — do not use @RequiredArgsConstructor
 @ApplicationScoped
-@RequiredArgsConstructor
 public class TodoService {
     private final TodoRepository repository;
     private final ObjectMapper mapper;
-    
-    // Lombok generates: public TodoService(TodoRepository repository, ObjectMapper mapper) { ... }
-    
+
+    public TodoService(TodoRepository repository, ObjectMapper mapper) {
+        this.repository = repository;
+        this.mapper = mapper;
+    }
+
     @Transactional
     public TodoResponse create(TodoRequest request) {
         // ...
@@ -91,26 +93,26 @@ public class TodoService {
 }
 ```
 
-> `@RequiredArgsConstructor` generates constructor with `final` fields — perfect for Quarkus constructor injection.
+> Write constructors explicitly instead of using `@RequiredArgsConstructor`. Explicit constructors keep injection points visible, work naturally with package-private visibility (native-image friendly), and make dependency changes explicit in code review.
 
-## 4. Logging → JBoss Logging (Quarkus Default)
+## 4. Logging → `@Slf4j`
 
 ```java
-// JBoss Logging — Quarkus built-in, no extra dependency
-import org.jboss.logging.Logger;
+// Lombok @Slf4j — generates: private static final org.slf4j.Logger log
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @ApplicationScoped
 public class TodoService {
-    private static final Logger LOG = Logger.getLogger(TodoService.class);
 
     public void doSomething() {
-        LOG.info("Doing something");
-        LOG.errorf(e, "Failed doing something");
+        log.info("Doing something");
+        log.error("Failed doing something", e);
     }
 }
 ```
 
-> Use JBoss Logging (`org.jboss.logging.Logger`) instead of Lombok `@Slf4j`. It requires no additional dependencies and routes directly to the JBoss Log Manager backend.
+> Use `@Slf4j` for logging. It generates an SLF4J `log` field with no manual declaration; Quarkus routes SLF4J calls to the JBoss Log Manager backend automatically (via `slf4j-jboss-logmanager`, included in Quarkus core).
 
 ## 5. `@NonNull` → Null Checks
 
@@ -193,8 +195,8 @@ dependencies {
 
 1. **DTOs**: Use `@Data` + `@Builder` for immutable data carriers
 2. **Entities**: Use `@Data` + `@NoArgsConstructor` (JPA requires no-arg constructor)
-3. **Services**: Use `@RequiredArgsConstructor` for constructor injection
-4. **Logging**: Use JBoss Logging (`org.jboss.logging.Logger`) instead of `@Slf4j`; never print via `System.out`/`System.err`
+3. **Services**: Use explicit constructor injection — avoid `@RequiredArgsConstructor`
+4. **Logging**: Use `@Slf4j`; never print via `System.out`/`System.err`
 5. **Validation**: Combine `@NonNull` with Bean Validation (`@NotNull`, `@Size`)
 6. **Avoid**: `@Data` on mutable entities that need identity-based `equals`/`hashCode`
 7. **Native**: Test native compilation with Lombok; consider `quarkus-lombok` extension

@@ -81,7 +81,7 @@ This reference file contains the coding style conventions and formatting guideli
   - `@Named` only for Qute templates, not DI
 
 ### Logging
-- **Logger name**: `Logger.getLogger(ClassName.class)` 
+- **Logger**: `@Slf4j` (Lombok) — generates an SLF4J `log` field; no manual logger declaration
 - **Log level**: Use appropriate levels (`info`, `debug`, `warn`, `error`)
 - **Log format**: Include meaningful context (method name, operation ID, etc.)
 - **Never log**: Passwords, tokens, PII, full SQL queries

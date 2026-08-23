@@ -33,6 +33,8 @@ Load the relevant reference file when working on a module:
 | [references/quick-reference.md](references/quick-reference.md) | Code snippets, common issues, performance tips, security considerations |
 | [references/lombok-rules.md](references/lombok-rules.md) | Code module: Lombok annotation usage rules and Quarkus patterns |
 | [references/entity-mapper-metrics.md](references/entity-mapper-metrics.md) | Code module: Entity audit/version standards, mapper layer rules, and Micrometer metrics patterns |
+| [references/coding-style.md](references/coding-style.md) | Code module: Quarkus coding style conventions — package structure, naming, formatting |
+| [references/solid-principles.md](references/solid-principles.md) | Code module: SOLID principle definitions, violation detection patterns, and refactoring recipes |
 | [references/context7-queries.md](references/context7-queries.md) | All modules: Context7 library IDs and queries for checking latest dependency versions and patterns |
 
 ## Available Scripts
@@ -63,6 +65,8 @@ Scan the Quarkus project to understand what needs to be refactored:
 - **Configuration**: Read `application.properties`/`application.yml`, check for hardcoded values
 - **Engineering standards**: Run the validation checks from `references/engineering-standards.md`
 - **Knowledge graph**: If the `graphify` CLI is available (`command -v graphify`), build or refresh the code map before scanning files: run `graphify extract . --code-only` when `graphify-out/` is missing or built from an older commit than HEAD (compare `git rev-parse HEAD` with the commit noted in `GRAPH_REPORT.md`), then `graphify cluster-only .`. Use it for this phase: god nodes → god-class/SRP candidates, communities → subsystem boundaries vs required layers, `graphify path A B` → coupling between classes you plan to change. If graphify is not installed or fails, continue without it — do not block Phase 1 on it
+
+- **Tree map baseline**: Run [modules/treemap.md](modules/treemap.md) — **Before Refactoring (Capture Baseline)** to snapshot the project structure and file list
 
 Present a summary table with area, findings, and complexity. Include a **Dependency freshness** row comparing the project's Quarkus version with the latest stable from Context7. Inform the user that the refactoring will proceed using the internal engineering standards.
 
@@ -130,11 +134,12 @@ Refactor all Java source code in the Quarkus project to comply with engineering 
 | Module                          | Gate Check                                                                                                                | Gate Result                                                                              |
 |---------------------------------|---------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
 | [code](modules/code.md)         | Quarkus annotations in Java sources (`@Path`, `@ApplicationScoped`, `@Inject`, `@Entity`, etc.) | **PASS** if Quarkus annotations found; **SKIP** otherwise                                 |
+| [testing](modules/testing.md)   | Test sources under `src/test` (`@SpringBootTest`, `@MockBean`, `TestRestTemplate`) | **PASS** if Spring-style tests found; **SKIP** otherwise                                  |
 
 ### Execution Protocol
 
 ```
-FOR module IN [code]:
+FOR module IN [code, testing]:
 
   1. EVALUATE — inspect the project for the gate condition
   2. DECIDE
@@ -244,6 +249,8 @@ Run [modules/validation.md](modules/validation.md) and present the validation re
 
 If validation fails, fix the violations before proceeding to Step 6.
 
+Then run [modules/treemap.md](modules/treemap.md) — **After Refactoring (Capture Final State)** and **Generate Comparison Report** — and include the Tree Map Comparison section (vs the Phase 1 baseline) in the refactoring output.
+
 ## Step 6: Refactoring Review (Self-Reflection)
 
 Answer each question honestly:
@@ -294,6 +301,13 @@ Present the review as a structured report:
 ### Removed Code
 | File | What was removed | Justification |
 |------|-----------------|---------------|
+
+### Tree Map Comparison
+| Category | Count |
+|----------|-------|
+| New Files | |
+| Removed Files | |
+| Preserved Files | |
 
 ### Skill Improvement Suggestions
 - [Any missing patterns, unclear instructions, or edge cases discovered]
