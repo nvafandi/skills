@@ -54,7 +54,7 @@ comm -12 /tmp/after-file-list.txt /tmp/before-file-list.txt | sed 's|^\./||'
 
 Generate a structured markdown report:
 
-```markdown
+````markdown
 ## Tree Map Comparison: [project-name]
 
 ### Before Refactoring
@@ -96,7 +96,9 @@ src/main/java/com/prudential/pruforce/aob/{function}/
 │   └── impl/
 │       └── {Domain}ServiceImpl.java   # Service implementation
 ├── repository/
-│   └── {Domain}Repository.java        # Repository interface (Panache: extends PanacheRepository); *optional: impl/ directory *optional: {Domain}RepositoryImpl.java *implementation class
+│   ├── {Domain}Repository.java         # Repository interface (extends PanacheRepository)
+│   └── impl/
+│       └── {Domain}RepositoryImpl.java # Repository implementation
 └── config/
     └── {Domain}Config.java            # Configuration
 ```
@@ -106,12 +108,12 @@ src/main/java/com/prudential/pruforce/aob/{function}/
 - **Total change:** +X files, -Y files
 - **Net change:** +Z files
 - **Key modifications:**
-  - Interface/Implementation pattern adopted for services
-  - impl/ directory created for service implementations
+  - Interface/Implementation pattern adopted for services and repositories
+  - impl/ directories created for service and repository implementations
   - All annotations migrated to Quarkus equivalents
   - Constructor injection replacing field injection
   - Lombok configured with annotation processor (see references/lombok-rules.md)
-```
+````
 
 ## Integration with Refactoring Flow
 

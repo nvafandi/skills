@@ -477,9 +477,15 @@ public class OrderService {
 
 ```java
 // AFTER: DIP compliant — depends on abstractions
-@ApplicationScoped
-public class OrderRepository implements PanacheRepository<Order> {
+public interface OrderRepository extends PanacheRepository<Order> {
 
+    Optional<Order> findByOrderNumber(String orderNumber);
+}
+
+@ApplicationScoped
+public class OrderRepositoryImpl implements OrderRepository {
+
+    @Override
     public Optional<Order> findByOrderNumber(String orderNumber) {
         return find("orderNumber", orderNumber).firstResultOptional();
     }

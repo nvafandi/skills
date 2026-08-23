@@ -547,8 +547,13 @@ public class OrderService {
 }
 
 // AFTER: DIP compliant — depends on abstractions
+public interface OrderRepository extends PanacheRepository<Order> {
+    Optional<Order> findByOrderNumber(String orderNumber);
+}
+
 @ApplicationScoped
-public class OrderRepository implements PanacheRepository<Order> {
+public class OrderRepositoryImpl implements OrderRepository {
+    @Override
     public Optional<Order> findByOrderNumber(String orderNumber) {
         return find("orderNumber", orderNumber).firstResultOptional();
     }
@@ -599,4 +604,4 @@ While refactoring code, ensure all services comply with the standards in [refere
 - **OCP**: Avoid switch/if-else chains that require modification for new types — use strategy pattern or map-based dispatch
 - **LSP**: Ensure subtypes don't throw unexpected exceptions or change method semantics
 - **ISP**: Don't force implementers to override methods they don't need — split fat interfaces
-- **DIP**: Don't depend on concrete implementations — inject interfaces, not classes
+- **DIP**: Don't depend on concrete implementations — inject interfaces, not classes

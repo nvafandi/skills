@@ -17,7 +17,9 @@ This reference file contains the coding style conventions and formatting guideli
   │   └── impl/
   │       └── {Domain}ServiceImpl.java   # Service implementation
   ├── repository/
-  │   └── {Domain}Repository.java        # Repository interface (Panache)
+  │   ├── {Domain}Repository.java        # Repository interface (extends PanacheRepository)
+  │   └── impl/
+  │       └── {Domain}RepositoryImpl.java # Repository implementation
   └── config/
       └── {Domain}Config.java
   ```
