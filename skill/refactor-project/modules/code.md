@@ -24,7 +24,7 @@ Load [references/lombok-rules.md](../references/lombok-rules.md) before starting
 - [ ] Add `@Transactional` to all write operations
 - [ ] Replace `double`/`float` money fields with `BigDecimal`
 - [ ] Externalize hardcoded values to `@ConfigProperty`
-- [ ] Add logging to service classes
+- [ ] Add JBoss Logging (`org.jboss.logging.Logger`) to service classes and replace `System.out`/`printStackTrace` with it
 - [ ] Add OpenAPI documentation annotations
 - [ ] Convert manual `for`/`for-each`/`while` collection loops to Java Streams
 - [ ] Verify classes follow SRP — each class has one reason to change
@@ -158,11 +158,11 @@ public class TodoService {
 ### 6. Missing Logging → Add JBoss Logging
 
 ```java
-// BEFORE: No logging
+// BEFORE: No logging or direct printing
 @ApplicationScoped
 public class TodoService {
     public TodoResponse create(CreateTodoRequest request) {
-        // no logging
+        System.out.println("Creating todo: " + request); // replace with LOG
     }
 }
 
@@ -594,9 +594,9 @@ While refactoring code, ensure all services comply with the standards in [refere
 - **Don't break the build**: Compile after each change
 - **No silent changes**: Every file modification must be intentional and traceable
 - **Check for Spring leftovers**: Search for `org.springframework` imports that should have been removed during migration
-- **Lombok**: Apply Lombok annotations (@Data, @Builder, @RequiredArgsConstructor, @Slf4j, @NonNull) to reduce boilerplate. Verify native mode compatibility if applicable
+- **Lombok**: Apply Lombok annotations (@Data, @Builder, @RequiredArgsConstructor, @NonNull) to reduce boilerplate. Verify native mode compatibility if applicable
 - **SRP**: Don't create god classes — split services handling multiple concerns (DB + email + payment + reporting)
 - **OCP**: Avoid switch/if-else chains that require modification for new types — use strategy pattern or map-based dispatch
 - **LSP**: Ensure subtypes don't throw unexpected exceptions or change method semantics
 - **ISP**: Don't force implementers to override methods they don't need — split fat interfaces
-- **DIP**: Don't depend on concrete implementations — inject interfaces, not classes
+- **DIP**: Don't depend on concrete implementations — inject interfaces, not classes

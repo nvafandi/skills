@@ -78,12 +78,7 @@ while IFS=: read -r file line context; do
   add_result "$file" "$line" "spring-import" "$context"
 done < <(grep -rn "import org.springframework" "$SEARCH_DIR" --include="*.java" 2>/dev/null || true)
 
-# 2. Lombok annotations
-while IFS=: read -r file line context; do
-  add_result "$file" "$line" "lombok-annotation" "$context"
-done < <(grep -rn -E "@(Data|Builder|Slf4j|Getter|Setter|NoArgsConstructor|AllArgsConstructor|RequiredArgsConstructor|Value|EqualsAndHashCode|ToString|NonNull)" "$SEARCH_DIR" --include="*.java" 2>/dev/null || true)
-
-# 3. double/float for money fields
+# 2. double/float for money fields
 while IFS=: read -r file line context; do
   add_result "$file" "$line" "primitive-money" "$context"
 done < <(grep -rn -E "(private|public|protected)\s+(double|float)\s+(amount|price|total|balance|cost|fee|rate|value|salary|payment)" "$SEARCH_DIR" --include="*.java" 2>/dev/null || true)
@@ -122,6 +117,11 @@ done < <(
 while IFS=: read -r file line context; do
   add_result "$file" "$line" "named-qualifier" "$context"
 done < <(grep -rn "@Named" "$SEARCH_DIR" --include="*.java" 2>/dev/null || true)
+
+# 10. System.out/System.err direct printing (use JBoss Logging)
+while IFS=: read -r file line context; do
+  add_result "$file" "$line" "system-out-print" "$context"
+done < <(grep -rn -E "System\.(out|err)\.(print|println|printf)|\.printStackTrace\(" "$SEARCH_DIR" --include="*.java" 2>/dev/null || true)
 
 results+="]"
 

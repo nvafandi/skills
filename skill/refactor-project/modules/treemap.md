@@ -110,7 +110,7 @@ src/main/java/com/prudential/pruforce/aob/{function}/
   - impl/ directory created for service implementations
   - All annotations migrated to Quarkus equivalents
   - Constructor injection replacing field injection
-  - Lombok removed, replaced with standard Java
+  - Lombok configured with annotation processor (see references/lombok-rules.md)
 ```
 
 ## Integration with Refactoring Flow
