@@ -1,0 +1,1329 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_converthtmltopdf",
+      "label": "convertHtmlToPdf()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "split-cucumber-report.js",
+      "file_type": "code",
+      "norm_label": "converthtmltopdf()",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L61"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_findbrowser",
+      "label": "findBrowser()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "split-cucumber-report.js",
+      "file_type": "code",
+      "norm_label": "findbrowser()",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L52"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_escapehtml",
+      "label": "escapeHtml()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "renderScenario",
+      "file_type": "code",
+      "norm_label": "escapehtml()",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L131"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_formatduration",
+      "label": "formatDuration()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "renderScenario",
+      "file_type": "code",
+      "norm_label": "formatduration()",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L139"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_renderpage",
+      "label": "renderPage()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "renderScenario",
+      "file_type": "code",
+      "norm_label": "renderpage()",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L179"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_renderscenario",
+      "label": "renderScenario()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "renderScenario",
+      "file_type": "code",
+      "norm_label": "renderscenario()",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L146"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report",
+      "label": "split-cucumber-report.js",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "split-cucumber-report.js",
+      "file_type": "code",
+      "norm_label": "split-cucumber-report.js",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_args",
+      "label": "args",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "split-cucumber-report.js",
+      "file_type": "code",
+      "norm_label": "args",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L29"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_browser_candidates",
+      "label": "BROWSER_CANDIDATES",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "split-cucumber-report.js",
+      "file_type": "code",
+      "norm_label": "browser_candidates",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L34"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_execfilesync",
+      "label": "{ execFileSync }",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "split-cucumber-report.js",
+      "file_type": "code",
+      "norm_label": "{ execfilesync }",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L23"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_failed",
+      "label": "failed",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "split-cucumber-report.js",
+      "file_type": "code",
+      "norm_label": "failed",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L129"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_features",
+      "label": "features",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "split-cucumber-report.js",
+      "file_type": "code",
+      "norm_label": "features",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L86"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_files",
+      "label": "files",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "split-cucumber-report.js",
+      "file_type": "code",
+      "norm_label": "files",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L239"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_fs",
+      "label": "fs",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "split-cucumber-report.js",
+      "file_type": "code",
+      "norm_label": "fs",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L21"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_json_report",
+      "label": "JSON_REPORT",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "split-cucumber-report.js",
+      "file_type": "code",
+      "norm_label": "json_report",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L26"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_passed",
+      "label": "passed",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "split-cucumber-report.js",
+      "file_type": "code",
+      "norm_label": "passed",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L128"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_path",
+      "label": "path",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "split-cucumber-report.js",
+      "file_type": "code",
+      "norm_label": "path",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L22"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_pdf_only",
+      "label": "PDF_ONLY",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "split-cucumber-report.js",
+      "file_type": "code",
+      "norm_label": "pdf_only",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L31"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_raw",
+      "label": "raw",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "split-cucumber-report.js",
+      "file_type": "code",
+      "norm_label": "raw",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L85"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_report_dir",
+      "label": "REPORT_DIR",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "split-cucumber-report.js",
+      "file_type": "code",
+      "norm_label": "report_dir",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L25"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_scenarios",
+      "label": "scenarios",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "split-cucumber-report.js",
+      "file_type": "code",
+      "norm_label": "scenarios",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L89"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_summary",
+      "label": "summary",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "split-cucumber-report.js",
+      "file_type": "code",
+      "norm_label": "summary",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L233"
+    },
+    {
+      "id": "opencode",
+      "label": "opencode.json",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "setup",
+      "file_type": "code",
+      "norm_label": "opencode.json",
+      "source_file": "opencode.json",
+      "source_location": "L1"
+    },
+    {
+      "id": "opencode_references",
+      "label": "references",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "setup",
+      "file_type": "code",
+      "norm_label": "references",
+      "source_file": "opencode.json",
+      "source_location": "L3"
+    },
+    {
+      "id": "opencode_references_setup",
+      "label": "setup",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "setup",
+      "file_type": "code",
+      "norm_label": "setup",
+      "source_file": "opencode.json",
+      "source_location": "L4"
+    },
+    {
+      "id": "opencode_schema",
+      "label": "$schema",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "setup",
+      "file_type": "code",
+      "norm_label": "$schema",
+      "source_file": "opencode.json",
+      "source_location": "L2"
+    },
+    {
+      "id": "opencode_setup_description",
+      "label": "description",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "setup",
+      "file_type": "code",
+      "norm_label": "description",
+      "source_file": "opencode.json",
+      "source_location": "L6"
+    },
+    {
+      "id": "opencode_setup_path",
+      "label": "path",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "setup",
+      "file_type": "code",
+      "norm_label": "path",
+      "source_file": "opencode.json",
+      "source_location": "L5"
+    },
+    {
+      "id": "skill_continuous_learning_scripts_evaluate_session",
+      "label": "evaluate-session.sh",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "evaluate-session.sh",
+      "file_type": "code",
+      "metadata": {
+        "language": "bash",
+        "kind": "file"
+      },
+      "norm_label": "evaluate-session.sh",
+      "source_file": "skill/continuous-learning/scripts/evaluate-session.sh",
+      "source_location": "L1"
+    },
+    {
+      "id": "skill_continuous_learning_scripts_evaluate_session_sh__entry",
+      "label": "evaluate-session.sh script",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "evaluate-session.sh",
+      "file_type": "code",
+      "metadata": {
+        "language": "bash",
+        "kind": "bash_entrypoint"
+      },
+      "norm_label": "evaluate-session.sh script",
+      "source_file": "skill/continuous-learning/scripts/evaluate-session.sh",
+      "source_location": "L1"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_run_cucumber_quarkus",
+      "label": "run-cucumber-quarkus.sh",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "run-cucumber-quarkus.sh",
+      "file_type": "code",
+      "metadata": {
+        "language": "bash",
+        "kind": "file"
+      },
+      "norm_label": "run-cucumber-quarkus.sh",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/run-cucumber-quarkus.sh",
+      "source_location": "L1"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_run_cucumber_quarkus_log",
+      "label": "log()",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "run-cucumber-quarkus.sh",
+      "file_type": "code",
+      "metadata": {
+        "language": "bash",
+        "kind": "bash_function"
+      },
+      "norm_label": "log()",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/run-cucumber-quarkus.sh",
+      "source_location": "L116"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_run_cucumber_quarkus_sh__entry",
+      "label": "run-cucumber-quarkus.sh script",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "run-cucumber-quarkus.sh",
+      "file_type": "code",
+      "metadata": {
+        "language": "bash",
+        "kind": "bash_entrypoint"
+      },
+      "norm_label": "run-cucumber-quarkus.sh script",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/run-cucumber-quarkus.sh",
+      "source_location": "L1"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_run_cucumber_quarkus_show_help",
+      "label": "show_help()",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "run-cucumber-quarkus.sh",
+      "file_type": "code",
+      "metadata": {
+        "language": "bash",
+        "kind": "bash_function"
+      },
+      "norm_label": "show_help()",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/run-cucumber-quarkus.sh",
+      "source_location": "L21"
+    },
+    {
+      "id": "skill_refactor_project_scripts_check_engineering_violations",
+      "label": "check-engineering-violations.sh",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "check-engineering-violations.sh",
+      "file_type": "code",
+      "metadata": {
+        "language": "bash",
+        "kind": "file"
+      },
+      "norm_label": "check-engineering-violations.sh",
+      "source_file": "skill/refactor-project/scripts/check-engineering-violations.sh",
+      "source_location": "L1"
+    },
+    {
+      "id": "skill_refactor_project_scripts_check_engineering_violations_add_result",
+      "label": "add_result()",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "check-engineering-violations.sh",
+      "file_type": "code",
+      "metadata": {
+        "language": "bash",
+        "kind": "bash_function"
+      },
+      "norm_label": "add_result()",
+      "source_file": "skill/refactor-project/scripts/check-engineering-violations.sh",
+      "source_location": "L63"
+    },
+    {
+      "id": "skill_refactor_project_scripts_check_engineering_violations_sh__entry",
+      "label": "check-engineering-violations.sh script",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "check-engineering-violations.sh",
+      "file_type": "code",
+      "metadata": {
+        "language": "bash",
+        "kind": "bash_entrypoint"
+      },
+      "norm_label": "check-engineering-violations.sh script",
+      "source_file": "skill/refactor-project/scripts/check-engineering-violations.sh",
+      "source_location": "L1"
+    },
+    {
+      "id": "skill_refactor_project_scripts_check_engineering_violations_show_help",
+      "label": "show_help()",
+      "_origin": "ast",
+      "community": 4,
+      "community_name": "check-engineering-violations.sh",
+      "file_type": "code",
+      "metadata": {
+        "language": "bash",
+        "kind": "bash_function"
+      },
+      "norm_label": "show_help()",
+      "source_file": "skill/refactor-project/scripts/check-engineering-violations.sh",
+      "source_location": "L10"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_generate_feature",
+      "label": "generate-feature.sh",
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "generate-feature.sh",
+      "file_type": "code",
+      "metadata": {
+        "language": "bash",
+        "kind": "file"
+      },
+      "norm_label": "generate-feature.sh",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/generate-feature.sh",
+      "source_location": "L1"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_generate_feature_sh__entry",
+      "label": "generate-feature.sh script",
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "generate-feature.sh",
+      "file_type": "code",
+      "metadata": {
+        "language": "bash",
+        "kind": "bash_entrypoint"
+      },
+      "norm_label": "generate-feature.sh script",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/generate-feature.sh",
+      "source_location": "L1"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_generate_feature_show_help",
+      "label": "show_help()",
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "generate-feature.sh",
+      "file_type": "code",
+      "metadata": {
+        "language": "bash",
+        "kind": "bash_function"
+      },
+      "norm_label": "show_help()",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/generate-feature.sh",
+      "source_location": "L22"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_setup_quarkus_cucumber",
+      "label": "setup-quarkus-cucumber.sh",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "setup-quarkus-cucumber.sh",
+      "file_type": "code",
+      "metadata": {
+        "language": "bash",
+        "kind": "file"
+      },
+      "norm_label": "setup-quarkus-cucumber.sh",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/setup-quarkus-cucumber.sh",
+      "source_location": "L1"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_setup_quarkus_cucumber_sh__entry",
+      "label": "setup-quarkus-cucumber.sh script",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "setup-quarkus-cucumber.sh",
+      "file_type": "code",
+      "metadata": {
+        "language": "bash",
+        "kind": "bash_entrypoint"
+      },
+      "norm_label": "setup-quarkus-cucumber.sh script",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/setup-quarkus-cucumber.sh",
+      "source_location": "L1"
+    },
+    {
+      "id": "skill_generate_gherkin_scenarios_scripts_setup_quarkus_cucumber_show_help",
+      "label": "show_help()",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "setup-quarkus-cucumber.sh",
+      "file_type": "code",
+      "metadata": {
+        "language": "bash",
+        "kind": "bash_function"
+      },
+      "norm_label": "show_help()",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/setup-quarkus-cucumber.sh",
+      "source_location": "L22"
+    },
+    {
+      "id": "skill_migrate_spring_to_quarkus_scripts_check_spring_annotations",
+      "label": "check-spring-annotations.sh",
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "check-spring-annotations.sh",
+      "file_type": "code",
+      "metadata": {
+        "language": "bash",
+        "kind": "file"
+      },
+      "norm_label": "check-spring-annotations.sh",
+      "source_file": "skill/migrate-spring-to-quarkus/scripts/check-spring-annotations.sh",
+      "source_location": "L1"
+    },
+    {
+      "id": "skill_migrate_spring_to_quarkus_scripts_check_spring_annotations_sh__entry",
+      "label": "check-spring-annotations.sh script",
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "check-spring-annotations.sh",
+      "file_type": "code",
+      "metadata": {
+        "language": "bash",
+        "kind": "bash_entrypoint"
+      },
+      "norm_label": "check-spring-annotations.sh script",
+      "source_file": "skill/migrate-spring-to-quarkus/scripts/check-spring-annotations.sh",
+      "source_location": "L1"
+    },
+    {
+      "id": "skill_migrate_spring_to_quarkus_scripts_check_spring_annotations_show_help",
+      "label": "show_help()",
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "check-spring-annotations.sh",
+      "file_type": "code",
+      "metadata": {
+        "language": "bash",
+        "kind": "bash_function"
+      },
+      "norm_label": "show_help()",
+      "source_file": "skill/migrate-spring-to-quarkus/scripts/check-spring-annotations.sh",
+      "source_location": "L18"
+    },
+    {
+      "id": "skill_migrate_spring_to_quarkus_scripts_check_spring_deps",
+      "label": "check-spring-deps.sh",
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "check-spring-deps.sh",
+      "file_type": "code",
+      "metadata": {
+        "language": "bash",
+        "kind": "file"
+      },
+      "norm_label": "check-spring-deps.sh",
+      "source_file": "skill/migrate-spring-to-quarkus/scripts/check-spring-deps.sh",
+      "source_location": "L1"
+    },
+    {
+      "id": "skill_migrate_spring_to_quarkus_scripts_check_spring_deps_sh__entry",
+      "label": "check-spring-deps.sh script",
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "check-spring-deps.sh",
+      "file_type": "code",
+      "metadata": {
+        "language": "bash",
+        "kind": "bash_entrypoint"
+      },
+      "norm_label": "check-spring-deps.sh script",
+      "source_file": "skill/migrate-spring-to-quarkus/scripts/check-spring-deps.sh",
+      "source_location": "L1"
+    },
+    {
+      "id": "skill_migrate_spring_to_quarkus_scripts_check_spring_deps_show_help",
+      "label": "show_help()",
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "check-spring-deps.sh",
+      "file_type": "code",
+      "metadata": {
+        "language": "bash",
+        "kind": "bash_function"
+      },
+      "norm_label": "show_help()",
+      "source_file": "skill/migrate-spring-to-quarkus/scripts/check-spring-deps.sh",
+      "source_location": "L18"
+    },
+    {
+      "id": "skill_refactor_project_scripts_check_quarkus_annotations",
+      "label": "check-quarkus-annotations.sh",
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "check-quarkus-annotations.sh",
+      "file_type": "code",
+      "metadata": {
+        "language": "bash",
+        "kind": "file"
+      },
+      "norm_label": "check-quarkus-annotations.sh",
+      "source_file": "skill/refactor-project/scripts/check-quarkus-annotations.sh",
+      "source_location": "L1"
+    },
+    {
+      "id": "skill_refactor_project_scripts_check_quarkus_annotations_sh__entry",
+      "label": "check-quarkus-annotations.sh script",
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "check-quarkus-annotations.sh",
+      "file_type": "code",
+      "metadata": {
+        "language": "bash",
+        "kind": "bash_entrypoint"
+      },
+      "norm_label": "check-quarkus-annotations.sh script",
+      "source_file": "skill/refactor-project/scripts/check-quarkus-annotations.sh",
+      "source_location": "L1"
+    },
+    {
+      "id": "skill_refactor_project_scripts_check_quarkus_annotations_show_help",
+      "label": "show_help()",
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "check-quarkus-annotations.sh",
+      "file_type": "code",
+      "metadata": {
+        "language": "bash",
+        "kind": "bash_function"
+      },
+      "norm_label": "show_help()",
+      "source_file": "skill/refactor-project/scripts/check-quarkus-annotations.sh",
+      "source_location": "L14"
+    }
+  ],
+  "links": [
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_generate_feature_sh__entry",
+      "target": "skill_generate_gherkin_scenarios_scripts_generate_feature_show_help",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/generate-feature.sh",
+      "source_location": "L56",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_run_cucumber_quarkus_sh__entry",
+      "target": "skill_generate_gherkin_scenarios_scripts_run_cucumber_quarkus_log",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/run-cucumber-quarkus.sh",
+      "source_location": "L126",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_run_cucumber_quarkus_sh__entry",
+      "target": "skill_generate_gherkin_scenarios_scripts_run_cucumber_quarkus_show_help",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/run-cucumber-quarkus.sh",
+      "source_location": "L69",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_setup_quarkus_cucumber_sh__entry",
+      "target": "skill_generate_gherkin_scenarios_scripts_setup_quarkus_cucumber_show_help",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/setup-quarkus-cucumber.sh",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_renderpage",
+      "target": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_escapehtml",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L186",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_renderscenario",
+      "target": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_escapehtml",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L147",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_renderscenario",
+      "target": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_formatduration",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L157",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_migrate_spring_to_quarkus_scripts_check_spring_annotations_sh__entry",
+      "target": "skill_migrate_spring_to_quarkus_scripts_check_spring_annotations_show_help",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "skill/migrate-spring-to-quarkus/scripts/check-spring-annotations.sh",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_migrate_spring_to_quarkus_scripts_check_spring_deps_sh__entry",
+      "target": "skill_migrate_spring_to_quarkus_scripts_check_spring_deps_show_help",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "skill/migrate-spring-to-quarkus/scripts/check-spring-deps.sh",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_refactor_project_scripts_check_engineering_violations_sh__entry",
+      "target": "skill_refactor_project_scripts_check_engineering_violations_show_help",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "skill/refactor-project/scripts/check-engineering-violations.sh",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_refactor_project_scripts_check_engineering_violations_sh__entry",
+      "target": "skill_refactor_project_scripts_check_engineering_violations_add_result",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "skill/refactor-project/scripts/check-engineering-violations.sh",
+      "source_location": "L78",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_refactor_project_scripts_check_quarkus_annotations_sh__entry",
+      "target": "skill_refactor_project_scripts_check_quarkus_annotations_show_help",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "skill/refactor-project/scripts/check-quarkus-annotations.sh",
+      "source_location": "L42",
+      "weight": 1.0
+    },
+    {
+      "source": "opencode",
+      "target": "opencode_schema",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "opencode.json",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "opencode",
+      "target": "opencode_references",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "opencode.json",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "opencode_references",
+      "target": "opencode_references_setup",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "opencode.json",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "opencode_references_setup",
+      "target": "opencode_setup_path",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "opencode.json",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "opencode_references_setup",
+      "target": "opencode_setup_description",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "opencode.json",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_continuous_learning_scripts_evaluate_session",
+      "target": "skill_continuous_learning_scripts_evaluate_session_sh__entry",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/continuous-learning/scripts/evaluate-session.sh",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_generate_feature",
+      "target": "skill_generate_gherkin_scenarios_scripts_generate_feature_sh__entry",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/generate-gherkin-scenarios/scripts/generate-feature.sh",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_run_cucumber_quarkus",
+      "target": "skill_generate_gherkin_scenarios_scripts_run_cucumber_quarkus_sh__entry",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/generate-gherkin-scenarios/scripts/run-cucumber-quarkus.sh",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_setup_quarkus_cucumber",
+      "target": "skill_generate_gherkin_scenarios_scripts_setup_quarkus_cucumber_sh__entry",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/generate-gherkin-scenarios/scripts/setup-quarkus-cucumber.sh",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report",
+      "target": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_passed",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L128",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report",
+      "target": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_failed",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L129",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report",
+      "target": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_escapehtml",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L131",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report",
+      "target": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_formatduration",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L139",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report",
+      "target": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_renderscenario",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L146",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report",
+      "target": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_renderpage",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L179",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report",
+      "target": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_fs",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report",
+      "target": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_path",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report",
+      "target": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_execfilesync",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report",
+      "target": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_summary",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L233",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report",
+      "target": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_files",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L239",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report",
+      "target": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_report_dir",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report",
+      "target": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_json_report",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report",
+      "target": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_args",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report",
+      "target": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_pdf_only",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report",
+      "target": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_browser_candidates",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report",
+      "target": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_findbrowser",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report",
+      "target": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_converthtmltopdf",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report",
+      "target": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_raw",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L85",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report",
+      "target": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_features",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L86",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report",
+      "target": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_scenarios",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L89",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_migrate_spring_to_quarkus_scripts_check_spring_annotations",
+      "target": "skill_migrate_spring_to_quarkus_scripts_check_spring_annotations_sh__entry",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/migrate-spring-to-quarkus/scripts/check-spring-annotations.sh",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_migrate_spring_to_quarkus_scripts_check_spring_deps",
+      "target": "skill_migrate_spring_to_quarkus_scripts_check_spring_deps_sh__entry",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/migrate-spring-to-quarkus/scripts/check-spring-deps.sh",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_refactor_project_scripts_check_engineering_violations",
+      "target": "skill_refactor_project_scripts_check_engineering_violations_sh__entry",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/refactor-project/scripts/check-engineering-violations.sh",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_refactor_project_scripts_check_quarkus_annotations",
+      "target": "skill_refactor_project_scripts_check_quarkus_annotations_sh__entry",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/refactor-project/scripts/check-quarkus-annotations.sh",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_generate_feature",
+      "target": "skill_generate_gherkin_scenarios_scripts_generate_feature_show_help",
+      "relation": "defines",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/generate-gherkin-scenarios/scripts/generate-feature.sh",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_run_cucumber_quarkus",
+      "target": "skill_generate_gherkin_scenarios_scripts_run_cucumber_quarkus_log",
+      "relation": "defines",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/generate-gherkin-scenarios/scripts/run-cucumber-quarkus.sh",
+      "source_location": "L116",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_run_cucumber_quarkus",
+      "target": "skill_generate_gherkin_scenarios_scripts_run_cucumber_quarkus_show_help",
+      "relation": "defines",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/generate-gherkin-scenarios/scripts/run-cucumber-quarkus.sh",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_setup_quarkus_cucumber",
+      "target": "skill_generate_gherkin_scenarios_scripts_setup_quarkus_cucumber_show_help",
+      "relation": "defines",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/generate-gherkin-scenarios/scripts/setup-quarkus-cucumber.sh",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_migrate_spring_to_quarkus_scripts_check_spring_annotations",
+      "target": "skill_migrate_spring_to_quarkus_scripts_check_spring_annotations_show_help",
+      "relation": "defines",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/migrate-spring-to-quarkus/scripts/check-spring-annotations.sh",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_migrate_spring_to_quarkus_scripts_check_spring_deps",
+      "target": "skill_migrate_spring_to_quarkus_scripts_check_spring_deps_show_help",
+      "relation": "defines",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/migrate-spring-to-quarkus/scripts/check-spring-deps.sh",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_refactor_project_scripts_check_engineering_violations",
+      "target": "skill_refactor_project_scripts_check_engineering_violations_show_help",
+      "relation": "defines",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/refactor-project/scripts/check-engineering-violations.sh",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_refactor_project_scripts_check_engineering_violations",
+      "target": "skill_refactor_project_scripts_check_engineering_violations_add_result",
+      "relation": "defines",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/refactor-project/scripts/check-engineering-violations.sh",
+      "source_location": "L63",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_refactor_project_scripts_check_quarkus_annotations",
+      "target": "skill_refactor_project_scripts_check_quarkus_annotations_show_help",
+      "relation": "defines",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "skill/refactor-project/scripts/check-quarkus-annotations.sh",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_renderpage",
+      "target": "skill_generate_gherkin_scenarios_scripts_split_cucumber_report_renderscenario",
+      "relation": "indirect_call",
+      "_origin": "ast",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "context": "argument",
+      "source_file": "skill/generate-gherkin-scenarios/scripts/split-cucumber-report.js",
+      "source_location": "L180",
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "built_at_commit": "247cea8b638680426e77e332b8ac9505137b8244"
+}

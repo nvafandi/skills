@@ -62,6 +62,7 @@ Scan the Quarkus project to understand what needs to be refactored:
 - **Architecture**: Check package structure, layered architecture compliance, naming conventions
 - **Configuration**: Read `application.properties`/`application.yml`, check for hardcoded values
 - **Engineering standards**: Run the validation checks from `references/engineering-standards.md`
+- **Knowledge graph**: If the `graphify` CLI is available (`command -v graphify`), build or refresh the code map before scanning files: run `graphify extract . --code-only` when `graphify-out/` is missing or built from an older commit than HEAD (compare `git rev-parse HEAD` with the commit noted in `GRAPH_REPORT.md`), then `graphify cluster-only .`. Use it for this phase: god nodes → god-class/SRP candidates, communities → subsystem boundaries vs required layers, `graphify path A B` → coupling between classes you plan to change. If graphify is not installed or fails, continue without it — do not block Phase 1 on it
 
 Present a summary table with area, findings, and complexity. Include a **Dependency freshness** row comparing the project's Quarkus version with the latest stable from Context7. Inform the user that the refactoring will proceed using the internal engineering standards.
 
@@ -302,4 +303,4 @@ Present the review as a structured report:
 
 Follow [modules/git.md](modules/git.md) — **Post-refactoring** section. Ask the user for confirmation before committing, and again before pushing / creating the draft PR. Do not proceed with either action without explicit user approval.
 
----
+---
