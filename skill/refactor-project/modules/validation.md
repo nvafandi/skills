@@ -26,7 +26,7 @@ Execute the following checks in order. If any check fails, stop and fix before c
 | 7 | **Logging** | Verify JBoss Logging usage in service classes; search for `System.out`/`printStackTrace` | Services use JBoss Logging; zero direct printing |
 | 8 | **Tests** | Check for unit tests with mocks and integration tests with `@QuarkusTest` | Both test types present |
 | 9 | **Documentation** | Check for OpenAPI annotations (`@Operation`, `@APIResponse`, etc.) and Javadoc | Documentation present |
-| 10 | **Configuration** | Search for hardcoded values (magic strings, numbers) in Java code. All should use `@ConfigProperty` | No hardcoded values |
+| 10 | **Configuration** | Search for hardcoded values and inline query literals in Java code | Environment-specific values via `@ConfigProperty`; magic values & queries in `constants/` |
 | 11 | **Transactions** | Verify `@Transactional` (jakarta.transaction) on write operations in service/repository | Write operations have transactions |
 | 12 | **Validation** | Verify `@NotNull`, `@NotBlank`, `@Size`, `@Valid` annotations on request DTOs | Bean Validation present |
 | 13 | **Streams** | Search for manual `for`/`for-each`/`while` loops iterating collections in service/repository code | Collection iteration uses Java Streams (filter/map/collect) |
@@ -92,4 +92,4 @@ After validation, present results in this format:
 3. Document any violations with file paths and line numbers
 4. Provide fix recommendations for each violation
 5. Stop refactoring if critical compliance issues are found
-6. Proceed to Step 4 (Verify the Refactoring) when all checks pass
+6. Proceed to Step 4 (Verify the Refactoring) when all checks pass

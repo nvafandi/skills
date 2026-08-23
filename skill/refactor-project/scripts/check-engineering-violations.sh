@@ -123,6 +123,11 @@ while IFS=: read -r file line context; do
   add_result "$file" "$line" "system-out-print" "$context"
 done < <(grep -rn -E "System\.(out|err)\.(print|println|printf)|\.printStackTrace\(" "$SEARCH_DIR" --include="*.java" 2>/dev/null || true)
 
+# 11. Inline JPQL/native SQL literals (move to constants/{Domain}QueryConstants)
+while IFS=: read -r file line context; do
+  add_result "$file" "$line" "inline-query" "$context"
+done < <(grep -rn -iE '"(SELECT|UPDATE|DELETE)[^"]*FROM[^"]*"' "$SEARCH_DIR" --include="*.java" 2>/dev/null || true)
+
 results+="]"
 
 count=$(echo "$results" | python3 -c "import sys,json; print(len(json.load(sys.stdin)))" 2>/dev/null || echo "0")

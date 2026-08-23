@@ -35,6 +35,9 @@ This reference file contains the coding style conventions and formatting guideli
   ├── exception/
   │   ├── {Domain}Exception.java         # Base domain exception
   │   └── GlobalExceptionHandler.java    # @ServerExceptionMapper
+  ├── constants/
+  │   ├── {Domain}Constants.java         # Domain magic values (statuses, labels, limits)
+  │   └── {Domain}QueryConstants.java    # JPQL/native query literals
   ├── config/
   │   └── {Domain}Config.java
   └── util/

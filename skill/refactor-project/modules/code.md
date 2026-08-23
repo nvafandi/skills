@@ -25,7 +25,7 @@ Load [references/entity-mapper-metrics.md](../references/entity-mapper-metrics.m
 - [ ] Add Bean Validation to all request DTOs
 - [ ] Add `@Transactional` to all write operations
 - [ ] Replace `double`/`float` money fields with `BigDecimal`
-- [ ] Externalize hardcoded values to `@ConfigProperty`
+- [ ] Extract magic values and query literals to `constants/` (`{Domain}Constants`, `{Domain}QueryConstants`); externalize environment-specific values via `@ConfigProperty`
 - [ ] Add JBoss Logging (`org.jboss.logging.Logger`) to service classes and replace `System.out`/`printStackTrace` with it
 - [ ] Add OpenAPI documentation annotations
 - [ ] Convert manual `for`/`for-each`/`while` collection loops to Java Streams
@@ -606,4 +606,4 @@ While refactoring code, ensure all services comply with the standards in [refere
 - **OCP**: Avoid switch/if-else chains that require modification for new types — use strategy pattern or map-based dispatch
 - **LSP**: Ensure subtypes don't throw unexpected exceptions or change method semantics
 - **ISP**: Don't force implementers to override methods they don't need — split fat interfaces
-- **DIP**: Don't depend on concrete implementations — inject interfaces, not classes
+- **DIP**: Don't depend on concrete implementations — inject interfaces, not classes

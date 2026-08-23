@@ -140,7 +140,7 @@ Before refactoring or generating any service, verify:
 - [ ] **Logging:** JBoss Logging (`org.jboss.logging.Logger`) on services, appropriate log levels; no `System.out`/`printStackTrace`
 - [ ] **Tests:** Unit tests (mocked) + Integration tests (@QuarkusTest)
 - [ ] **Documentation:** OpenAPI annotations + Javadoc + README.md
-- [ ] **Configuration:** No hardcoded values, all externalized
+- [ ] **Configuration:** No hardcoded values — environment-specific via `@ConfigProperty`; domain values & queries in `constants/` package
 - [ ] **Transactions:** @Transactional on write operations
 - [ ] **Validation:** Bean Validation on request DTOs
 - [ ] **Streams:** Collection iteration uses Java Streams, not manual `for`/`for-each` loops
@@ -165,5 +165,6 @@ Before refactoring or generating any service, verify:
 ✗ `System.out`/`printStackTrace` for output or error reporting (use JBoss Logging)
 ✗ Manual `for`/`for-each` loops over collections (use Java Streams)
 ✗ Hardcoded configuration values
+✗ Inline query/magic literals in services or repositories (move to `constants/`)
 ✗ No validation on request DTOs
-✗ Missing unit/integration tests
+✗ Missing unit/integration tests
