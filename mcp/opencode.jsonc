@@ -52,7 +52,7 @@
       "type": "local",
       "command": [
         "/home/nurvan/.local/bin/graphify-mcp",
-        "/home/nurvan/project/skills/graphify-out/graph.json"
+        "/home/nurvan/.config/opencode/graph.json"
       ],
       "enabled": true
     }
