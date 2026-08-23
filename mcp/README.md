@@ -18,7 +18,7 @@ Snapshot konfigurasi MCP server OpenCode. Sumber sebenarnya tetap di mesin lokal
 | `sequential-thinking` | local | Problem solving bertahap |
 | `memory` | local | Knowledge graph memori sesi |
 | `postgres` | local | Introspection & monitoring PostgreSQL (multi-DB: aob, newods, nbwf) |
-| `graphify` | local | Query knowledge graph kode (`query_graph`, `shortest_path`, dll.) — default menunjuk ke `skills/graphify-out/graph.json` |
+| `graphify` | local | Query knowledge graph kode (`query_graph`, `shortest_path`, dll.) — menunjuk ke `~/.config/opencode/graph.json` |
 
 ## Restore
 

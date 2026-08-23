@@ -1,4 +1,2 @@
 .idea/
 .allure/
-# graphify local-only files
-graphify-out/cost.json
