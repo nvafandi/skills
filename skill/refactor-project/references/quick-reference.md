@@ -60,8 +60,15 @@ public class {Domain}Service {
 ### Panache Repository
 ```java
 @ApplicationScoped
-public class {Domain}Repository implements PanacheRepository<{Domain}> {
+public interface {Domain}Repository extends PanacheRepository<{Domain}> {
 
+    List<{Domain}> findByStatus(Status status);
+}
+
+@ApplicationScoped
+public class {Domain}RepositoryImpl implements {Domain}Repository {
+
+    @Override
     public List<{Domain}> findByStatus(Status status) {
         return find("status", status).list();
     }
@@ -240,4 +247,4 @@ String ids = todos.stream()
 | Java | 21 | 21+ |
 | Quarkus | 3.10 | Latest 3.x |
 | Maven | 3.8 | 3.9+ |
-| Gradle | 8.5 | 8.7+ |
+| Gradle | 8.5 | 8.7+ |
