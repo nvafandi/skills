@@ -34,10 +34,9 @@ public class {Domain}Resource {
 
 ### Service Class
 ```java
+@Slf4j
 @ApplicationScoped
 public class {Domain}Service {
-
-    private static final Logger LOG = Logger.getLogger({Domain}Service.class);
 
     private final {Domain}Repository repository;
     private final {Domain}Mapper mapper;
@@ -49,7 +48,7 @@ public class {Domain}Service {
 
     @Transactional
     public {Domain}Response create(Create{Domain}Request request) {
-        LOG.info("Creating {} with: {}", "{domain}", request);
+        log.info("Creating {} with: {}", "{domain}", request);
         {Domain} entity = mapper.toEntity(request);
         {Domain} saved = repository.save(entity);
         return mapper.toResponse(saved);
@@ -120,10 +119,9 @@ public class GlobalExceptionHandler {
 
 ### CDI Bean with Package-Private Injection (Quarkus Native-Friendly)
 ```java
+@Slf4j
 @ApplicationScoped
 public class {Domain}Service {
-
-    private static final Logger LOG = Logger.getLogger({Domain}Service.class);
 
     // Package-private injection points — avoid reflection in native executables
     @Inject

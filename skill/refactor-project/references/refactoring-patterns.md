@@ -14,8 +14,8 @@ This reference contains Quarkus-specific refactoring patterns, code smells, and 
 | Inline queries | JPQL/native SQL string literals in repository/service | Move to `constants/{Domain}QueryConstants.java` |
 | Missing `@Transactional` | Write operations without `@Transactional` | Add `jakarta.transaction.Transactional` |
 | Missing Bean Validation | Request DTOs without validation annotations | Add `@NotNull`, `@NotBlank`, `@Size`, `@Valid` |
-| Missing logging | Service classes without `Logger` | Add JBoss Logging (`org.jboss.logging.Logger`) |
-| Direct printing | `System.out`/`System.err` calls or `printStackTrace()` | Replace with JBoss Logging (`LOG.info`, `LOG.error`) |
+| Missing logging | Service classes without `@Slf4j`/logger | Add `@Slf4j` (Lombok) |
+| Direct printing | `System.out`/`System.err` calls or `printStackTrace()` | Replace with `@Slf4j` logging (`log.info`, `log.error`) |
 | Spring leftovers | `org.springframework` imports | Replace with Quarkus/Jakarta equivalents |
 | Lombok misconfigured | Lombok annotations used without `compileOnly` + annotation processor in build file | Configure per [lombok-rules.md](lombok-rules.md) |
 | Missing OpenAPI docs | Resource methods without `@Operation` | Add OpenAPI annotations |
@@ -165,12 +165,12 @@ public class TodoService {
 }
 
 // AFTER
+@Slf4j
 @ApplicationScoped
 public class TodoService {
-    private static final Logger LOG = Logger.getLogger(TodoService.class);
 
     public TodoResponse create(CreateTodoRequest request) {
-        LOG.info("Creating todo: {}", request);
+        log.info("Creating todo: {}", request);
         ...
     }
 }
@@ -310,7 +310,7 @@ if (todos.size() > TodoConstants.MAX_PAGE_SIZE) { /* ... */ }
 5. **Use Panache** for repositories — `PanacheRepository<T>` or active record pattern
 6. **Use Java records** for DTOs — immutable, concise
 7. **Use `@ConfigProperty`** for all configuration values
-8. **Use JBoss Logging** — `Logger.getLogger(Class)` or `@Inject Logger`
+8. **Use `@Slf4j` (Lombok)** — SLF4J `log` field; Quarkus routes it to JBoss Log Manager
 9. **Use `@ServerExceptionMapper`** for exception handling
 10. **Use `@CheckedTemplate`** for Qute templates
 11. **Use `@QuarkusTest`** for integration tests

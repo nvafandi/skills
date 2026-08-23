@@ -115,12 +115,9 @@ public class PaymentMapper {
 
 ### Metrics Pattern
 ```java
-import org.jboss.logging.Logger;
-
+@Slf4j
 @ApplicationScoped
 public class PaymentService {
-
-    private static final Logger LOG = Logger.getLogger(PaymentService.class);
 
     private final MeterRegistry meterRegistry;
     private final PaymentMapper mapper;
@@ -147,7 +144,7 @@ public class PaymentService {
 
             return mapper.toResponse(saved);
         } catch (Exception ex) {
-            LOG.error("Payment creation failed", ex);
+            log.error("Payment creation failed", ex);
             meterRegistry.counter("payment.creation.failure").increment();
             throw new PaymentProcessingException("Payment creation failed");
         }

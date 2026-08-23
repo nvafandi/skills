@@ -11,5 +11,6 @@ Reference files for the `refactor-project` skill. These provide lookup tables, s
 | [quick-reference.md](quick-reference.md) | Code snippets, common issues/solutions, build commands, performance tips, security considerations |
 | [lombok-rules.md](lombok-rules.md) | Lombok annotation usage rules and Quarkus patterns |
 | [context7-queries.md](context7-queries.md) | Context7 library IDs and queries for checking latest dependency versions and patterns |
+| [entity-mapper-metrics.md](entity-mapper-metrics.md) | Entity audit/version standards, mapper layer rules, and Micrometer metrics patterns |
 | [solid-principles.md](solid-principles.md) | SOLID principle definitions, detection patterns, and refactoring recipes |
 | [coding-style.md](coding-style.md) | Quarkus coding style conventions and formatting guidelines
