@@ -1,0 +1,60 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
+        "CONTEXT7_API_KEY": "{env:CONTEXT7_API_KEY}"
+      },
+      "enabled": true
+    },
+    "filesystem": {
+      "type": "local",
+      "command": [
+        "mcp-server-filesystem",
+        "/home/nurvan"
+      ],
+      "enabled": true
+    },
+    "sequential-thinking": {
+      "type": "local",
+      "command": [
+        "mcp-server-sequential-thinking"
+      ],
+      "enabled": true
+    },
+    "memory": {
+      "type": "local",
+      "command": [
+        "mcp-server-memory"
+      ],
+      "enabled": true
+    },
+    "postgres": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@irsyadjpp/postgres-mcp-server@latest"
+      ],
+      "enabled": true,
+      "environment": {
+        "DB_CONFIG_PATH": "/home/nurvan/.config/opencode/postgres-mcp-config.json",
+        "DB_SSL": "false",
+        "DB_PROD_SSL": "false",
+        "DB_NEWODS_SSL": "false",
+        "DB_NBWF_SSL": "false",
+        "DB_BPMS_SSL": "false"
+      }
+    },
+    "graphify": {
+      "type": "local",
+      "command": [
+        "/home/nurvan/.local/bin/graphify-mcp",
+        "/home/nurvan/project/skills/graphify-out/graph.json"
+      ],
+      "enabled": true
+    }
+  }
+}

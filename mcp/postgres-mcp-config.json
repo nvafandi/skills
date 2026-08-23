@@ -1,0 +1,34 @@
+{
+  "databases": [
+    {
+      "name": "default",
+      "host": "localhost",
+      "port": 5432,
+      "user": "postgres",
+      "password": "<REDACTED>",
+      "database": "aob",
+      "maxConnections": 10,
+      "ssl": false
+    },
+    {
+      "name": "newods",
+      "host": "localhost",
+      "port": 5432,
+      "user": "postgres",
+      "password": "<REDACTED>",
+      "database": "newods",
+      "maxConnections": 10,
+      "ssl": false
+    },
+    {
+      "name": "nbwf",
+      "host": "localhost",
+      "port": 5432,
+      "user": "postgres",
+      "password": "<REDACTED>",
+      "database": "nbwf",
+      "maxConnections": 10,
+      "ssl": false
+    }
+  ]
+}
