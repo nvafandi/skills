@@ -9,7 +9,9 @@ This reference contains Quarkus-specific refactoring patterns, code smells, and 
 | Field injection | `@Inject` on fields | Convert to constructor injection |
 | Raw entity returns | Resource methods returning `Entity` directly | Wrap in `ApiResponse<T>` with DTO |
 | `double`/`float` for money | Fields of type `double`/`float` | Change to `BigDecimal` |
-| Hardcoded values | Magic strings/numbers in Java code | Extract to `@ConfigProperty` |
+| Environment-specific value | URLs, credentials, endpoints in Java code | Extract to `@ConfigProperty` |
+| Magic literals | Repeated strings/numbers in Java code | Extract to `constants/{Domain}Constants.java` |
+| Inline queries | JPQL/native SQL string literals in repository/service | Move to `constants/{Domain}QueryConstants.java` |
 | Missing `@Transactional` | Write operations without `@Transactional` | Add `jakarta.transaction.Transactional` |
 | Missing Bean Validation | Request DTOs without validation annotations | Add `@NotNull`, `@NotBlank`, `@Size`, `@Valid` |
 | Missing logging | Service classes without `Logger` | Add JBoss Logging (`org.jboss.logging.Logger`) |
@@ -265,6 +267,40 @@ TodoResponse found = todos.stream()
         .orElse(null);
 ```
 
+### Hardcoded Values & Queries → Constants Package
+
+```java
+// BEFORE: magic values and inline queries scattered in code
+public List<TodoResponse> findActive() {
+    return repository.find("SELECT t FROM Todo t WHERE t.status = 'ACTIVE'").list();
+}
+if (todos.size() > 100) { /* ... */ }
+```
+
+```java
+// AFTER: extracted to constants/ package
+// constants/TodoConstants.java
+public final class TodoConstants {
+    public static final String STATUS_ACTIVE = "ACTIVE";
+    public static final int MAX_PAGE_SIZE = 100;
+
+    private TodoConstants() {}
+}
+
+// constants/TodoQueryConstants.java
+public final class TodoQueryConstants {
+    public static final String FIND_ACTIVE = "SELECT t FROM Todo t WHERE t.status = :status";
+
+    private TodoQueryConstants() {}
+}
+
+// usage
+repository.find(TodoQueryConstants.FIND_ACTIVE, Map.of("status", TodoConstants.STATUS_ACTIVE)).list();
+if (todos.size() > TodoConstants.MAX_PAGE_SIZE) { /* ... */ }
+```
+
+> Environment-specific values (URLs, credentials, endpoints) go to `@ConfigProperty`, not constants. Only truly fixed domain values and query literals belong in `constants/`.
+
 ## Quarkus Best Practices
 
 1. **Use `@ApplicationScoped`** for services, not `@Singleton` (unless truly needed)
@@ -280,6 +316,7 @@ TodoResponse found = todos.stream()
 11. **Use `@QuarkusTest`** for integration tests
 12. **Use Java Streams** for collection processing — filter/map/collect instead of manual `for`/`for-each` loops
 13. **Use `@Identifier` over `@Named`** for string-based qualifiers
+14. **Extract magic values & queries** to `constants/` package (`{Domain}Constants`, `{Domain}QueryConstants`)
 
 ## Java Streams Guidelines
 

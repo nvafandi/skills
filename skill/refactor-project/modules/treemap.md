@@ -114,6 +114,9 @@ src/main/java/com/prudential/pruforce/aob/{function}/
 ├── exception/
 │   ├── {Domain}Exception.java         # Base domain exception
 │   └── GlobalExceptionHandler.java    # @ServerExceptionMapper
+├── constants/
+│   ├── {Domain}Constants.java         # Domain magic values (statuses, labels, limits)
+│   └── {Domain}QueryConstants.java    # JPQL/native query literals
 ├── config/
 │   └── {Domain}Config.java            # Configuration
 └── util/
@@ -130,6 +133,7 @@ src/main/java/com/prudential/pruforce/aob/{function}/
   - DTOs split into request/response packages under api/dto with Bean Validation
   - Mapper layer converts DTO ↔ Entity (see references/entity-mapper-metrics.md)
   - Custom exceptions extend DomainException, handled by GlobalExceptionHandler
+  - Hardcoded values and query literals extracted to constants/ package
   - All annotations migrated to Quarkus equivalents
   - Constructor injection replacing field injection
   - Lombok configured with annotation processor (see references/lombok-rules.md)
