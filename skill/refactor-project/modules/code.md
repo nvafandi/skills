@@ -10,10 +10,12 @@ Load [references/solid-principles.md](../references/solid-principles.md) before 
 
 Load [references/lombok-rules.md](../references/lombok-rules.md) before starting. It contains Lombok annotation usage rules and Quarkus patterns.
 
+Load [references/entity-mapper-metrics.md](../references/entity-mapper-metrics.md) before starting. It contains entity audit/version standards, mapper layer rules, and Micrometer metrics patterns.
+
 ## What to do
 
 - [ ] Verify package structure follows `com.prudential.pruforce.aob.{function}.{layer}`
-- [ ] Verify all 5 layers present (api, service, repository, entity, config)
+- [ ] Verify layers present (api, service, repository, entity, mapper, exception, config)
 - [ ] Convert field injection to constructor injection (or package-private field injection)
 - [ ] Replace private injected fields/methods with package-private modifiers
 - [ ] Remove dummy no-args constructors (Quarkus generates them)
@@ -604,4 +606,4 @@ While refactoring code, ensure all services comply with the standards in [refere
 - **OCP**: Avoid switch/if-else chains that require modification for new types — use strategy pattern or map-based dispatch
 - **LSP**: Ensure subtypes don't throw unexpected exceptions or change method semantics
 - **ISP**: Don't force implementers to override methods they don't need — split fat interfaces
-- **DIP**: Don't depend on concrete implementations — inject interfaces, not classes
+- **DIP**: Don't depend on concrete implementations — inject interfaces, not classes

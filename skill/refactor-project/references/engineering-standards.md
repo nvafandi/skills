@@ -131,7 +131,7 @@ List<TodoResponse> completed = todos.stream()
 
 Before refactoring or generating any service, verify:
 
-- [ ] **Architecture:** All 5 layers present (API, Service, Repository, Entity, Config)
+- [ ] **Architecture:** All layers present (API, Service, Repository, Entity, Mapper, Exception, Config)
 - [ ] **Naming:** Package structure and naming follow standards exactly
 - [ ] **Injection:** Only constructor injection used (no @Inject field injection)
 - [ ] **DTOs:** Separate Request/Response DTOs with @Valid annotations
@@ -166,4 +166,4 @@ Before refactoring or generating any service, verify:
 ✗ Manual `for`/`for-each` loops over collections (use Java Streams)
 ✗ Hardcoded configuration values
 ✗ No validation on request DTOs
-✗ Missing unit/integration tests
+✗ Missing unit/integration tests
