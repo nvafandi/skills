@@ -13,9 +13,10 @@ This reference contains Quarkus-specific refactoring patterns, code smells, and 
 | Missing `@Transactional` | Write operations without `@Transactional` | Add `jakarta.transaction.Transactional` |
 | Missing Bean Validation | Request DTOs without validation annotations | Add `@NotNull`, `@NotBlank`, `@Size`, `@Valid` |
 | Unnecessary interface+impl | Service interface with single impl | Merge into single class |
-| Missing logging | Service classes without `Logger` | Add JBoss Logging |
+| Missing logging | Service classes without `Logger` | Add JBoss Logging (`org.jboss.logging.Logger`) |
+| Direct printing | `System.out`/`System.err` calls or `printStackTrace()` | Replace with JBoss Logging (`LOG.info`, `LOG.error`) |
 | Spring leftovers | `org.springframework` imports | Replace with Quarkus/Jakarta equivalents |
-| Lombok annotations | `@Data`, `@Builder`, `@Slf4j`, etc. | Rewrite to standard Java |
+| Lombok misconfigured | Lombok annotations used without `compileOnly` + annotation processor in build file | Configure per [lombok-rules.md](lombok-rules.md) |
 | Missing OpenAPI docs | Resource methods without `@Operation` | Add OpenAPI annotations |
 | Custom exceptions not extending base | Exceptions extending `RuntimeException` directly | Extend `DomainException` |
 | Traditional loops | `for (`, `for-each`, `while` iterating collections | Convert to Java Streams |

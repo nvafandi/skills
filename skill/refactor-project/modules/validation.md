@@ -23,7 +23,7 @@ Execute the following checks in order. If any check fails, stop and fix before c
 | 4 | **DTOs** | Verify Request/Response DTOs exist and have `@Valid` on request DTOs in resource parameters | Separate Request/Response DTOs with `@Valid` |
 | 5 | **Responses** | Search for return types in resources. Verify all are wrapped in `ApiResponse<T>` | All endpoints return wrapped responses |
 | 6 | **Exceptions** | Check that custom exceptions extend `DomainException` (or equivalent base) | Custom exceptions extend base exception |
-| 7 | **Logging** | Verify `Logger` usage in service classes | Services have logging |
+| 7 | **Logging** | Verify JBoss Logging usage in service classes; search for `System.out`/`printStackTrace` | Services use JBoss Logging; zero direct printing |
 | 8 | **Tests** | Check for unit tests with mocks and integration tests with `@QuarkusTest` | Both test types present |
 | 9 | **Documentation** | Check for OpenAPI annotations (`@Operation`, `@APIResponse`, etc.) and Javadoc | Documentation present |
 | 10 | **Configuration** | Search for hardcoded values (magic strings, numbers) in Java code. All should use `@ConfigProperty` | No hardcoded values |
@@ -92,4 +92,4 @@ After validation, present results in this format:
 3. Document any violations with file paths and line numbers
 4. Provide fix recommendations for each violation
 5. Stop refactoring if critical compliance issues are found
-6. Proceed to Step 4 (Verify the Refactoring) when all checks pass
+6. Proceed to Step 4 (Verify the Refactoring) when all checks pass

@@ -31,7 +31,7 @@ Load the relevant reference file when working on a module:
 | [references/engineering-standards.md](references/engineering-standards.md) | All modules: PruForce engineering standards — architecture, naming, quality gates checklist |
 | [references/refactoring-patterns.md](references/refactoring-patterns.md) | Code module: Quarkus-specific refactoring patterns, code smells, and improvement recipes |
 | [references/quick-reference.md](references/quick-reference.md) | Code snippets, common issues, performance tips, security considerations |
-| [references/lombok-rules.md](references/lombok-rules.md) | Code module: Lombok annotation removal rules and Quarkus/Java replacements |
+| [references/lombok-rules.md](references/lombok-rules.md) | Code module: Lombok annotation usage rules and Quarkus patterns |
 | [references/context7-queries.md](references/context7-queries.md) | All modules: Context7 library IDs and queries for checking latest dependency versions and patterns |
 
 ## Available Scripts
@@ -301,4 +301,4 @@ Present the review as a structured report:
 
 Follow [modules/git.md](modules/git.md) — **Post-refactoring** section. Ask the user for confirmation before committing, and again before pushing / creating the draft PR. Do not proceed with either action without explicit user approval.
 
----
+---

@@ -7,7 +7,7 @@ Helper scripts for the `refactor-project` skill.
 | Script | Purpose |
 |---|---|
 | [check-quarkus-annotations.sh](check-quarkus-annotations.sh) | Search Java source files for Quarkus annotations and output as JSON (file, line, annotation, context) |
-| [check-engineering-violations.sh](check-engineering-violations.sh) | Check for common engineering standard violations (Spring leftovers, Lombok, primitive money, hardcoded values, manual collection loops, private member injection, `@Named` qualifiers) and output as JSON |
+| [check-engineering-violations.sh](check-engineering-violations.sh) | Check for common engineering standard violations (Spring leftovers, primitive money, hardcoded values, manual collection loops, private member injection, `@Named` qualifiers, `System.out` direct printing) and output as JSON |
 
 ## Usage
 
@@ -25,4 +25,4 @@ bash scripts/check-engineering-violations.sh
 bash scripts/check-engineering-violations.sh --dir /path/to/project
 ```
 
-Both scripts output a JSON array to stdout and a `{"total": N}` count to stderr.
+Both scripts output a JSON array to stdout and a `{"total": N}` count to stderr.
