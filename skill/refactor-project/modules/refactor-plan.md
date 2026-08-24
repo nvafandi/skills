@@ -122,7 +122,7 @@ Fill every placeholder; delete nothing. Section numbering is fixed.
 - Status: [ ]
 
 #### Phase 10 — Service Layer Logic
-- Goal: `@Transactional` on writes; `@Slf4j`; `@ConfigProperty`; constants extraction; `BigDecimal`; Streams; SOLID splits.
+- Goal: `@Transactional` on writes; JBoss Logging field; `@ConfigProperty`; constants extraction; `BigDecimal`; Streams; SOLID splits.
 - Scope here: <services listed>
 - Gate: standards checklist items met; compile green.
 - Status: [ ]

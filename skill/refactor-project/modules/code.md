@@ -26,7 +26,7 @@ Load [references/entity-mapper-metrics.md](../references/entity-mapper-metrics.m
 - [ ] Add `@Transactional` to all write operations
 - [ ] Replace `double`/`float` money fields with `BigDecimal`
 - [ ] Extract magic values and query literals to `constants/` (`{Domain}Constants`, `{Domain}QueryConstants`); externalize environment-specific values via `@ConfigProperty`
-- [ ] Add `@Slf4j` (Lombok) to service classes and replace `System.out`/`printStackTrace`/manual loggers with it
+- [ ] Add the JBoss Logging field (`private static final Logger log = Logger.getLogger(X.class)`) to service classes and replace `System.out`/`printStackTrace`/manual loggers with it
 - [ ] Add OpenAPI documentation annotations
 - [ ] Convert manual `for`/`for-each`/`while` collection loops to Java Streams
 - [ ] Verify classes follow SRP — each class has one reason to change
@@ -157,7 +157,7 @@ public class TodoService {
 }
 ```
 
-### 6. Missing Logging → Add `@Slf4j`
+### 6. Missing Logging → Add JBoss Logging
 
 ```java
 // BEFORE: No logging or direct printing
@@ -168,17 +168,20 @@ public class TodoService {
     }
 }
 
-// AFTER: With logging
-@Slf4j
+// AFTER: With logging (org.jboss.logging.Logger)
 @ApplicationScoped
 public class TodoService {
 
+    private static final Logger log = Logger.getLogger(TodoService.class);
+
     public TodoResponse create(CreateTodoRequest request) {
-        log.info("Creating todo: {}", request);
+        log.info("Creating todo: " + request);
         // ...
     }
 }
 ```
+
+> **Placeholder rule**: JBoss Logger has no SLF4J `{}` substitution and no `info(String, Object...)` overload. Use string concatenation for parameterized messages, or `log.infof("x=%s", x)` / `log.infov(...)` for printf-style formatting. A trailing `Throwable` argument prints the stack trace (`log.error("ctx", ex)`).
 
 ### 7. Missing Bean Validation → Add to Request DTOs
 
@@ -614,12 +617,13 @@ class GlobalExceptionHandler {
 }
 
 // AFTER: single handler for the whole hierarchy
-@Slf4j
 class GlobalExceptionHandler {
+
+    private static final Logger log = Logger.getLogger(GlobalExceptionHandler.class);
 
     @ServerExceptionMapper
     public RestResponse<ApiResponse<Void>> handleDomain(DomainException ex) {
-        log.warn("Domain error: {}", ex.getMessage());
+        log.warn("Domain error: " + ex.getMessage());
         return RestResponse.status(ex.getStatus(),
                 ApiResponse.error(ex.getStatus(), ex.getMessage()));
     }
@@ -661,7 +665,7 @@ While refactoring code, ensure all services comply with the standards in [refere
 - **Don't break the build**: Compile after each change
 - **No silent changes**: Every file modification must be intentional and traceable
 - **Check for Spring leftovers**: Search for `org.springframework` imports that should have been removed during migration
-- **Lombok**: Apply Lombok annotations (@Data, @Builder, @NonNull, @Slf4j) to reduce boilerplate; write constructors explicitly instead of `@RequiredArgsConstructor`. Verify native mode compatibility if applicable
+- **Lombok**: Apply Lombok annotations (@Data, @Builder, @NonNull) to reduce boilerplate; write constructors explicitly instead of `@RequiredArgsConstructor`; do not use `@Slf4j` — logging uses the JBoss Logging field. Verify native mode compatibility if applicable
 - **SRP**: Don't create god classes — split services handling multiple concerns (DB + email + payment + reporting)
 - **OCP**: Avoid switch/if-else chains that require modification for new types — use strategy pattern or map-based dispatch
 - **LSP**: Ensure subtypes don't throw unexpected exceptions or change method semantics
