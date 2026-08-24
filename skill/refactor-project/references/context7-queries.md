@@ -12,6 +12,9 @@ Use Context7 to query the latest documentation, versions, and patterns during Qu
 | Hibernate Validator | `/hibernate/hibernate-validator` | Bean Validation patterns and version |
 | REST Assured | `/rest-assured/rest-assured` | Testing patterns with Quarkus |
 | Spring Boot | `/spring-projects/spring-boot` | Source version for migration comparison |
+| Micrometer | `/micrometer-metrics/micrometer` | Metrics patterns (`MeterRegistry`, `Timer`) used in the metrics module |
+| SmallRye Health | `/smallrye/smallrye-health` | Health check endpoints (`/q/health`) for the startup verification |
+| JUnit 5 | `/junit-team/junit5` | Test lifecycle differences when converting Spring tests |
 
 ## Common Queries
 
@@ -59,6 +62,15 @@ query: "QuarkusTest, @InjectMock, REST Assured integration, test profile"
 ```
 
 Verify the correct testing dependencies and patterns.
+
+### Check Micrometer Metrics Patterns
+
+```
+libraryId: /quarkusio/quarkus
+query: "Micrometer MeterRegistry Timer counter annotation @Counted @Timed"
+```
+
+Verify metric registration matches current Quarkus Micrometer support (programmatic vs annotation-based) before adding metrics.
 
 ### Check Panache Patterns
 
@@ -165,7 +177,7 @@ Verify: `@Cacheable` → `@CacheResult`, `@CacheEvict` → `@CacheInvalidate`.
 
 ## Usage During Refactoring
 
-### Step 1: Analyze
+### Phase 1–2: Inventory & Scan (Stage A)
 
 When scanning the project's build file:
 
@@ -181,7 +193,7 @@ When scanning for Spring leftovers:
 3. For each Spring dependency in the build file, query Context7 for the Quarkus extension equivalent
 4. For each `spring.*` config property, query Context7 for the Quarkus property mapping
 
-### Step 3: Code Module
+### Phases 7–14: Core Refactoring (Stage C)
 
 When refactoring code:
 
@@ -189,7 +201,7 @@ When refactoring code:
 2. When replacing Spring imports, query Context7 for the correct Quarkus equivalent
 3. Verify CDI patterns match the target Quarkus version
 
-### Step 4: Build Module
+### Phase 6: Build System
 
 When checking build configuration:
 

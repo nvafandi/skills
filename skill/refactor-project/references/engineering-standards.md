@@ -133,7 +133,7 @@ Before refactoring or generating any service, verify:
 
 - [ ] **Architecture:** All layers present (API, Service, Repository, Entity, Mapper, Exception, Config)
 - [ ] **Naming:** Package structure and naming follow standards exactly
-- [ ] **Injection:** Only constructor injection used (no @Inject field injection)
+- [ ] **Injection:** Constructor injection, or package-private `@Inject` fields — never private member injection
 - [ ] **DTOs:** Separate Request/Response DTOs with @Valid annotations
 - [ ] **Responses:** All endpoints return `ApiResponse<T>` wrapper
 - [ ] **Exceptions:** Custom exceptions extend DomainException

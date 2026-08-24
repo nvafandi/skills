@@ -33,6 +33,46 @@ Execute the following checks in order. If any check fails, stop and fix before c
 | 14 | **CDI** | Verify no `@Inject` on private fields/methods, no `@Named` for DI resolution, no dummy no-args constructors | Package-private or constructor injection; `@Identifier` for string qualifiers |
 | 15 | **SOLID** | Verify SRP (focused classes), OCP (no switch chains), ISP (focused interfaces), DIP (interface injection) | All 5 SOLID principles followed — see [references/solid-principles.md](../references/solid-principles.md) |
 
+> This module defines the authoritative check list: **15 checks**. If another file mentions a different count, this table wins.
+
+## Mechanical Detection Commands
+
+Run these greps first to triage; review every hit manually before declaring FAIL. A grep hit is evidence to inspect, not automatically a violation.
+
+```bash
+# Check 3/14 — field injection and @Named qualifiers
+grep -rn --include='*.java' '@Inject' src/main/java   # inspect each hit: field vs constructor usage
+grep -rn --include='*.java' '@Named' src/
+
+# Check 5 — resource methods returning something other than ApiResponse<...>
+grep -rn --include='*Resource.java' 'public ' src/main/java | grep -v 'ApiResponse<'
+
+# Check 6 — exceptions extending RuntimeException directly
+grep -rn --include='*.java' 'extends RuntimeException' src/main/java | grep -v DomainException
+
+# Check 7 — direct printing
+grep -rn --include='*.java' 'System\.out\|System\.err\|printStackTrace' src/main/java
+
+# Check 10 — inline JPQL/native query literals in services/repositories
+grep -rn --include='*.java' -E '(find|list|count|execute)\("(SELECT|select|FROM|from)' src/main/java
+
+# Check 11 — write methods missing @Transactional (inspect hits manually)
+grep -rn --include='*.java' -E 'public .*(save|create|update|delete|persist)' src/main/java | grep -v Resource
+
+# Check 13 — manual collection loops in service/repository code
+find src/main/java \( -path '*service*' -o -path '*repository*' \) -name '*.java' \
+  -exec grep -ln -E 'for \(|while \(' {} +
+
+# Check 14 — dummy no-args constructors in scoped beans
+grep -rn --include='*.java' -A1 '@ApplicationScoped\|@RequestScoped' src/main/java | grep 'public .*() {}'
+```
+
+Or run the bundled script for an aggregated JSON report:
+
+```bash
+bash scripts/check-engineering-violations.sh --dir src/main/java
+```
+
 ## Report Format
 
 After validation, present results in this format:
@@ -92,4 +132,4 @@ After validation, present results in this format:
 3. Document any violations with file paths and line numbers
 4. Provide fix recommendations for each violation
 5. Stop refactoring if critical compliance issues are found
-6. Proceed to Step 4 (Verify the Refactoring) when all checks pass
+6. Report results into Phase 18 (Validation & Tree Map Comparison) of the main flow

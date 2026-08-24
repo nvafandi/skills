@@ -579,6 +579,66 @@ public class OrderService {
 }
 ```
 
+### 17. Missing OpenAPI Documentation → Annotate Endpoints
+
+The standards require OpenAPI docs on every endpoint. Verify `quarkus-smallrye-openapi` is present, then annotate resources:
+
+```java
+// BEFORE: bare endpoint
+@POST
+public ApiResponse<TodoResponse> create(@Valid CreateTodoRequest request) { ... }
+
+// AFTER: documented endpoint
+@Operation(
+    summary = "Create a new todo",
+    description = "Creates a todo item and returns the persisted entity"
+)
+@APIResponse(responseCode = "201", description = "Todo created",
+             content = @Content(mediaType = "application/json",
+                                schema = @Schema(implementation = ApiResponse.class)))
+@APIResponse(responseCode = "400", description = "Validation failed")
+@Tag(name = "todos")
+@POST
+public ApiResponse<TodoResponse> create(@Valid CreateTodoRequest request) { ... }
+```
+
+Minimum bar: every resource class has `@Tag`, every method has `@Operation(summary = ...)`. Add `@APIResponse` entries for non-2xx outcomes handled by the global exception mapper.
+
+### 18. Exceptions Thrown but Not Mapped → Wire the Global Handler
+
+A `DomainException` subclass only becomes a proper HTTP response when a `@ServerExceptionMapper` handles it. Verify one exists and covers the base class:
+
+```java
+// BEFORE: exceptions thrown but nothing maps them → clients get a generic 500
+class GlobalExceptionHandler {
+}
+
+// AFTER: single handler for the whole hierarchy
+@Slf4j
+class GlobalExceptionHandler {
+
+    @ServerExceptionMapper
+    public RestResponse<ApiResponse<Void>> handleDomain(DomainException ex) {
+        log.warn("Domain error: {}", ex.getMessage());
+        return RestResponse.status(ex.getStatus(),
+                ApiResponse.error(ex.getStatus(), ex.getMessage()));
+    }
+
+    @ServerExceptionMapper
+    public RestResponse<ApiResponse<Void>> handleValidation(ConstraintViolationException ex) {
+        List<String> errors = ex.getConstraintViolations().stream()
+                .map(v -> v.getPropertyPath() + ": " + v.getMessage())
+                .toList();
+        return RestResponse.status(400, ApiResponse.error(400, "Validation failed", errors));
+    }
+}
+```
+
+Rules:
+- One handler per exception hierarchy level — do not map each subclass separately when the base covers them.
+- Never leak stack traces to clients; log the full trace server-side, return the sanitized message.
+- If the project defines its own error response shape, keep that shape consistent across handlers.
+
 ## Engineering Standards Compliance
 
 While refactoring code, ensure all services comply with the standards in [references/engineering-standards.md](../references/engineering-standards.md). Key requirements:

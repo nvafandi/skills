@@ -9,7 +9,7 @@ metadata:
 
 # Quarkus Project Refactoring
 
-Modular, gate-driven refactoring of Quarkus projects that have already been migrated from Spring Boot. Applies the engineering standards internally to improve code quality, architecture, and compliance.
+Fine-grained, gate-driven refactoring of Quarkus projects that have already been migrated from Spring Boot. Work is split into **20 small phases** across 6 stages so every task is executed separately, deliberately, and verifiably — one concern at a time, with a compile checkpoint and progress report after each phase.
 
 ## Critical Rules
 
@@ -21,6 +21,27 @@ Modular, gate-driven refactoring of Quarkus projects that have already been migr
 - **Don't break the build.** Run the compile command after each phase (`./mvnw clean compile -DskipTests` for Maven, `./gradlew clean compileJava -x test` for Gradle). Never move to the next phase with a broken build.
 - **No silent changes.** Every file modification must be intentional and traceable. If a check fails after a phase, diagnose and fix — don't skip the check or delete the failing code.
 - **Preserve behavior.** Refactoring must not change the external behavior of the application. All existing tests must continue to pass.
+- **One phase, one concern.** Do not pull work from a later phase into the current one. Out-of-scope findings are written down (phase + short note) and handled when that phase arrives.
+
+## Pacing Protocol
+
+The default mode is **slow and automatic**: execute phases strictly in order, and after each phase print a progress card, then continue:
+
+```
+▶ Phase 8 complete — CDI & Injection
+  Files touched: 6 | Compile: PASS | Fixes applied: 9 | Deferred: 1 (→ Phase 9)
+  Next: Phase 9 — API Layer (Resources & DTOs)
+```
+
+- **PAUSE MODE**: if the user asks to review each phase before continuing ("pause mode", "stop setiap fase"), end your turn after every progress card and wait for explicit approval.
+- Full stop-and-wait is mandatory only at the marked gates: Phase 3 (analysis confirmation), Phase 4 (git opt-in), and Phase 20 (commit/push approvals).
+
+## Failure Protocol (applies to every phase)
+
+1. **Compile fails after a change** → read the first compiler error (not the last), fix it, re-run compile. Do not continue to the next phase with a red build.
+2. **Same error persists after 3 fix attempts** → revert that specific edit, log it as `// TODO: Refactor required — <reason>`, mark the checkbox as blocked, and continue with other work. Report it in Phase 19.
+3. **A check cannot run** (missing tool, no database for startup check, etc.) → record `SKIPPED — <reason>` instead of PASS/FAIL. Never fabricate a PASS.
+4. **Ambiguous Spring→Quarkus replacement** → query Context7 per [references/context7-queries.md](references/context7-queries.md) before changing anything.
 
 ## Reference Files
 
@@ -29,12 +50,12 @@ Load the relevant reference file when working on a module:
 | Reference | Use during |
 |---|---|
 | [references/engineering-standards.md](references/engineering-standards.md) | All modules: PruForce engineering standards — architecture, naming, quality gates checklist |
-| [references/refactoring-patterns.md](references/refactoring-patterns.md) | Code module: Quarkus-specific refactoring patterns, code smells, and improvement recipes |
-| [references/quick-reference.md](references/quick-reference.md) | Code snippets, common issues, performance tips, security considerations |
-| [references/lombok-rules.md](references/lombok-rules.md) | Code module: Lombok annotation usage rules and Quarkus patterns |
-| [references/entity-mapper-metrics.md](references/entity-mapper-metrics.md) | Code module: Entity audit/version standards, mapper layer rules, and Micrometer metrics patterns |
-| [references/coding-style.md](references/coding-style.md) | Code module: Quarkus coding style conventions — package structure, naming, formatting |
-| [references/solid-principles.md](references/solid-principles.md) | Code module: SOLID principle definitions, violation detection patterns, and refactoring recipes |
+| [references/refactoring-patterns.md](references/refactoring-patterns.md) | Code modules (Phases 7–14): Quarkus-specific refactoring patterns, code smells, improvement recipes |
+| [references/quick-reference.md](references/quick-reference.md) | All code modules: code snippets, common issues, performance tips, security considerations |
+| [references/lombok-rules.md](references/lombok-rules.md) | Phases 10–11: Lombok annotation usage rules and Quarkus patterns |
+| [references/entity-mapper-metrics.md](references/entity-mapper-metrics.md) | Phases 11 & 14: entity audit/version standards, mapper layer rules, Micrometer metrics patterns |
+| [references/coding-style.md](references/coding-style.md) | Phases 7–13: Quarkus coding style conventions — package structure, naming, formatting |
+| [references/solid-principles.md](references/solid-principles.md) | Phases 8 & 10: SOLID principle definitions, violation detection patterns, refactoring recipes |
 | [references/context7-queries.md](references/context7-queries.md) | All modules: Context7 library IDs and queries for checking latest dependency versions and patterns |
 
 ## Available Scripts
@@ -53,205 +74,261 @@ All scripts:
 - Are non-interactive (no TTY prompts)
 - Return meaningful exit codes (0 = success, 1 = error)
 
-## Phase 1: Analyze
+## Progress Tracking
 
-Scan the Quarkus project to understand what needs to be refactored:
+At the start of the run, copy this checklist into your working notes and update it after every phase. Present it whenever the user asks for status.
 
-- **Build system**: Read the build file (`pom.xml` for Maven, `build.gradle` or `build.gradle.kts` for Gradle) — Quarkus version, extensions, dependencies
-- **Dependencies**: Use Context7 to query the latest Quarkus stable version and verify the project's dependencies against current releases (see [references/context7-queries.md](references/context7-queries.md))
-- **Spring leftovers**: Search for remaining Spring imports, annotations, dependencies, and config properties. For ambiguous replacements, query Context7 to verify the current Quarkus equivalent (see [references/context7-queries.md](references/context7-queries.md) → Spring Boot Smell Detection)
-- **Java code**: Search for Quarkus annotations (JAX-RS, CDI, Panache, Qute) and identify code smells
-- **Architecture**: Check package structure, layered architecture compliance, naming conventions
-- **Configuration**: Read `application.properties`/`application.yml`, check for hardcoded values
-- **Engineering standards**: Run the validation checks from `references/engineering-standards.md`
-- **Knowledge graph**: If the `graphify` CLI is available (`command -v graphify`), build or refresh the code map before scanning files: run `graphify extract . --code-only` when `graphify-out/` is missing or built from an older commit than HEAD (compare `git rev-parse HEAD` with the commit noted in `GRAPH_REPORT.md`), then `graphify cluster-only .`. Use it for this phase: god nodes → god-class/SRP candidates, communities → subsystem boundaries vs required layers, `graphify path A B` → coupling between classes you plan to change. If graphify is not installed or fails, continue without it — do not block Phase 1 on it
+```
+STAGE A — Understand
+[ ] P01 Inventory            [ ] P02 Source & Config Scan   [ ] P03 Analysis Report ⏸gate
+STAGE B — Prepare
+[ ] P04 Git Branch (opt)     [ ] P05 JDK Verification       [ ] P06 Build System
+STAGE C — Refactor Core
+[ ] P07 Package & Architecture  [ ] P08 CDI & Injection     [ ] P09 API Layer
+[ ] P10 Service Layer           [ ] P11 Repository & Entity [ ] P12 Exception Handling
+[ ] P13 Documentation           [ ] P14 Metrics (opt)
+STAGE D — Tests & Hygiene
+[ ] P15 Test Migration       [ ] P16 Cleanup
+STAGE E — Prove It
+[ ] P17 Verification Suite   [ ] P18 Validation & Comparison
+STAGE F — Report & Ship
+[ ] P19 Review Report        [ ] P20 Commit & PR (opt)
+```
 
-- **Tree map baseline**: Run [modules/treemap.md](modules/treemap.md) — **Before Refactoring (Capture Baseline)** to snapshot the project structure and file list
+## Module Inventory
 
-Present a summary table with area, findings, and complexity. Include a **Dependency freshness** row comparing the project's Quarkus version with the latest stable from Context7. Inform the user that the refactoring will proceed using the internal engineering standards.
+| Module | File | Feeds phases | Gate condition |
+|---|---|---|---|
+| treemap | [modules/treemap.md](modules/treemap.md) | P03 baseline, P18 comparison | **ALWAYS** — twice per run |
+| git | [modules/git.md](modules/git.md) | P04, P20 | Optional — user opt-in |
+| jdk | [modules/jdk.md](modules/jdk.md) | P05 | **ALWAYS** — JDK 21+; hard stop if < 21 |
+| build | [modules/build.md](modules/build.md) | P06 | PASS if Quarkus build markers found; SKIP otherwise |
+| code | [modules/code.md](modules/code.md) | P07–P14 (one slice per phase) | Per-phase gates below |
+| testing | [modules/testing.md](modules/testing.md) | P15 | PASS if test sources found; SKIP otherwise |
+| cleanup | [modules/cleanup.md](modules/cleanup.md) | P16 | PASS if Spring artifacts / unused code found; SKIP otherwise |
+| validation | [modules/validation.md](modules/validation.md) | P18 | **ALWAYS** |
+
+---
+
+# STAGE A — Understand (no edits allowed)
+
+Phases 1–3 only read and measure the project. **No file is modified in Stage A.**
+
+## Phase 1: Inventory
+
+Build a factual inventory before touching anything.
+
+- Read the build descriptor (`pom.xml`, `build.gradle`, or `build.gradle.kts`): Quarkus platform version, plugin config, extensions, all dependencies
+- Query Context7 for the latest stable Quarkus version ([references/context7-queries.md](references/context7-queries.md)) and compare against the project's version
+- List Spring dependencies and plugins still present
+- Detect build tool wrapper (`mvnw`/`gradlew`) and record which compile commands this run will use
+
+**Output:** inventory table (component → detected version/state → note), including the **Dependency freshness** row.
+**Gate:** inventory complete. No user interaction yet.
+
+## Phase 2: Source & Config Scan
+
+Scan code and configuration for violations — measurement only.
+
+- Run both bundled scripts against `src/main/java` and `src/test/java`
+- Search for Spring leftovers: imports, annotations, XML configs, `spring.*` properties (commands in [modules/cleanup.md](modules/cleanup.md))
+- Check package structure against `com.prudential.pruforce.aob.{function}.{layer}` and the standard layer tree ([references/coding-style.md](references/coding-style.md))
+- Read `application.properties` / `application.yml`; flag hardcoded environment values and orphaned profile files
+- **Knowledge graph**: if the `graphify` CLI is available (`command -v graphify`), build or refresh the code map: `graphify extract . --code-only` when `graphify-out/` is missing or stale vs HEAD, then `graphify cluster-only .`. Use god nodes → god-class candidates, communities → subsystem boundaries, `graphify path A B` → coupling between classes you plan to change. If unavailable or it fails, continue without it — do not block this phase
+- Tally findings per upcoming phase (P07…P16) so later gate decisions are already grounded
+
+**Output:** findings list grouped by target phase, with counts.
+**Gate:** scan complete.
+
+## Phase 3: Analysis Report ⏸ USER GATE
+
+Produce the analysis summary and get approval.
+
+- Run [modules/treemap.md](modules/treemap.md) — **Before Refactoring (Capture Baseline)**
+- Present the summary table: area → findings → complexity, plus the Dependency freshness row from Phase 1
+- Present the projected phase plan: which of P07–P16 will be PASS vs SKIP (based on Phase 2 tallies)
+- Inform the user the refactoring will proceed using the internal engineering standards
 
 **Stop here and wait for the user's response before continuing.** Do not ask about git workflow or anything else in the same message.
 
-> **Phase 1 Gate**: Analysis complete — user must confirm to proceed to Phase 2.
-
-## Step 2: Git branch (optional)
-
-After the analysis summary (Phase 1 complete), check if the target project is a git repository. If it is, propose the git workflow:
-
-> **Refactoring workflow:** Each refactoring run can be isolated in its own branch (`feature/JIRA-TICKET-NUMBER`) created from `master`. The branch will contain a single commit with all changes plus a refactoring report. A draft PR against `master` will be created for review — it is never merged, it serves as a permanent diff and discussion record. **Would you like to use this workflow?**
-
-- **User accepts** → follow [modules/git.md](modules/git.md) — **Pre-refactoring** section. Propose the branch name (`feature/JIRA-TICKET-NUMBER`) and wait for confirmation before creating it.
-- **User declines** → skip git management entirely, proceed with refactoring in the current branch.
-- **Not a git repo** → inform the user, skip git management, proceed normally.
-
-## Phase 2: Build System
-
-Migrate the build descriptor and configuration files from Spring Boot to Quarkus.
-
-> **Phase 2 Gate**: Build system configured — proceed to Phase 3 if PASS, else fix and retry.
-
-### Decision Gate Table
-
-- For each module, evaluate whether it applies to this project. A module executes only when its gate status is: **PASS**.
-- Inspect the project to determine the gate result.
-
-| Module                          | Gate Check                                                                                                                | Gate Result                                                                              |
-|---------------------------------|---------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
-| [jdk](modules/jdk.md)           | JDK 21+ required                                   | **ALWAYS** -- stop refactoring if < 21 |
-| [build](modules/build.md)       | Quarkus BOM/plugins/extensions in `pom.xml`, or Quarkus plugin in `build.gradle(.kts)` | **PASS** if Quarkus build markers found; **SKIP** otherwise                          |
-
-### Execution Protocol
-
-```
-FOR module IN [jdk, build]:
-
-  1. EVALUATE — inspect the project for the gate condition
-  2. DECIDE
-     IF gate == ALWAYS → proceed to step 3
-     IF gate == PASS   → proceed to step 3
-     IF gate == SKIP   → log "Module {name}: SKIPPED — {reason}", mark checkbox, continue
-  3. LOAD — read the module file and relevant reference files
-  4. EXECUTE — follow the module instructions, adapting to Quarkus refactoring
-  5. COMPILE — run the project's compile command (`./mvnw clean compile -DskipTests` for Maven, `./gradlew clean compileJava -x test` for Gradle)
-     Fails → diagnose and fix before proceeding
-  6. LOG — mark checkbox as done
-```
-
-> **Phase 2 Output**: Build system migrated, compile successful — proceed to Phase 3.
+> **Phase 3 Gate**: analysis accepted by user — proceed to Stage B.
 
 ---
 
-## Phase 3: Code Migration
+# STAGE B — Prepare (environment ready before any refactor)
 
-Refactor all Java source code in the Quarkus project to comply with engineering standards.
+## Phase 4: Git Branch (optional)
 
-> **Phase 3 Gate**: Code refactored — proceed to Phase 4 if PASS, else fix and retry.
+Check if the target project is a git repository. If it is, propose the workflow:
 
-### Decision Gate Table
+> **Refactoring workflow:** Each run can be isolated in its own branch (`feature/JIRA-TICKET-NUMBER`) created from `master`, containing a single commit plus a refactoring report. A draft PR against `master` is created for review — never merged, a permanent diff and discussion record. **Use this workflow?**
 
-- For each module, evaluate whether it applies to this project. A module executes only when its gate status is: **PASS**.
+- **User accepts** → follow [modules/git.md](modules/git.md) — **Pre-refactoring** section. Propose the branch name and wait for confirmation before creating it.
+- **User declines** → skip git management, refactor in the current branch.
+- **Not a git repo** → inform the user, skip, proceed normally.
 
-| Module                          | Gate Check                                                                                                                | Gate Result                                                                              |
-|---------------------------------|---------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
-| [code](modules/code.md)         | Quarkus annotations in Java sources (`@Path`, `@ApplicationScoped`, `@Inject`, `@Entity`, etc.) | **PASS** if Quarkus annotations found; **SKIP** otherwise                                 |
-| [testing](modules/testing.md)   | Test sources under `src/test` (`@SpringBootTest`, `@MockBean`, `TestRestTemplate`) | **PASS** if Spring-style tests found; **SKIP** otherwise                                  |
+> **Phase 4 Gate**: branch ready (or declined / not a repo).
 
-### Execution Protocol
+## Phase 5: JDK Verification
 
-```
-FOR module IN [code, testing]:
+Run [modules/jdk.md](modules/jdk.md). This module is **ALWAYS** executed.
 
-  1. EVALUATE — inspect the project for the gate condition
-  2. DECIDE
-     IF gate == ALWAYS → proceed to step 3
-     IF gate == PASS   → proceed to step 3
-     IF gate == SKIP   → log "Module {name}: SKIPPED — {reason}", mark checkbox, continue
-  3. LOAD — read the module file and relevant reference files
-  4. EXECUTE — follow the module instructions, adapting to Quarkus refactoring
-  5. COMPILE — run the project's compile command (`./mvnw clean compile -DskipTests` for Maven, `./gradlew clean compileJava -x test` for Gradle)
-     Fails → diagnose and fix before proceeding
-  6. LOG — mark checkbox as done
-```
+- Verify `java --version` ≥ 21 AND the build tool resolves a JDK ≥ 21
+- Handle multi-JDK environments per the module's decision table; fix the environment, not the build files
+- If no JDK 21+ exists anywhere → warn the user and **STOP the entire run**
 
-> **Phase 3 Output**: Code refactored to comply with engineering standards — proceed to Phase 4.
+> **Phase 5 Gate**: JDK 21+ confirmed for both `java` and the build tool.
 
----
+## Phase 6: Build System
 
-## Phase 4: Cleanup
+Gate check first: **PASS** if Quarkus BOM/plugin/extensions found in the build descriptor; **SKIP** (log reason, mark checkbox) otherwise. When PASS, run [modules/build.md](modules/build.md):
 
-Remove leftover Spring artifacts, unused dependencies, stale configuration, and dead code that survived the migration.
+- Verify BOM, plugin, `-parameters` flag, Java 21 settings, test dependencies
+- Apply the Version Alignment Rule; remove leftover Spring build entries
+- Re-resolve dependencies after each build-file edit, then compile
 
-> **Phase 4 Gate**: Cleanup complete — proceed to Phase 5 if PASS, else fix and retry.
-
-### Decision Gate Table
-
-- For each module, evaluate whether it applies to this project. A module executes only when its gate status is: **PASS**.
-
-| Module                          | Gate Check                                                                                                                | Gate Result                                                                              |
-|---------------------------------|---------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
-| [cleanup](modules/cleanup.md)   | Leftover Spring artifacts, unused dependencies, stale configuration | **PASS** if Spring artifacts or unused code found; **SKIP** otherwise |
-
-### Execution Protocol
-
-```
-FOR module IN [cleanup]:
-
-  1. EVALUATE — inspect the project for the gate condition
-  2. DECIDE
-     IF gate == ALWAYS → proceed to step 3
-     IF gate == PASS   → proceed to step 3
-     IF gate == SKIP   → log "Module {name}: SKIPPED — {reason}", mark checkbox, continue
-  3. LOAD — read the module file and relevant reference files
-  4. EXECUTE — follow the module instructions, adapting to Quarkus refactoring
-  5. COMPILE — run the project's compile command (`./mvnw clean compile -DskipTests` for Maven, `./gradlew clean compileJava -x test` for Gradle)
-     Fails → diagnose and fix before proceeding
-  6. LOG — mark checkbox as done
-```
-
-> **Phase 4 Output**: Spring artifacts removed, codebase clean — proceed to Phase 5.
+> **Phase 6 Gate**: compile passes with the compliant build descriptor — proceed to Stage C.
 
 ---
 
-## Phase 5: Verify
+# STAGE C — Refactor Core (one concern per phase)
 
-Run final verification checks. A check fails = stop and fix before continuing.
-
-| # | Check | Command (Maven / Gradle) | Pass criteria |
-|---|-------|---------|---------------|
-| 1 | **Builds** | `./mvnw clean package -DskipTests` / `./gradlew clean build -x test` | Exit code 0, no compilation errors |
-| 2 | **No Spring deps** | Search build file for `org.springframework` | Zero Spring dependencies |
-| 3 | **Has Quarkus** | Search build file for `io.quarkus` | Quarkus BOM and at least one extension present |
-| 4 | **Starts up** | `./mvnw quarkus:dev` / `./gradlew quarkusDev` | App starts, `curl http://localhost:8080/q/health` returns UP |
-
-> **Phase 5 Gate**: All 4 checks pass — refactoring successful, build works. Proceed to Step 6: Refactoring Review.
-
-### Execution Protocol
+Every phase in Stage C follows the same loop:
 
 ```
-FOR module IN [validation]:
-
-  1. EVALUATE — inspect the project for the gate condition
-  2. DECIDE
-     IF gate == ALWAYS → proceed to step 3
-     IF gate == PASS   → proceed to step 3
-     IF gate == SKIP   → log "Module {name}: SKIPPED — {reason}", mark checkbox, continue
-  3. LOAD — read the module file and relevant reference files
-  4. EXECUTE — follow the module instructions, adapting to Quarkus refactoring
-  5. COMPILE — run the project's compile command (`./mvnw clean compile -DskipTests` for Maven, `./gradlew clean compileJava -x test` for Gradle)
-     Fails → diagnose and fix before proceeding
-  6. LOG — mark checkbox as done
+1. EVALUATE — phase-specific gate check below
+2. DECIDE   — PASS → continue · SKIP → log "SKIPPED — {reason}", mark checkbox, next phase
+3. LOAD     — read the listed slices of modules/code.md and reference files
+4. EXECUTE  — apply ONLY this phase's concern; defer anything else to its phase
+5. COMPILE  — ./mvnw clean compile -DskipTests (or Gradle equivalent); fix until green
+6. LOG      — mark checkbox, print the progress card, continue
 ```
 
-The module will use the current project state with Quarkus refactoring strategy.
+## Phase 7: Package & Architecture Structure
 
-## Step 4: Verify the Refactoring
+- **Gate**: PASS if any class sits outside the standard structure, packages deviate from `com.prudential.pruforce.aob.{function}.{layer}`, or required layers are missing; SKIP if fully compliant
+- **Load**: [modules/code.md](modules/code.md) checklist items on package structure & layers; directory tree in [references/coding-style.md](references/coding-style.md); expected structure in [modules/treemap.md](modules/treemap.md)
+- **Execute**: create missing layer packages; relocate misplaced classes; align file naming (`{Domain}Resource.java`, `{Domain}Service.java`, …). Create empty packages only when domain code exists to fill them
+
+> **Phase 7 Gate**: tree matches the standard layout, compile green.
+
+## Phase 8: CDI & Dependency Injection
+
+- **Gate**: PASS if field injection on private members, dummy no-args constructors, or `@Named` DI qualifiers exist; SKIP otherwise
+- **Load**: [modules/code.md](modules/code.md) Recipes 1 (constructor injection), 11 (`@Named` → `@Identifier`); Critical Rule 1 in [references/engineering-standards.md](references/engineering-standards.md); detection patterns in [references/solid-principles.md](references/solid-principles.md) §DIP
+- **Execute**: convert private field injection → constructor (preferred) or package-private fields; delete dummy no-args constructors; replace `@Named` qualifiers with `@Identifier`
+
+> **Phase 8 Gate**: zero private-member injections, zero `@Named` DI usages, compile green.
+
+## Phase 9: API Layer (Resources & DTOs)
+
+- **Gate**: PASS if any resource returns raw entities/unwrapped types, request DTOs lack validation, or `@Valid` missing on parameters; SKIP otherwise
+- **Load**: [modules/code.md](modules/code.md) Recipes 2 (ApiResponse wrapping), 7 (Bean Validation on DTOs), 9 (`@Valid`), 10 (interface+impl merge judgment); API response rules in [references/coding-style.md](references/coding-style.md)
+- **Execute**: wrap every endpoint return in `ApiResponse<T>`; split/ensure Request & Response DTOs; add constraint annotations + `@Valid`; merge pointless interface+impl pairs
+
+> **Phase 9 Gate**: every endpoint returns `ApiResponse<T>`; all request DTOs validated; compile green.
+
+## Phase 10: Service Layer Logic
+
+- **Gate**: PASS if write methods lack `@Transactional`, services miss `@Slf4j`, magic values/hardcoded config remain, money uses `double`/`float`, manual loops iterate collections, or SOLID violations were tallied in Phase 2; SKIP otherwise
+- **Load**: [modules/code.md](modules/code.md) Recipes 3 (BigDecimal), 4 (@ConfigProperty), 5 (@Transactional), 6 (@Slf4j), 12 (Streams), 13–16 (SRP/OCP/ISP/DIP); constants pattern in [references/refactoring-patterns.md](references/refactoring-patterns.md); [references/solid-principles.md](references/solid-principles.md)
+- **Execute**: annotate writes with `@Transactional` (+ `readOnly = true` reads); add `@Slf4j` and replace direct printing; externalize env values via `@ConfigProperty`; extract domain values & query literals to `constants/`; convert money to `BigDecimal`; convert collection loops to Streams; split god classes and switch chains per SOLID recipes
+
+> **Phase 10 Gate**: services comply with standards checklist items 7, 10–15; compile green.
+
+## Phase 11: Repository & Entity Layer
+
+- **Gate**: PASS if repositories deviate from the Panache interface+impl pattern, inline query literals remain, or entities lack audit/version/index standards; SKIP otherwise
+- **Load**: [references/entity-mapper-metrics.md](references/entity-mapper-metrics.md) §§1–2 (entity & mapper rules); [modules/code.md](modules/code.md) Recipe 16 (repository interfaces); query-constants pattern in [references/refactoring-patterns.md](references/refactoring-patterns.md)
+- **Execute**: repository interface extending `PanacheRepository<T>` + impl; move remaining JPQL/native literals into `{Domain}QueryConstants`; enforce entity audit fields (`createdAt`, `updatedAt`, `@Version`), `@CreationTimestamp`/`@UpdateTimestamp`, indexes on filtered columns, `BigDecimal` money columns; verify mapper placement (all DTO↔Entity conversion lives in mappers)
+
+> **Phase 11 Gate**: repositories and entities match the standards; compile green.
+
+## Phase 12: Exception Handling
+
+- **Gate**: PASS if exceptions extend `RuntimeException` directly, or thrown domain exceptions have no `@ServerExceptionMapper` coverage; SKIP otherwise
+- **Load**: [modules/code.md](modules/code.md) Recipes 8 (DomainException) and 18 (global handler wiring); exception snippets in [references/quick-reference.md](references/quick-reference.md)
+- **Execute**: custom exceptions extend `DomainException` with proper HTTP status; ensure one handler per hierarchy level; sanitize messages (no stack traces to clients)
+
+> **Phase 12 Gate**: full hierarchy mapped; error shape consistent; compile green.
+
+## Phase 13: Documentation
+
+- **Gate**: PASS if resources lack OpenAPI annotations or public API lacks Javadoc; SKIP otherwise
+- **Load**: [modules/code.md](modules/code.md) Recipe 17 (OpenAPI); Javadoc section in [references/coding-style.md](references/coding-style.md)
+- **Execute**: minimum bar — `@Tag` per resource class, `@Operation(summary=...)` per method, `@APIResponse` for non-2xx outcomes; add brief Javadoc on public API surface without duplicating OpenAPI wording
+
+> **Phase 13 Gate**: docs minimum bar met; compile green.
+
+## Phase 14: Metrics (optional)
+
+- **Gate**: PASS if Micrometer usage exists in the project or the user requests instrumentation; SKIP otherwise (log the reason)
+- **Load**: [references/entity-mapper-metrics.md](references/entity-mapper-metrics.md) §3 (metrics pattern & rules); Micrometer query in [references/context7-queries.md](references/context7-queries.md)
+- **Execute**: counters for `.requests`/`.success`/`.failure`, timers with percentiles 0.5/0.95/0.99, naming `{domain}.{operation}.{event}`; inject `MeterRegistry` via constructor
+
+> **Phase 14 Gate**: metrics follow naming/injection rules (or SKIPPED); compile green.
+
+---
+
+# STAGE D — Tests & Hygiene
+
+## Phase 15: Test Migration
+
+Gate check: **PASS** if test sources exist under `src/test`; **SKIP** otherwise (log). When PASS, run [modules/testing.md](modules/testing.md):
+
+- Convert Spring test infrastructure to `@QuarkusTest` patterns (`@InjectMock`, REST Assured, `%test.` properties)
+- Verify lifecycle differences (`static @BeforeAll`, shared app instance, `@TestTransaction`)
+- Run `./mvnw test` / `./gradlew test` — all tests must pass
+
+> **Phase 15 Gate**: test suite green under Quarkus Test.
+
+## Phase 16: Cleanup
+
+Gate check: **PASS** if Spring leftovers, unused dependencies, or dead code remain; **SKIP** otherwise. When PASS, run [modules/cleanup.md](modules/cleanup.md):
+
+- Sweep imports → annotations → config files/properties → build dependencies → dead code, in that order
+- Final sweep greps must come back empty; compile stays green
+
+> **Phase 16 Gate**: zero Spring artifacts, zero dead code — proceed to Stage E.
+
+---
+
+# STAGE E — Prove It
+
+## Phase 17: Verification Suite
 
 Run each check in order. A check fails = stop and fix before continuing.
 
-| # | Check | Command (Maven / Gradle) | Pass criteria |
-|---|-------|---------|---------------|
-| 1 | **Builds** | `./mvnw clean package -DskipTests` / `./gradlew clean build -x test` | Exit code 0, no compilation errors |
-| 2 | **No Spring deps** | Search build file for `org.springframework` | Zero Spring dependencies |
-| 3 | **Has Quarkus** | Search build file for `io.quarkus` | Quarkus BOM and at least one extension present |
-| 4 | **Tests pass** | `./mvnw test` / `./gradlew test` | All tests pass using `@QuarkusTest` |
-| 5 | **Starts up** | `./mvnw quarkus:dev` / `./gradlew quarkusDev` | App starts, `curl http://localhost:8080/q/health` returns UP |
-| 6 | **Engineering standards** | Run validation module checks (14 checks) | All 14 validation checks pass |
+| # | Check                  | Command (Maven / Gradle)                                             | Pass criteria                                                       |
+|---|------------------------|-----------------------------------------------------------------------|----------------------------------------------------------------------|
+| 1 | **Builds**             | `./mvnw clean package -DskipTests` / `./gradlew clean build -x test` | Exit code 0, no compilation errors                                   |
+| 2 | **No Spring deps**     | Search build file for `org.springframework`                           | Zero Spring dependencies                                             |
+| 3 | **Has Quarkus**        | Search build file for `io.quarkus`                                    | Quarkus BOM and at least one extension present                       |
+| 4 | **Tests pass**         | `./mvnw test` / `./gradlew test`                                     | All tests pass using `@QuarkusTest`                                  |
+| 5 | **Starts up**          | `./mvnw quarkus:dev` / `./gradlew quarkusDev`                         | App starts, `curl http://localhost:8080/q/health` returns UP; stop dev mode afterwards |
+| 6 | **Engineering standards** | Run [modules/validation.md](modules/validation.md) (15 checks)    | All 15 validation checks pass                                        |
 
-## Step 5: Validation Report
+If the environment cannot support check 5 (no free port, no database, CI without Docker), record `SKIPPED — <reason>` for that row instead of failing the run.
 
-After all verification checks pass, run the validation module and include its report in the refactoring output.
+> **Phase 17 Gate**: all checks pass or recorded SKIPPED with reason.
 
-Run [modules/validation.md](modules/validation.md) and present the validation report with:
-- All 14 checks passed/failed
-- Any violations with file paths and line numbers
-- Fix recommendations for each violation
-- Overall compliance status
+## Phase 18: Validation & Tree Map Comparison
 
-If validation fails, fix the violations before proceeding to Step 6.
+1. Run [modules/validation.md](modules/validation.md) and present the validation report:
+   - All 15 checks passed/failed
+   - Violations with file paths and line numbers
+   - Fix recommendations per violation
+   - Overall compliance status
+2. Fix any violations and re-run the failing checks.
+3. Run [modules/treemap.md](modules/treemap.md) — **After Refactoring (Capture Final State)** + **Generate Comparison Report** vs the Phase 3 baseline.
 
-Then run [modules/treemap.md](modules/treemap.md) — **After Refactoring (Capture Final State)** and **Generate Comparison Report** — and include the Tree Map Comparison section (vs the Phase 1 baseline) in the refactoring output.
+> **Phase 18 Gate**: validation report + comparison produced, fixes applied — proceed to Stage F.
 
-## Step 6: Refactoring Review (Self-Reflection)
+---
+
+# STAGE F — Report & Ship
+
+## Phase 19: Refactoring Review (Self-Reflection)
 
 Answer each question honestly:
 
@@ -259,12 +336,12 @@ Answer each question honestly:
 2. **What required manual judgment?** Non-obvious decisions made.
 3. **What was left as TODO?** Every `// TODO: Refactor required` comment and why.
 4. **Was any code removed?** What, where, justification. Flag runtime risks.
-5. **What checks failed initially?** Failures from Step 4 and how you fixed them.
+5. **What failed initially?** Failures from Phases 6–17 and how they were fixed.
 6. **What's missing from the skill references?** Patterns you had to figure out.
 
-### Refactoring Report
+Present the review using the report template below.
 
-Present the review as a structured report:
+### Refactoring Report Template
 
 ```
 ## Refactoring Report: [app-name]
@@ -273,26 +350,29 @@ Present the review as a structured report:
 - Strategy: Quarkus Engineering Standards Refactoring
 - Agent: [AI agent name - e.g claude, pi, opencode, gemini, etc]
 - Model: [model name — e.g. claude-sonnet-4-6, check system context]
-- Modules completed: [X/5]
-- Checks passed: [X/6]
+- Phases completed: [X/20]
+- Verification checks passed: [X/6]
+- Validation checks passed: [X/15]
 - Token usage: [input tokens / output tokens — check session stats]
 - Estimated cost: [~$X.XX — token counts × per-model pricing from anthropic.com/pricing]
 
-### Changes by Module
-| Module | Files changed | Key changes |
+### Changes by Phase
+| Phase | Files changed | Key changes |
 |--------|--------------|-------------|
-| build | pom.xml or build.gradle(.kts), application.properties | ... |
-| code | ... | ... |
-| testing | ... | ... |
+| P06 Build System | pom.xml or build.gradle(.kts), application.properties | ... |
+| P07–P14 Core | ... | ... |
+| P15 Testing | ... | ... |
+| P16 Cleanup | ... | ... |
 
-### Validation Results
+### Verification Results
 | Check | Result | Notes |
 |-------|--------|-------|
-| Builds | PASS/FAIL | |
-| No Spring deps | PASS/FAIL | |
-| Has Quarkus | PASS/FAIL | |
-| Tests pass | PASS/FAIL | |
-| Starts up | PASS/FAIL | |
+| Builds | PASS/FAIL/SKIPPED | |
+| No Spring deps | PASS/FAIL/SKIPPED | |
+| Has Quarkus | PASS/FAIL/SKIPPED | |
+| Tests pass | PASS/FAIL/SKIPPED | |
+| Starts up | PASS/FAIL/SKIPPED | |
+| Engineering standards | X/15 | |
 
 ### Unrefactored Code (TODOs)
 | File | Line | What | Why not refactored |
@@ -313,8 +393,12 @@ Present the review as a structured report:
 - [Any missing patterns, unclear instructions, or edge cases discovered]
 ```
 
-## Step 7: Commit and PR (only if git workflow was accepted)
+> **Phase 19 Gate**: report presented to the user.
 
-Follow [modules/git.md](modules/git.md) — **Post-refactoring** section. Ask the user for confirmation before committing, and again before pushing / creating the draft PR. Do not proceed with either action without explicit user approval.
+## Phase 20: Commit and PR (only if git workflow was accepted)
 
----
+Follow [modules/git.md](modules/git.md) — **Post-refactoring** section:
+
+- Write `refactoring-report.md` (the Phase 19 report) at the repo root
+- Ask the user for confirmation before committing
+- Ask again before pushing / creating the draft PR — never proceed without explicit approval

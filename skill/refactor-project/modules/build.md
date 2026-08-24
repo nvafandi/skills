@@ -65,7 +65,7 @@ Verify the following are present:
 </plugin>
 ```
 
-### Gradle (`build.gradle` / `build.gradle.kts`)
+### Gradle (`build.gradle`)
 
 Verify the following are present:
 
@@ -93,6 +93,42 @@ compileJava {
 }
 ```
 
+### Gradle Kotlin DSL (`build.gradle.kts`)
+
+Same configuration in Kotlin syntax:
+
+```kotlin
+plugins {
+    java
+    id("io.quarkus") version "3.x.y" // must match the BOM version below
+}
+
+dependencies {
+    implementation(enforcedPlatform("io.quarkus.platform:quarkus-bom:3.x.y"))
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+tasks.withType<JavaCompile> {
+    options.compilerArgs.add("-parameters")
+}
+```
+
+### Version Alignment Rule
+
+The Quarkus **plugin** version and the **BOM** version must be identical and come from one property:
+
+| Build file | Single source of truth |
+|---|---|
+| Maven | `<properties><quarkus.platform.version>X</quarkus.platform.version></properties>` used by both the BOM import and the plugin |
+| Groovy DSL | `quarkusPlatformVersion` variable used by both the plugin and `enforcedPlatform(...)` |
+| Kotlin DSL | One constant/property used by both declarations |
+
+If plugin and BOM versions drift apart, flag it as a finding and align them to the latest stable from Context7.
+
 ## Common Issues to Fix
 
 | Issue | Fix |
@@ -104,9 +140,27 @@ compileJava {
 | Missing test dependencies | Add `quarkus-junit5`, `rest-assured`, `quarkus-junit5-mockito` |
 | `spring-boot-maven-plugin` still present | Remove — replaced by `quarkus-maven-plugin` |
 | `io.spring.dependency-management` plugin | Remove — replaced by Quarkus BOM `enforcedPlatform` |
+| Plugin and BOM versions differ | Align both to one property (see Version Alignment Rule) |
+| Deprecated platform artifact (`quarkus-universe-platform`, old `quarkus-universe-bom`) | Replace with `io.quarkus.platform:quarkus-bom` |
+| Dependency versions hardcoded where the BOM manages them | Remove explicit versions — let the Quarkus BOM manage them |
+| Lombok dependency without annotation processor path | Configure per [references/lombok-rules.md](../references/lombok-rules.md) |
 
 ## Watch out
 
 - **Build tool wrapper**: If the project has `mvnw`/`gradlew`, always use `./mvnw` or `./gradlew` instead of the system-installed `mvn` or `gradle` command.
 - **Lombok**: Can be applied in Quarkus projects for reducing boilerplate. If present, verify it's properly configured with annotation processor (see [references/lombok-rules.md](../references/lombok-rules.md) for Lombok usage rules). For native mode, ensure Lombok compatibility or use standard Java alternatives.
 - **OpenPDF**: If JasperReports was replaced with OpenPDF, verify the version is explicitly specified (not managed by Quarkus BOM).
+
+## Post-edit Verification
+
+After every build-file change:
+
+1. Re-resolve dependencies to catch breakage immediately:
+   ```bash
+   ./mvnw dependency:resolve -q          # Maven
+   ./gradlew dependencies --configuration runtimeClasspath  # Gradle
+   ```
+2. Run the compile command from the Execution Protocol.
+3. If a managed artifact now fails to resolve, check whether it was previously supplied transitively by Spring Boot's BOM and needs an explicit version in the Quarkus world.
+
+Do not batch multiple build-file edits before verifying — one logical change, one compile cycle.

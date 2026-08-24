@@ -197,6 +197,11 @@ String ids = todos.stream()
 | Native image too large | Remove private injected fields/methods — use package-private modifiers (no reflection needed) |
 | `AmbiguousResolutionException` with `@Named` | Replace `@Named` with `@Identifier` (per Quarkus CDI reference) |
 | Dummy no-args constructor boilerplate | Remove — Quarkus generates no-args constructors for normal scoped beans automatically |
+| Port 8080 already in use in dev mode | `quarkus.http.port=0` (random) or stop the other process; tests use `quarkus.http.test-port` (default 8081) |
+| `%test.` properties ignored | Prefix must be exactly `%test.` in the main `application.properties`; profile files (`application-prod.yml`) are a Spring pattern — merge them |
+| Startup check fails with no database | Enable Dev Services (Docker required) or point at a reachable DB; record SKIPPED if neither is possible |
+| Health endpoint 404 | Add `quarkus-smallrye-health`; endpoints live under `/q/health`, `/q/health/live`, `/q/health/ready` |
+| `CircularDependencyException` after refactor | Break the cycle: extract shared logic into a third bean, or use `@Lazy`-equivalent provider injection (`Instance<T>` / `Supplier<T>`) |
 
 ## Build and Deployment Commands
 
@@ -215,6 +220,13 @@ String ids = todos.stream()
 ./gradlew clean build -x test        # Build
 ./gradlew test                       # Run tests
 ./gradlew quarkusDev                 # Dev mode
+```
+
+### Startup Verification (Phase 17 check)
+```bash
+# Start dev mode in background, then verify health:
+curl -f http://localhost:8080/q/health     # expect {"status":"UP",...}
+# Stop dev mode afterwards (Ctrl-C or kill the process) before continuing.
 ```
 
 ## Performance Tips
