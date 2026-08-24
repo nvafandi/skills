@@ -47,14 +47,6 @@
         "DB_NBWF_SSL": "false",
         "DB_BPMS_SSL": "false"
       }
-    },
-    "graphify": {
-      "type": "local",
-      "command": [
-        "/home/nurvan/.local/bin/graphify-mcp",
-        "/home/nurvan/.config/opencode/graph.json"
-      ],
-      "enabled": true
     }
   }
 }
