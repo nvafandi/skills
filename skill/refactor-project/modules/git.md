@@ -24,7 +24,8 @@ If this fails, **skip this module entirely** — inform the user that git manage
 
 ### Post-refactoring (after verification)
 
-- [ ] Write `refactoring-report.md` at the repo root
+- [ ] Write `refactoring-report.md` at the repo root (link to `refactor-plan.md` as the planning record)
+- [ ] Ensure `refactor-plan.md` is included — it documents planned vs done per phase
 - [ ] Show the user a summary of changes and ask for confirmation before committing
 - [ ] Ask the user for confirmation before pushing and creating the draft PR
 
@@ -148,7 +149,7 @@ If any matches are found, flag them to the user before proceeding. Do **not** co
 
 After refactoring and verification are complete, show the user a summary of staged changes and ask for confirmation:
 
-> Refactoring complete. Ready to commit all changes (including `refactoring-report.md`) with message:
+> Refactoring complete. Ready to commit all changes (including `refactor-plan.md` and `refactoring-report.md`) with message:
 >
 > ```
 > Refactor Quarkus project to engineering standards
@@ -173,4 +174,4 @@ gh pr create --draft \
   --body "$(cat refactoring-report.md)"
 ```
 
-The draft PR is a permanent record — never merge it. `master` always keeps the original code. Use labels to categorize runs (e.g., `refactor:engineering-standards`).
+Append the Completion Log from `refactor-plan.md` to the PR body so reviewers see phase-by-phase execution. The draft PR is a permanent record — never merge it. `master` always keeps the original code. Use labels to categorize runs (e.g., `refactor:engineering-standards`).
