@@ -56,6 +56,20 @@ This prevents session logs from being committed and pushed to the remote reposit
 
 ## Create the refactoring branch
 
+Before creating the branch, verify the working tree is clean — uncommitted changes would leak into the refactoring commit:
+
+```bash
+git status --porcelain
+```
+
+If there are uncommitted changes, ask the user whether to stash, commit, or discard them first. Do not proceed with a dirty tree.
+
+Then refresh `master` so the branch starts from the latest state:
+
+```bash
+git checkout master && git pull origin master   # skip the pull if offline / no remote
+```
+
 Determine the JIRA ticket number for this refactoring (e.g., `PLAIPRO-32219`).
 
 Propose the branch name to the user:
@@ -159,4 +173,4 @@ gh pr create --draft \
   --body "$(cat refactoring-report.md)"
 ```
 
-The draft PR is a permanent record — never merge it. `master` always keeps the original code. Use labels to categorize runs (e.g., `refactor:engineering-standards`).
+The draft PR is a permanent record — never merge it. `master` always keeps the original code. Use labels to categorize runs (e.g., `refactor:engineering-standards`).

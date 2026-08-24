@@ -65,6 +65,18 @@ This reference file contains the coding style conventions and formatting guideli
 - **Interfaces**: `PascalCase` ending (optional) or `camelCase` (e.g., `TodoService`, `PaymentService`)
 - **Exceptions**: Ends with `Exception` (e.g., `TodoNotFoundException`)
 
+### Comments & TODOs
+- **No narration**: Don't write comments that restate what the code does (`// increment counter`).
+- **Rationale only**: Comment non-obvious constraints, external requirements, and why-choices — not what.
+- **Refactoring TODO marker** (used by this skill): `// TODO: Refactor required — <reason>` on any code that cannot be refactored now. The reason must say what needs to change, not just "later".
+- **Removal marker**: `// REMOVED: <what> — <why>` at the location of deleted code.
+- **Never commit** commented-out code blocks; remove them in the cleanup phase.
+
+### Javadoc
+- **Public API surface** (resource methods, service interfaces): brief Javadoc with one-line summary plus `@param`/`@return` when they add information beyond the signature.
+- **Entities/DTOs**: class-level Javadoc stating the domain meaning; skip field-by-field narration.
+- Do not duplicate OpenAPI annotations' wording into Javadoc verbatim — OpenAPI is for API consumers, Javadoc is for maintainers.
+
 ### Annotations
 - **Class annotations** (top to bottom):
   1. `@ApplicationScoped` (or other scope)

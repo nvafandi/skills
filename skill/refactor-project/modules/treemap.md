@@ -10,7 +10,10 @@ Run this module before the refactoring flow begins to capture the project's init
 
 ```bash
 # Generate before tree map
-find . -type f -name "*.java" -o -name "*.xml" -o -name "*.gradle" -o -name "*.pom" | sort > /tmp/before-file-list.txt
+# -prune keeps target/, build/, .git/, node_modules/ out of the snapshot
+find . \( -name target -o -name build -o -name .git -o -name node_modules \) -prune \
+  -o -type f \( -name "*.java" -o -name "*.xml" -o -name "*.gradle" -o -name "*.gradle.kts" -o -name "*.properties" -o -name "*.yml" \) -print \
+  | sort > /tmp/before-file-list.txt
 
 # Generate directory tree
 tree -a --ignore-node_modules --ignore=.git > /tmp/before-tree.txt 2>/dev/null || ls -R . | grep -E "^.+:" > /tmp/before-tree.txt
@@ -21,12 +24,18 @@ tree -a --ignore-node_modules --ignore=.git > /tmp/before-tree.txt 2>/dev/null |
 Run this module after the refactoring flow completes (after validation):
 
 ```bash
-# Generate after tree map
-find . -type f -name "*.java" -o -name "*.xml" -o -name "*.gradle" -o -name "*.pom" | sort > /tmp/after-file-list.txt
+# Generate after tree map (same prune + pattern list as the baseline)
+find . \( -name target -o -name build -o -name .git -o -name node_modules \) -prune \
+  -o -type f \( -name "*.java" -o -name "*.xml" -o -name "*.gradle" -o -name "*.gradle.kts" -o -name "*.properties" -o -name "*.yml" \) -print \
+  | sort > /tmp/after-file-list.txt
 
 # Generate directory tree
 tree -a --ignore-node_modules --ignore=.git > /tmp/after-tree.txt 2>/dev/null || ls -R . | grep -E "^.+:" > /tmp/after-tree.txt
 ```
+
+> The `-prune` guards and the parenthesized pattern list matter: without them, directories whose names end in `.xml` match and build output (`target/`, `build/`) pollutes both snapshots, producing false "new/removed" entries in the comparison.
+>
+> Both runs MUST use identical prune/pattern lists — a mismatch invalidates the comparison.
 
 ### Generate Comparison Report
 
@@ -143,8 +152,8 @@ src/main/java/com/prudential/pruforce/aob/{function}/
 
 This module should be run during:
 
-1. **Phase 1: Analyze** — Capture baseline before any changes
-2. **Step 5: Validation Report** — Capture final state after verification passes, generate the comparison, and include it in the refactoring output
+1. **Phase 3: Analysis Report** — Capture baseline before any changes (Stage A, no edits yet)
+2. **Phase 18: Validation & Tree Map Comparison** — Capture final state after verification passes, generate the comparison, and include it in the refactoring output
 
 ## Usage
 
