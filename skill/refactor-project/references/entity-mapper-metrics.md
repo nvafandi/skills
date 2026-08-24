@@ -115,9 +115,9 @@ public class PaymentMapper {
 
 ### Metrics Pattern
 ```java
-@Slf4j
 @ApplicationScoped
 public class PaymentService {
+    private static final Logger log = Logger.getLogger(PaymentService.class);
 
     private final MeterRegistry meterRegistry;
     private final PaymentMapper mapper;

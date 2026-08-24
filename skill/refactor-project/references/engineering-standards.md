@@ -137,7 +137,7 @@ Before refactoring or generating any service, verify:
 - [ ] **DTOs:** Separate Request/Response DTOs with @Valid annotations
 - [ ] **Responses:** All endpoints return `ApiResponse<T>` wrapper
 - [ ] **Exceptions:** Custom exceptions extend DomainException
-- [ ] **Logging:** `@Slf4j` (Lombok) on services, appropriate log levels; no `System.out`/`printStackTrace`
+- [ ] **Logging:** JBoss Logging field (`private static final Logger log = Logger.getLogger(X.class)`) on services, appropriate log levels; no `System.out`/`printStackTrace`
 - [ ] **Tests:** Unit tests (mocked) + Integration tests (@QuarkusTest)
 - [ ] **Documentation:** OpenAPI annotations + Javadoc + README.md
 - [ ] **Configuration:** No hardcoded values — environment-specific via `@ConfigProperty`; domain values & queries in `constants/` package
@@ -147,7 +147,7 @@ Before refactoring or generating any service, verify:
 - [ ] **CDI:** No private member injection (use package-private or constructor injection)
 - [ ] **CDI:** `@Inject` not on private constructors/fields in bean classes
 - [ ] **CDI:** Bean classes avoid private observer/producer methods
-- [ ] **Lombok:** Lombok annotations (@Data, @Builder, @NonNull, @Slf4j) applied where appropriate; constructor injection written explicitly (no `@RequiredArgsConstructor`); verify native mode compatibility
+- [ ] **Lombok:** Lombok annotations (@Data, @Builder, @NonNull) applied where appropriate; constructor injection written explicitly (no `@RequiredArgsConstructor`); logging via JBoss Logging field (no `@Slf4j`); verify native mode compatibility
 
 ## Common Mistakes to Avoid
 
@@ -162,7 +162,7 @@ Before refactoring or generating any service, verify:
 ✗ Business logic in repository layer
 ✗ Missing exception handling
 ✗ No logging in services
-✗ `System.out`/`printStackTrace` for output or error reporting (use `@Slf4j` logging)
+✗ `System.out`/`printStackTrace` for output or error reporting (use the JBoss Logging `log` field)
 ✗ Manual `for`/`for-each` loops over collections (use Java Streams)
 ✗ Hardcoded configuration values
 ✗ Inline query/magic literals in services or repositories (move to `constants/`)

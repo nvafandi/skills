@@ -34,9 +34,10 @@ public class {Domain}Resource {
 
 ### Service Class
 ```java
-@Slf4j
 @ApplicationScoped
 public class {Domain}Service {
+
+    private static final Logger log = Logger.getLogger({Domain}Service.class);
 
     private final {Domain}Repository repository;
     private final {Domain}Mapper mapper;
@@ -119,9 +120,10 @@ public class GlobalExceptionHandler {
 
 ### CDI Bean with Package-Private Injection (Quarkus Native-Friendly)
 ```java
-@Slf4j
 @ApplicationScoped
 public class {Domain}Service {
+
+    private static final Logger log = Logger.getLogger({Domain}Service.class);
 
     // Package-private injection points — avoid reflection in native executables
     @Inject
@@ -257,4 +259,4 @@ curl -f http://localhost:8080/q/health     # expect {"status":"UP",...}
 | Java | 21 | 21+ |
 | Quarkus | 3.10 | Latest 3.x |
 | Maven | 3.8 | 3.9+ |
-| Gradle | 8.5 | 8.7+ |
+| Gradle | 8.5 | 8.7+ |

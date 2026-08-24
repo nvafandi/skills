@@ -93,7 +93,13 @@ This reference file contains the coding style conventions and formatting guideli
   - `@Named` only for Qute templates, not DI
 
 ### Logging
-- **Logger**: `@Slf4j` (Lombok) — generates an SLF4J `log` field; no manual logger declaration
+- **Logger**: JBoss Logging — declare one static field per class:
+  ```java
+  private static final Logger log = Logger.getLogger({Domain}Service.class);
+  ```
+  (`import org.jboss.logging.Logger;`). Do not use `@Slf4j`/SLF4J API directly.
+- **Parameterized messages**: JBoss Logger has no `{}` substitution — use concatenation or printf-style `log.infof("x=%s", x)` / `log.infov(...)`
+- **Throwable**: pass as last argument to print the stack trace (`log.error("ctx", ex)`)
 - **Log level**: Use appropriate levels (`info`, `debug`, `warn`, `error`)
 - **Log format**: Include meaningful context (method name, operation ID, etc.)
 - **Never log**: Passwords, tokens, PII, full SQL queries

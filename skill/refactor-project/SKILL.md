@@ -233,9 +233,9 @@ Every phase in Stage C follows the same loop:
 
 ## Phase 10: Service Layer Logic
 
-- **Gate**: PASS if write methods lack `@Transactional`, services miss `@Slf4j`, magic values/hardcoded config remain, money uses `double`/`float`, manual loops iterate collections, or SOLID violations were tallied in Phase 2; SKIP otherwise
-- **Load**: [modules/code.md](modules/code.md) Recipes 3 (BigDecimal), 4 (@ConfigProperty), 5 (@Transactional), 6 (@Slf4j), 12 (Streams), 13–16 (SRP/OCP/ISP/DIP); constants pattern in [references/refactoring-patterns.md](references/refactoring-patterns.md); [references/solid-principles.md](references/solid-principles.md)
-- **Execute**: annotate writes with `@Transactional` (+ `readOnly = true` reads); add `@Slf4j` and replace direct printing; externalize env values via `@ConfigProperty`; extract domain values & query literals to `constants/`; convert money to `BigDecimal`; convert collection loops to Streams; split god classes and switch chains per SOLID recipes
+- **Gate**: PASS if write methods lack `@Transactional`, services miss the JBoss Logging field, magic values/hardcoded config remain, money uses `double`/`float`, manual loops iterate collections, or SOLID violations were tallied in Phase 2; SKIP otherwise
+- **Load**: [modules/code.md](modules/code.md) Recipes 3 (BigDecimal), 4 (@ConfigProperty), 5 (@Transactional), 6 (JBoss Logging), 12 (Streams), 13–16 (SRP/OCP/ISP/DIP); constants pattern in [references/refactoring-patterns.md](references/refactoring-patterns.md); [references/solid-principles.md](references/solid-principles.md)
+- **Execute**: annotate writes with `@Transactional` (+ `readOnly = true` reads); add the JBoss Logging field (`private static final Logger log = Logger.getLogger(X.class)`) and replace direct printing; externalize env values via `@ConfigProperty`; extract domain values & query literals to `constants/`; convert money to `BigDecimal`; convert collection loops to Streams; split god classes and switch chains per SOLID recipes
 
 > **Phase 10 Gate**: services comply with standards checklist items 7, 10–15; compile green.
 

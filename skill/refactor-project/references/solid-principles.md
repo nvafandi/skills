@@ -66,9 +66,9 @@ public class OrderService {
 
 ```java
 // AFTER: Each class has one reason to change
-@Slf4j
 @ApplicationScoped
 public class OrderService {
+    private static final Logger log = Logger.getLogger(OrderService.class);
 
     private final OrderRepository repository;
     private final OrderMapper mapper;
@@ -101,9 +101,9 @@ public class OrderService {
     }
 }
 
-@Slf4j
 @ApplicationScoped
 public class OrderNotificationService {
+    private static final Logger log = Logger.getLogger(OrderNotificationService.class);
 
     private final EmailService emailService;
 
@@ -117,9 +117,9 @@ public class OrderNotificationService {
     }
 }
 
-@Slf4j
 @ApplicationScoped
 public class OrderPaymentService {
+    private static final Logger log = Logger.getLogger(OrderPaymentService.class);
 
     private final PaymentGateway paymentGateway;
     private final OrderRepository repository;
@@ -508,9 +508,9 @@ public class OrderMapper {
     }
 }
 
-@Slf4j
 @ApplicationScoped
 public class OrderService {
+    private static final Logger log = Logger.getLogger(OrderService.class);
 
     // Depends on abstractions — implementations injected by CDI
     private final OrderRepository repository;
