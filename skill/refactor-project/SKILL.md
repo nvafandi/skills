@@ -34,7 +34,8 @@ The default mode is **slow and automatic**: execute phases strictly in order, an
 ```
 
 - **PAUSE MODE**: if the user asks to review each phase before continuing ("pause mode", "stop setiap fase"), end your turn after every progress card and wait for explicit approval.
-- Full stop-and-wait is mandatory only at the marked gates: Phase 3 (analysis confirmation), Phase 4 (git opt-in), and Phase 20 (commit/push approvals).
+- **Plan sync**: every progress card must be mirrored into `<project-root>/refactor-plan.md` (status checkbox + Result line + Completion Log row) per [modules/refactor-plan.md](modules/refactor-plan.md). The card is for the chat; the plan is the durable record inside the project.
+- Full stop-and-wait is mandatory only at the marked gates: Phase 3 (analysis + plan confirmation), Phase 4 (git opt-in), and Phase 20 (commit/push approvals).
 
 ## Failure Protocol (applies to every phase)
 
@@ -76,7 +77,7 @@ All scripts:
 
 ## Progress Tracking
 
-At the start of the run, copy this checklist into your working notes and update it after every phase. Present it whenever the user asks for status.
+At the start of the run, copy this checklist into your working notes and update it after every phase. The same statuses live durably in `<project-root>/refactor-plan.md` (see [modules/refactor-plan.md](modules/refactor-plan.md)) — this checklist is the in-chat mirror. Present it whenever the user asks for status.
 
 ```
 STAGE A — Understand
@@ -99,6 +100,7 @@ STAGE F — Report & Ship
 
 | Module | File | Feeds phases | Gate condition |
 |---|---|---|---|
+| refactor-plan | [modules/refactor-plan.md](modules/refactor-plan.md) | Created in P03; updated by EVERY subsequent phase | **ALWAYS** — living document in project root |
 | treemap | [modules/treemap.md](modules/treemap.md) | P03 baseline, P18 comparison | **ALWAYS** — twice per run |
 | git | [modules/git.md](modules/git.md) | P04, P20 | Optional — user opt-in |
 | jdk | [modules/jdk.md](modules/jdk.md) | P05 | **ALWAYS** — JDK 21+; hard stop if < 21 |
@@ -142,16 +144,17 @@ Scan code and configuration for violations — measurement only.
 
 ## Phase 3: Analysis Report ⏸ USER GATE
 
-Produce the analysis summary and get approval.
+Produce the analysis summary, write the execution plan into the project, and get approval.
 
 - Run [modules/treemap.md](modules/treemap.md) — **Before Refactoring (Capture Baseline)**
+- Generate **`<project-root>/refactor-plan.md`** following [modules/refactor-plan.md](modules/refactor-plan.md): inventory (P01), findings mapped to target phases (P02), and the full ordered 20-phase checklist with per-phase goal/scope/gate pre-filled from this project's data
 - Present the summary table: area → findings → complexity, plus the Dependency freshness row from Phase 1
-- Present the projected phase plan: which of P07–P16 will be PASS vs SKIP (based on Phase 2 tallies)
+- Present the projected phase plan: which of P07–P16 will be PASS vs SKIP (based on Phase 2 tallies), exactly as recorded in `refactor-plan.md` §3
 - Inform the user the refactoring will proceed using the internal engineering standards
 
-**Stop here and wait for the user's response before continuing.** Do not ask about git workflow or anything else in the same message.
+**Stop here and wait for the user's response before continuing** — they are approving both the analysis AND `refactor-plan.md`. Do not ask about git workflow or anything else in the same message.
 
-> **Phase 3 Gate**: analysis accepted by user — proceed to Stage B.
+> **Phase 3 Gate**: analysis + refactor-plan accepted by user — proceed to Stage B.
 
 ---
 
@@ -199,9 +202,9 @@ Every phase in Stage C follows the same loop:
 1. EVALUATE — phase-specific gate check below
 2. DECIDE   — PASS → continue · SKIP → log "SKIPPED — {reason}", mark checkbox, next phase
 3. LOAD     — read the listed slices of modules/code.md and reference files
-4. EXECUTE  — apply ONLY this phase's concern; defer anything else to its phase
+4. EXECUTE  — apply ONLY this phase's concern; defer anything else to its phase (record in refactor-plan.md §4)
 5. COMPILE  — ./mvnw clean compile -DskipTests (or Gradle equivalent); fix until green
-6. LOG      — mark checkbox, print the progress card, continue
+6. LOG      — mark checkbox, update <project-root>/refactor-plan.md (status + Result + Completion Log), print the progress card, continue
 ```
 
 ## Phase 7: Package & Architecture Structure
@@ -330,7 +333,9 @@ If the environment cannot support check 5 (no free port, no database, CI without
 
 ## Phase 19: Refactoring Review (Self-Reflection)
 
-Answer each question honestly:
+First, cross-check `<project-root>/refactor-plan.md`: no phase may remain `[ ]` or `[~]` — resolve or justify each in the Deferred Items Registry before writing the report.
+
+Then answer each question honestly:
 
 1. **What refactored cleanly?** Patterns that mapped 1:1.
 2. **What required manual judgment?** Non-obvious decisions made.
