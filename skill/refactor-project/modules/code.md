@@ -10,9 +10,11 @@ Load [references/solid-principles.md](../references/solid-principles.md) before 
 
 Load [references/lombok-rules.md](../references/lombok-rules.md) before starting. It contains Lombok annotation usage rules and Quarkus patterns.
 
-Load [references/entity-mapper-metrics.md](../references/entity-mapper-metrics.md) before starting. It contains entity audit/version standards, mapper layer rules, and Micrometer metrics patterns.
+Load [references/entity-mapper-metrics.md](../references/entity-mapper-metrics.md) before starting. It is the **single source of truth** for Entity, Mapper, DTO, Service, and REST Resource layer patterns, rules, and cross-layer synchronization. All layer-specific implementation details in this module defer to that document.
 
 ## What to do
+
+> **Layer implementation patterns**: For complete Entity, Mapper, DTO, Service, and REST Resource patterns, rules, and cross-layer sync matrix, see [references/entity-mapper-metrics.md](../references/entity-mapper-metrics.md).
 
 - [ ] Verify package structure follows `com.prudential.pruforce.aob.{function}.{layer}`
 - [ ] Verify layers present (api, service, repository, entity, mapper, exception, config)

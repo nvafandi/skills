@@ -54,7 +54,7 @@ Load the relevant reference file when working on a module:
 | [references/refactoring-patterns.md](references/refactoring-patterns.md) | Code modules (Phases 7–14): Quarkus-specific refactoring patterns, code smells, improvement recipes |
 | [references/quick-reference.md](references/quick-reference.md) | All code modules: code snippets, common issues, performance tips, security considerations |
 | [references/lombok-rules.md](references/lombok-rules.md) | Phases 10–11: Lombok annotation usage rules and Quarkus patterns |
-| [references/entity-mapper-metrics.md](references/entity-mapper-metrics.md) | Phases 11 & 14: entity audit/version standards, mapper layer rules, Micrometer metrics patterns |
+| [references/entity-mapper-metrics.md](references/entity-mapper-metrics.md) | Phases 10–11 & 14: **single source of truth** for Entity, Mapper, DTO, Service, REST Resource patterns, rules, cross-layer sync matrix, and Micrometer metrics patterns |
 | [references/coding-style.md](references/coding-style.md) | Phases 7–13: Quarkus coding style conventions — package structure, naming, formatting |
 | [references/solid-principles.md](references/solid-principles.md) | Phases 8 & 10: SOLID principle definitions, violation detection patterns, refactoring recipes |
 | [references/context7-queries.md](references/context7-queries.md) | All modules: Context7 library IDs and queries for checking latest dependency versions and patterns |
@@ -226,7 +226,7 @@ Every phase in Stage C follows the same loop:
 ## Phase 9: API Layer (Resources & DTOs)
 
 - **Gate**: PASS if any resource returns raw entities/unwrapped types, request DTOs lack validation, or `@Valid` missing on parameters; SKIP otherwise
-- **Load**: [modules/code.md](modules/code.md) Recipes 2 (ApiResponse wrapping), 7 (Bean Validation on DTOs), 9 (`@Valid`), 10 (interface+impl merge judgment); API response rules in [references/coding-style.md](references/coding-style.md)
+- **Load**: [modules/code.md](modules/code.md) Recipes 2 (ApiResponse wrapping), 7 (Bean Validation on DTOs), 9 (`@Valid`), 10 (interface+impl merge judgment); [references/entity-mapper-metrics.md](references/entity-mapper-metrics.md) §§3 & 5 (DTO standards, REST Resource standards, ApiResponse wrapper pattern); API response rules in [references/coding-style.md](references/coding-style.md)
 - **Execute**: wrap every endpoint return in `ApiResponse<T>`; split/ensure Request & Response DTOs; add constraint annotations + `@Valid`; merge pointless interface+impl pairs
 
 > **Phase 9 Gate**: every endpoint returns `ApiResponse<T>`; all request DTOs validated; compile green.
@@ -234,7 +234,7 @@ Every phase in Stage C follows the same loop:
 ## Phase 10: Service Layer Logic
 
 - **Gate**: PASS if write methods lack `@Transactional`, services miss the JBoss Logging field, magic values/hardcoded config remain, money uses `double`/`float`, manual loops iterate collections, or SOLID violations were tallied in Phase 2; SKIP otherwise
-- **Load**: [modules/code.md](modules/code.md) Recipes 3 (BigDecimal), 4 (@ConfigProperty), 5 (@Transactional), 6 (JBoss Logging), 12 (Streams), 13–16 (SRP/OCP/ISP/DIP); constants pattern in [references/refactoring-patterns.md](references/refactoring-patterns.md); [references/solid-principles.md](references/solid-principles.md)
+- **Load**: [modules/code.md](modules/code.md) Recipes 3 (BigDecimal), 4 (@ConfigProperty), 5 (@Transactional), 6 (JBoss Logging), 12 (Streams), 13–16 (SRP/OCP/ISP/DIP); [references/entity-mapper-metrics.md](references/entity-mapper-metrics.md) §4 (Service standards, cross-layer sync matrix); constants pattern in [references/refactoring-patterns.md](references/refactoring-patterns.md); [references/solid-principles.md](references/solid-principles.md)
 - **Execute**: annotate writes with `@Transactional` (+ `readOnly = true` reads); add the JBoss Logging field (`private static final Logger log = Logger.getLogger(X.class)`) and replace direct printing; externalize env values via `@ConfigProperty`; extract domain values & query literals to `constants/`; convert money to `BigDecimal`; convert collection loops to Streams; split god classes and switch chains per SOLID recipes
 
 > **Phase 10 Gate**: services comply with standards checklist items 7, 10–15; compile green.
@@ -242,7 +242,7 @@ Every phase in Stage C follows the same loop:
 ## Phase 11: Repository & Entity Layer
 
 - **Gate**: PASS if repositories deviate from the Panache interface+impl pattern, inline query literals remain, or entities lack audit/version/index standards; SKIP otherwise
-- **Load**: [references/entity-mapper-metrics.md](references/entity-mapper-metrics.md) §§1–2 (entity & mapper rules); [modules/code.md](modules/code.md) Recipe 16 (repository interfaces); query-constants pattern in [references/refactoring-patterns.md](references/refactoring-patterns.md)
+- **Load**: [references/entity-mapper-metrics.md](references/entity-mapper-metrics.md) §§1–2 (entity & mapper rules, cross-layer sync matrix); [modules/code.md](modules/code.md) Recipe 16 (repository interfaces); query-constants pattern in [references/refactoring-patterns.md](references/refactoring-patterns.md)
 - **Execute**: repository interface extending `PanacheRepository<T>` + impl; move remaining JPQL/native literals into `{Domain}QueryConstants`; enforce entity audit fields (`createdAt`, `updatedAt`, `@Version`), `@CreationTimestamp`/`@UpdateTimestamp`, indexes on filtered columns, `BigDecimal` money columns; verify mapper placement (all DTO↔Entity conversion lives in mappers)
 
 > **Phase 11 Gate**: repositories and entities match the standards; compile green.

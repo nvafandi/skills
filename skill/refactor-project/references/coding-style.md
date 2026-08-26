@@ -7,6 +7,7 @@ This reference file contains the coding style conventions and formatting guideli
 ### File Structure
 - Package structure: `com.prudential.pruforce.aob.{function}.{layer}`
 - File naming: `{Domain}Resource.java`, `{Domain}Service.java`, `{Domain}Repository.java`, etc.
+- Layer patterns, rules, and cross-layer sync: see [entity-mapper-metrics.md](entity-mapper-metrics.md) — single source of truth for Entity, Mapper, DTO, Service, and Resource standards
 - Directory structure:
   ```
   src/main/java/com/prudential/pruforce/aob/{function}/
@@ -124,7 +125,7 @@ This reference file contains the coding style conventions and formatting guideli
 - **Validation**: Use Bean Validation (`@Valid`, `@NotNull`, `@Size`) on DTOs
 
 ### API Responses
-- **Wrapper**: All responses wrapped in `ApiResponse<T>`
+- **Wrapper**: All responses wrapped in `ApiResponse<T>` — see [entity-mapper-metrics.md](entity-mapper-metrics.md) §5 for full pattern
 - **Success**: `ApiResponse.success(data, message)`
 - **Error**: `ApiResponse.error(status, message)`
 - **Null handling**: Never return null directly; use `Optional` or `ApiResponse.error`
