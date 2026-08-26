@@ -60,7 +60,7 @@ private BigDecimal amount;
 
 ### 3. Standardized Responses
 
-All responses wrapped in `ApiResponse<T>`:
+All responses wrapped in `ApiResponse<T>`. For full pattern, rules, and cross-layer sync matrix, see [entity-mapper-metrics.md](entity-mapper-metrics.md) §3–§5.
 
 ```java
 public ApiResponse<PaymentResponse> create(@Valid CreatePaymentRequest request) {
@@ -68,6 +68,12 @@ public ApiResponse<PaymentResponse> create(@Valid CreatePaymentRequest request) 
     return ApiResponse.success(response, "Payment created successfully");
 }
 ```
+
+**Key rules:**
+- Resource returns `ApiResponse<Response DTO>` — never raw entities
+- Service returns Response DTO — never wraps in ApiResponse
+- Mapper converts Entity → Response DTO — Service calls Mapper
+- Request DTOs must have Bean Validation annotations
 
 ### 4. Layered Architecture
 
@@ -80,6 +86,8 @@ Repository Layer (PanacheRepository)
      ↓
 Entity (JPA @Entity)
 ```
+
+For complete cross-layer rules, field-by-field sync matrix, and detailed patterns per layer, see [entity-mapper-metrics.md](entity-mapper-metrics.md) — "Layer Flow & Synchronization" section.
 
 ### 5. Exception Handling
 

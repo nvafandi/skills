@@ -4,10 +4,13 @@ Fast lookup for common patterns, code snippets, and troubleshooting for Quarkus 
 
 ## Code Snippet Library
 
+> For full patterns, rules, and cross-layer sync matrix, see [entity-mapper-metrics.md](entity-mapper-metrics.md).
+
 ### REST Resource (Quarkus JAX-RS)
 ```java
 @Path("/api/v1/{domain}")
 @ApplicationScoped
+@Tag(name = "{domain}", description = "{Domain} management operations")
 public class {Domain}Resource {
 
     private final {Domain}Service service;
@@ -18,6 +21,11 @@ public class {Domain}Resource {
 
     @POST
     @Transactional
+    @Operation(summary = "Create a new {domain}", description = "Creates a {domain} and returns the persisted entity")
+    @APIResponse(responseCode = "201", description = "{Domain} created",
+                 content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class)))
+    @APIResponse(responseCode = "400", description = "Validation failed")
     public ApiResponse<{Domain}Response> create(@Valid Create{Domain}Request request) {
         {Domain}Response response = service.create(request);
         return ApiResponse.success(response, "{Domain} created successfully");
@@ -25,9 +33,23 @@ public class {Domain}Resource {
 
     @GET
     @Path("/{id}")
+    @Operation(summary = "Get {domain} by ID", description = "Retrieves a single {domain} by its identifier")
+    @APIResponse(responseCode = "200", description = "{Domain} found")
+    @APIResponse(responseCode = "404", description = "{Domain} not found")
     public ApiResponse<{Domain}Response> getById(@PathParam("id") Long id) {
         {Domain}Response response = service.getById(id);
         return ApiResponse.success(response);
+    }
+
+    @DELETE
+    @Path("/{id}")
+    @Transactional
+    @Operation(summary = "Delete a {domain}", description = "Deletes a {domain} by its identifier")
+    @APIResponse(responseCode = "200", description = "{Domain} deleted")
+    @APIResponse(responseCode = "404", description = "{Domain} not found")
+    public ApiResponse<Void> delete(@PathParam("id") Long id) {
+        service.delete(id);
+        return ApiResponse.success(null, "{Domain} deleted successfully");
     }
 }
 ```
@@ -42,17 +64,32 @@ public class {Domain}Service {
     private final {Domain}Repository repository;
     private final {Domain}Mapper mapper;
 
-    public {Domain}Service({Domain}Repository repository, {Domain}Mapper mapper) {
+    {Domain}Service({Domain}Repository repository, {Domain}Mapper mapper) {
         this.repository = repository;
         this.mapper = mapper;
     }
 
     @Transactional
     public {Domain}Response create(Create{Domain}Request request) {
-        log.info("Creating {} with: {}", "{domain}", request);
+        log.info("Creating {domain} with: %s", request);
         {Domain} entity = mapper.toEntity(request);
         {Domain} saved = repository.save(entity);
         return mapper.toResponse(saved);
+    }
+
+    @Transactional(readOnly = true)
+    public {Domain}Response getById(Long id) {
+        {Domain} entity = repository.findByIdOptional(id)
+                .orElseThrow(() -> new {Domain}NotFoundException(id));
+        return mapper.toResponse(entity);
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        log.info("Deleting {domain} id: %d", id);
+        {Domain} entity = repository.findByIdOptional(id)
+                .orElseThrow(() -> new {Domain}NotFoundException(id));
+        repository.delete(entity);
     }
 }
 ```
