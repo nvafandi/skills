@@ -1,178 +1,62 @@
 # PruForce Engineering Standards
 
-This reference file contains the architectural and coding standards that all Quarkus services must follow. It is maintained internally for this skill.
+Architectural and coding standards that all Quarkus services must follow.
 
 ## Core Principles
 
-All Java backend services must follow these principles:
-
-- ✅ **Layered Architecture** (Resource → Service → Repository → Entity)
-- ✅ **Package Structure:** `com.prudential.pruforce.aob.{function}.{layer}`
-- ✅ **Consistent Naming Conventions** across all components
-- ✅ **Standardized API Responses** using `ApiResponse<T>` wrapper
-- ✅ **Rigorous Exception Handling** with custom exceptions
-- ✅ **Dependency Injection** (constructor-only, no field injection)
-- ✅ **Bean Validation** on all request DTOs
-- ✅ **Comprehensive Testing** (unit + integration tests)
-- ✅ **Complete Documentation** (OpenAPI + Swagger + Javadoc)
-
-## Precision & Consistency
-
-Every service follows the **exact same** structure, naming conventions, and patterns. No drift or variations allowed.
+- Layered Architecture: Resource → Service → Repository → Entity
+- Package Structure: `com.prudential.pruforce.aob.{function}.{layer}`
+- Standardized API Responses via `ApiResponse<T>` wrapper
+- Rigorous Exception Handling with `DomainException` hierarchy
+- Constructor-only DI (no field injection)
+- Bean Validation on all request DTOs
+- Comprehensive Testing (unit + integration)
 
 ## Critical Rules
 
-### 1. No Private Field Injection — Prefer Package-Private or Constructor Injection
+| # | Rule | Detail |
+|---|---|---|
+| 1 | No private field injection | Use constructor injection or package-private `@Inject` fields (GraalVM native: private members require reflection) |
+| 2 | Money always BigDecimal | `@Column(precision = 19, scale = 2)` — never `double`/`float` |
+| 3 | Standardized responses | All Resource endpoints return `ApiResponse<Response DTO>` — never raw entities; Service returns Response DTO only |
+| 4 | Exception hierarchy | All custom exceptions extend `DomainException`; handled by `@ServerExceptionMapper` |
+| 5 | `@Identifier` over `@Named` | `@Named` auto-adds `@Default` causing ambiguity; use `@io.smallrye.common.annotation.Identifier` instead |
+| 6 | Java Streams | Use `filter`/`map`/`collect` pipelines instead of manual `for`/`for-each` loops |
+| 7 | Log with JBoss Logging | `private static final Logger log = Logger.getLogger(X.class)` — no `@Slf4j`, no `System.out` |
+| 8 | Extract magic values | Domain constants → `{Domain}Constants`; query literals → `{Domain}QueryConstants`; env values → `@ConfigProperty` |
 
-Per the [Quarkus CDI Reference](https://quarkus.io/guides/cdi-reference#native-executables-and-private-members), Quarkus uses GraalVM for native executables, and reflective access to **private members** increases native executable size. Use **package-private** injected fields, or constructor injection (simplified in Quarkus — no dummy no-args constructor needed):
-
-```java
-// ❌ NEVER: private field injection (requires reflection in native image)
-@Inject
-private PaymentService service;
-
-// ✅ ALWAYS: package-private field injection (no reflection needed)
-@Inject
-PaymentService service;
-
-// ✅ ALSO: simplified constructor injection — @Inject is optional with a single constructor
-@ApplicationScoped
-public class PaymentResource {
-    private final PaymentService service;
-    PaymentResource(PaymentService service) {   // package-private constructor, no @Inject needed
-        this.service = service;
-    }
-}
-```
-
-Quarkus treats constructor injection as **simplified**: there is no need for a dummy no-args constructor, and `@Inject` is optional when there is only one constructor.
-
-### 2. Money Always BigDecimal
-
-```java
-// ❌ NEVER
-private double amount;
-
-// ✅ ALWAYS
-@Column(precision = 19, scale = 2)
-private BigDecimal amount;
-```
-
-### 3. Standardized Responses
-
-All responses wrapped in `ApiResponse<T>`. For full pattern, rules, and cross-layer sync matrix, see [entity-mapper-metrics.md](entity-mapper-metrics.md) §3–§5.
-
-```java
-public ApiResponse<PaymentResponse> create(@Valid CreatePaymentRequest request) {
-    PaymentResponse response = service.createPayment(request);
-    return ApiResponse.success(response, "Payment created successfully");
-}
-```
-
-**Key rules:**
-- Resource returns `ApiResponse<Response DTO>` — never raw entities
-- Service returns Response DTO — never wraps in ApiResponse
-- Mapper converts Entity → Response DTO — Service calls Mapper
-- Request DTOs must have Bean Validation annotations
-
-### 4. Layered Architecture
-
-```
-REST Resource (@Path)
-     ↓
-Service Layer (@ApplicationScoped, @Transactional)
-     ↓
-Repository Layer (PanacheRepository)
-     ↓
-Entity (JPA @Entity)
-```
-
-For complete cross-layer rules, field-by-field sync matrix, and detailed patterns per layer, see [entity-mapper-metrics.md](entity-mapper-metrics.md) — "Layer Flow & Synchronization" section.
-
-### 5. Exception Handling
-
-All exceptions extend `DomainException` and are caught by `GlobalExceptionHandler`.
-
-### 6. Use `@Identifier` over `@Named`
-
-String-based qualifiers like `@Named` are not type-safe and are discouraged in CDI. Instead, use `@io.smallrye.common.annotation.Identifier`, which works like all other qualifiers and does **not** automatically add `@Default`:
-
-```java
-// ❌ NEVER: @Named causes ambiguity issues (auto-adds @Default)
-@ApplicationScoped
-public class Producers {
-    @Produces MyBean produce() { ... }
-    @Produces @Named("foo") MyBean produceFoo() { ... }
-}
-
-// ✅ ALWAYS: @Identifier is a regular qualifier
-@ApplicationScoped
-public class Producers {
-    @Produces MyBean produce() { ... }
-    @Produces @Identifier("foo") MyBean produceFoo() { ... }
-}
-```
-
-Use `@Named` only as an external identifier for Qute templates (`{inject:myBean.value}`), not for DI resolution.
-
-### 7. Java Streams for Collection Processing
-
-Prefer Java Streams over manual `for`/`for-each`/`while` loops when iterating collections for filtering, mapping, or reducing:
-
-```java
-// ❌ NEVER: manual for-each loop with filter + collect
-List<TodoResponse> completed = new ArrayList<>();
-for (Todo todo : todos) {
-    if (todo.isCompleted()) {
-        completed.add(mapper.toResponse(todo));
-    }
-}
-
-// ✅ ALWAYS: Stream pipeline
-List<TodoResponse> completed = todos.stream()
-        .filter(Todo::isCompleted)
-        .map(mapper::toResponse)
-        .toList();
-```
+> For code examples of each rule, see [refactoring-patterns.md](refactoring-patterns.md). For layer patterns and cross-layer sync, see [entity-mapper-metrics.md](entity-mapper-metrics.md).
 
 ## Quality Gates Checklist
 
-Before refactoring or generating any service, verify:
-
 - [ ] **Architecture:** All layers present (API, Service, Repository, Entity, Mapper, Exception, Config)
-- [ ] **Naming:** Package structure and naming follow standards exactly
-- [ ] **Injection:** Constructor injection, or package-private `@Inject` fields — never private member injection
-- [ ] **DTOs:** Separate Request/Response DTOs with @Valid annotations
-- [ ] **Responses:** All endpoints return `ApiResponse<T>` wrapper
-- [ ] **Exceptions:** Custom exceptions extend DomainException
-- [ ] **Logging:** JBoss Logging field (`private static final Logger log = Logger.getLogger(X.class)`) on services, appropriate log levels; no `System.out`/`printStackTrace`
-- [ ] **Tests:** Unit tests (mocked) + Integration tests (@QuarkusTest)
-- [ ] **Documentation:** OpenAPI annotations + Javadoc + README.md
-- [ ] **Configuration:** No hardcoded values — environment-specific via `@ConfigProperty`; domain values & queries in `constants/` package
-- [ ] **Transactions:** @Transactional on write operations
+- [ ] **Naming:** Package structure follows `com.prudential.pruforce.aob.{function}.{layer}`
+- [ ] **Injection:** Constructor or package-private `@Inject` — no private member injection
+- [ ] **DTOs:** Separate Request/Response DTOs with `@Valid` on request DTOs
+- [ ] **Responses:** All endpoints return `ApiResponse<T>`
+- [ ] **Exceptions:** Custom exceptions extend `DomainException`
+- [ ] **Logging:** JBoss Logging field on services; no `System.out`/`printStackTrace`
+- [ ] **Tests:** Unit tests (mocked) + Integration tests (`@QuarkusTest`)
+- [ ] **Documentation:** OpenAPI annotations + Javadoc
+- [ ] **Configuration:** No hardcoded values; env-specific via `@ConfigProperty`; domain values in `constants/`
+- [ ] **Transactions:** `@Transactional` on write operations
 - [ ] **Validation:** Bean Validation on request DTOs
-- [ ] **Streams:** Collection iteration uses Java Streams, not manual `for`/`for-each` loops
-- [ ] **CDI:** No private member injection (use package-private or constructor injection)
-- [ ] **CDI:** `@Inject` not on private constructors/fields in bean classes
-- [ ] **CDI:** Bean classes avoid private observer/producer methods
-- [ ] **Lombok:** Lombok annotations (@Data, @Builder, @NonNull) applied where appropriate; constructor injection written explicitly (no `@RequiredArgsConstructor`); logging via JBoss Logging field (no `@Slf4j`); verify native mode compatibility
+- [ ] **Streams:** Collection iteration uses Java Streams
+- [ ] **CDI:** No `@Named` for DI resolution; use `@Identifier`
+- [ ] **Lombok:** No `@RequiredArgsConstructor` for services; no `@Slf4j`; explicit constructors
 
-## Common Mistakes to Avoid
+## Common Mistakes
 
-```
-✗ @Inject field injection (use package-private or constructor injection instead)
-✗ Private injected fields/observer methods (use package-private modifiers per Quarkus CDI reference)
-✗ Dummy no-args constructors for normal scoped beans (Quarkus generates them automatically)
-✗ `@Named` for string-based qualifiers (use `@Identifier` from SmallRye)
-✗ Service fields that are not final (always use private final)
-✗ Returning raw entities (always wrap in ApiResponse<T>)
-✗ Using Double for money (always use BigDecimal)
-✗ Business logic in repository layer
-✗ Missing exception handling
-✗ No logging in services
-✗ `System.out`/`printStackTrace` for output or error reporting (use the JBoss Logging `log` field)
-✗ Manual `for`/`for-each` loops over collections (use Java Streams)
-✗ Hardcoded configuration values
-✗ Inline query/magic literals in services or repositories (move to `constants/`)
-✗ No validation on request DTOs
-✗ Missing unit/integration tests
+| Pattern | Fix |
+|---|---|
+| `@Inject private` field | Use constructor injection or package-private field |
+| Dummy no-args constructors | Remove — Quarkus generates them for normal scoped beans |
+| `@Named("foo")` for DI | Replace with `@Identifier("foo")` |
+| Raw entity return | Wrap in `ApiResponse<T>` with Response DTO |
+| `double` for money | Change to `BigDecimal` |
+| `System.out`/`printStackTrace` | Use JBoss Logging `log` field |
+| Manual `for`/`for-each` loops | Use Java Streams |
+| Inline query literals | Move to `{Domain}QueryConstants` |
+| God class (multiple concerns) | Split into focused services (SRP) |
+| Switch/if-else chains for types | Use strategy pattern (OCP) |
+| Concrete class injection | Inject interface, not implementation (DIP) |

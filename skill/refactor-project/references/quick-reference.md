@@ -1,226 +1,8 @@
 # Quick Reference
 
-Fast lookup for common patterns, code snippets, and troubleshooting for Quarkus refactoring.
+Fast lookup for patterns, issues, and commands during Quarkus refactoring.
 
-## Code Snippet Library
-
-> For full patterns, rules, and cross-layer sync matrix, see [entity-mapper-metrics.md](entity-mapper-metrics.md).
-
-### REST Resource (Quarkus JAX-RS)
-```java
-@Path("/api/v1/{domain}")
-@ApplicationScoped
-@Tag(name = "{domain}", description = "{Domain} management operations")
-public class {Domain}Resource {
-
-    private final {Domain}Service service;
-
-    public {Domain}Resource({Domain}Service service) {
-        this.service = service;
-    }
-
-    @POST
-    @Transactional
-    @Operation(summary = "Create a new {domain}", description = "Creates a {domain} and returns the persisted entity")
-    @APIResponse(responseCode = "201", description = "{Domain} created",
-                 content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = ApiResponse.class)))
-    @APIResponse(responseCode = "400", description = "Validation failed")
-    public ApiResponse<{Domain}Response> create(@Valid Create{Domain}Request request) {
-        {Domain}Response response = service.create(request);
-        return ApiResponse.success(response, "{Domain} created successfully");
-    }
-
-    @GET
-    @Path("/{id}")
-    @Operation(summary = "Get {domain} by ID", description = "Retrieves a single {domain} by its identifier")
-    @APIResponse(responseCode = "200", description = "{Domain} found")
-    @APIResponse(responseCode = "404", description = "{Domain} not found")
-    public ApiResponse<{Domain}Response> getById(@PathParam("id") Long id) {
-        {Domain}Response response = service.getById(id);
-        return ApiResponse.success(response);
-    }
-
-    @DELETE
-    @Path("/{id}")
-    @Transactional
-    @Operation(summary = "Delete a {domain}", description = "Deletes a {domain} by its identifier")
-    @APIResponse(responseCode = "200", description = "{Domain} deleted")
-    @APIResponse(responseCode = "404", description = "{Domain} not found")
-    public ApiResponse<Void> delete(@PathParam("id") Long id) {
-        service.delete(id);
-        return ApiResponse.success(null, "{Domain} deleted successfully");
-    }
-}
-```
-
-### Service Class
-```java
-@ApplicationScoped
-public class {Domain}Service {
-
-    private static final Logger log = Logger.getLogger({Domain}Service.class);
-
-    private final {Domain}Repository repository;
-    private final {Domain}Mapper mapper;
-
-    {Domain}Service({Domain}Repository repository, {Domain}Mapper mapper) {
-        this.repository = repository;
-        this.mapper = mapper;
-    }
-
-    @Transactional
-    public {Domain}Response create(Create{Domain}Request request) {
-        log.info("Creating {domain} with: %s", request);
-        {Domain} entity = mapper.toEntity(request);
-        {Domain} saved = repository.save(entity);
-        return mapper.toResponse(saved);
-    }
-
-    @Transactional(readOnly = true)
-    public {Domain}Response getById(Long id) {
-        {Domain} entity = repository.findByIdOptional(id)
-                .orElseThrow(() -> new {Domain}NotFoundException(id));
-        return mapper.toResponse(entity);
-    }
-
-    @Transactional
-    public void delete(Long id) {
-        log.info("Deleting {domain} id: %d", id);
-        {Domain} entity = repository.findByIdOptional(id)
-                .orElseThrow(() -> new {Domain}NotFoundException(id));
-        repository.delete(entity);
-    }
-}
-```
-
-### Panache Repository
-```java
-@ApplicationScoped
-public interface {Domain}Repository extends PanacheRepository<{Domain}> {
-
-    List<{Domain}> findByStatus(Status status);
-}
-
-@ApplicationScoped
-public class {Domain}RepositoryImpl implements {Domain}Repository {
-
-    @Override
-    public List<{Domain}> findByStatus(Status status) {
-        return find("status", status).list();
-    }
-}
-```
-
-### ApiResponse Wrapper
-```java
-public class ApiResponse<T> {
-    private int status;
-    private String message;
-    private T data;
-    private List<String> errors;
-    private LocalDateTime timestamp;
-
-    public static <T> ApiResponse<T> success(T data) { ... }
-    public static <T> ApiResponse<T> success(T data, String message) { ... }
-    public static <T> ApiResponse<T> error(int status, String message) { ... }
-}
-```
-
-### Exception Hierarchy
-```java
-public abstract class DomainException extends RuntimeException {
-    private final int status;
-    private final List<String> errors;
-    // constructors and getters
-}
-
-public class {Domain}NotFoundException extends DomainException {
-    public {Domain}NotFoundException(String message) {
-        super(message, 404);
-    }
-}
-```
-
-### Global Exception Handler
-```java
-@Provider
-public class GlobalExceptionHandler {
-
-    @ServerExceptionMapper
-    public RestResponse<ApiResponse<Void>> handleDomainException(DomainException ex) {
-        ApiResponse<Void> response = ApiResponse.error(ex.getStatus(), ex.getMessage());
-        return RestResponse.status(ex.getStatus()).entity(response).build();
-    }
-}
-```
-
-### CDI Bean with Package-Private Injection (Quarkus Native-Friendly)
-```java
-@ApplicationScoped
-public class {Domain}Service {
-
-    private static final Logger log = Logger.getLogger({Domain}Service.class);
-
-    // Package-private injection points — avoid reflection in native executables
-    @Inject
-    {Domain}Repository repository;
-
-    @Inject
-    {Domain}Mapper mapper;
-
-    // Simplified constructor injection — no dummy no-args constructor needed
-    // @Inject is optional when there is only one constructor
-    {Domain}Service({Domain}Repository repository, {Domain}Mapper mapper) {
-        this.repository = repository;
-        this.mapper = mapper;
-    }
-}
-```
-
-### Using @Identifier Instead of @Named
-```java
-// @Named auto-adds @Default and causes ambiguity errors. Use @Identifier instead.
-@ApplicationScoped
-public class Producers {
-    @Produces MyBean produce() { ... }
-    @Produces @Identifier("foo") MyBean produceFoo() { ... }
-}
-```
-
-### Java Streams for Collection Processing
-```java
-// Filter + map + collect
-List<TodoResponse> completed = todos.stream()
-        .filter(Todo::isCompleted)
-        .map(mapper::toResponse)
-        .toList();
-
-// Sum a numeric property
-double total = items.stream()
-        .mapToDouble(Item::getAmount)
-        .sum();
-
-// Build a map
-Map<String, TodoResponse> byId = todos.stream()
-        .collect(Collectors.toMap(Todo::getId, mapper::toResponse));
-
-// Find first match
-TodoResponse found = todos.stream()
-        .filter(todo -> todo.getId().equals(id))
-        .findFirst()
-        .map(mapper::toResponse)
-        .orElse(null);
-
-// Group by property
-Map<Status, List<Todo>> byStatus = todos.stream()
-        .collect(Collectors.groupingBy(Todo::getStatus));
-
-// Join strings
-String ids = todos.stream()
-        .map(Todo::getId)
-        .collect(Collectors.joining(", "));
-```
+> For full code examples of all patterns, see [entity-mapper-metrics.md](entity-mapper-metrics.md) (layer patterns) and [refactoring-patterns.md](refactoring-patterns.md) (recipes).
 
 ## Common Issues and Solutions
 
@@ -240,7 +22,7 @@ String ids = todos.stream()
 | `%test.` properties ignored | Prefix must be exactly `%test.` in the main `application.properties`; profile files (`application-prod.yml`) are a Spring pattern — merge them |
 | Startup check fails with no database | Enable Dev Services (Docker required) or point at a reachable DB; record SKIPPED if neither is possible |
 | Health endpoint 404 | Add `quarkus-smallrye-health`; endpoints live under `/q/health`, `/q/health/live`, `/q/health/ready` |
-| `CircularDependencyException` after refactor | Break the cycle: extract shared logic into a third bean, or use `@Lazy`-equivalent provider injection (`Instance<T>` / `Supplier<T>`) |
+| `CircularDependencyException` after refactor | Break the cycle: extract shared logic into a third bean, or use `Instance<T>` / `Supplier<T>` |
 
 ## Build and Deployment Commands
 
@@ -261,11 +43,9 @@ String ids = todos.stream()
 ./gradlew quarkusDev                 # Dev mode
 ```
 
-### Startup Verification (Phase 17 check)
+### Startup Verification (Phase 17)
 ```bash
-# Start dev mode in background, then verify health:
 curl -f http://localhost:8080/q/health     # expect {"status":"UP",...}
-# Stop dev mode afterwards (Ctrl-C or kill the process) before continuing.
 ```
 
 ## Performance Tips
@@ -277,7 +57,7 @@ curl -f http://localhost:8080/q/health     # expect {"status":"UP",...}
 5. Index frequently queried columns
 6. Avoid N+1 queries — use JOIN FETCH or entity graphs
 7. Use Panache projections for read-only queries
-8. Use Java Streams (`filter`/`map`/`collect`) instead of manual collection loops
+8. Use Java Streams instead of manual collection loops
 
 ## Security Considerations
 
