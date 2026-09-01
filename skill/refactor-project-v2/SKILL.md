@@ -14,25 +14,51 @@ Refactor Java backend projects (Quarkus/Spring Boot) to meet Prudential's layere
 ## Key Standards to Apply
 
 ### 1. Layered Architecture Enforcement
-- **API Layer** (`api.rest.*Resource.java`): HTTP handling only
-- **Service Layer** (`service.*Service.java`, `service.*ServiceImpl.java`): Business logic, transactions
-- **Repository Layer** (`repository.*Repository.java`): Data access only
-- **Entity Layer** (`entity.*Entity.java`): JPA mappings, no business logic
-- **Mapper Layer** (`mapper.*Mapper.java`): DTO ↔ Entity conversions
-- **Exception Layer** (`exception.*Exception.java`, `GlobalExceptionHandler.java`): Centralized error handling
+- **API Layer** (`api/rest/*Resource.java`, `api/dto/**/*Request.java`, `api/dto/**/*Response.java`): HTTP handling and DTOs only
+- **Service Layer** (`service/*Service.java`, `service/impl/*ServiceImpl.java`): Business logic, transactions
+- **Repository Layer** (`repository/*Repository.java`, `repository/impl/*RepositoryImpl.java`): Data access only
+- **Entity Layer** (`entity/*Entity.java`): JPA mappings, audit fields, no business logic
+- **Mapper Layer** (`mapper/*Mapper.java`): DTO ↔ Entity conversions
+- **Exception Layer** (`exception/*Exception.java`, `exception/GlobalExceptionHandler.java`): Centralized error handling
+- **Constants Layer** (`constants/*Constants.java`, `constants/*QueryConstants.java`): Domain magic values and query literals
+- **Config Layer** (`config/*Config.java`): Beans, configurations, application setup
+- **Util Layer** (`util/*Utils.java`): Only truly reusable helper logic
 
 ### 2. Package Naming Conventions
 ```
-com.prudential.pruforce.aob.{function}
-├── .api.rest → Controllers
-├── .api.dto.request → Request DTOs
-├── .api.dto.response → Response DTOs
-├── .service → Business logic
-├── .repository → Data access
-├── .entity → JPA entities
-├── .mapper → DTO/Entity conversions
-├── .exception → Custom exceptions
-└── .config → Beans, configurations
+src/main/java/com/prudential/pruforce/aob/{function}/
+├── api/
+│   ├── rest/
+│   │   └── {Domain}Resource.java      # REST Resource (controller)
+│   ├── dto/
+│   │   ├── request/
+│   │   │   ├── Create{Domain}Request.java
+│   │   │   └── Update{Domain}Request.java
+│   │   └── response/
+│   │       └── {Domain}Response.java
+│   └── ApiResponse.java               # Shared response wrapper
+├── service/
+│   ├── {Domain}Service.java           # Service interface
+│   └── impl/
+│       └── {Domain}ServiceImpl.java    # Service implementation
+├── repository/
+│   ├── {Domain}Repository.java        # Repository interface
+│   └── impl/
+│       └── {Domain}RepositoryImpl.java # Repository implementation
+├── entity/
+│   └── {Domain}.java                  # JPA entity (audit fields, @Version)
+├── mapper/
+│   └── {Domain}Mapper.java            # DTO ↔ Entity conversion
+├── exception/
+│   ├── {Domain}Exception.java         # Base domain exception
+│   └── GlobalExceptionHandler.java    # Centralized error handler
+├── constants/
+│   ├── {Domain}Constants.java         # Domain magic values (statuses, labels, limits)
+│   └── {Domain}QueryConstants.java    # JPQL/native query literals
+├── config/
+│   └── {Domain}Config.java            # Configuration and beans
+└── util/
+    └── {Domain}Utils.java             # Only if truly reusable logic exists
 ```
 
 ### 3. REST Endpoints
