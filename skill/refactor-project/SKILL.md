@@ -35,7 +35,6 @@ The default mode is **slow and automatic**: execute phases strictly in order, an
 
 - **PAUSE MODE**: if the user asks to review each phase before continuing ("pause mode", "stop setiap fase"), end your turn after every progress card and wait for explicit approval.
 - **Plan sync**: every progress card must be mirrored into `<project-root>/refactor-plan.md` (status checkbox + Result line + Completion Log row) per [modules/refactor-plan.md](modules/refactor-plan.md). The card is for the chat; the plan is the durable record inside the project.
-- **Run history**: the progress tracker at [modules/progress-tracker.md](modules/progress-tracker.md) is also updated per phase — it records the cross-run history across all projects.
 - Full stop-and-wait is mandatory only at the marked gates: Phase 3 (analysis + plan confirmation), Phase 4 (git opt-in), and Phase 20 (commit/push approvals).
 
 ## Failure Protocol (applies to every phase)
@@ -101,7 +100,6 @@ STAGE F — Report & Ship
 
 | Module | File | Feeds phases | Gate condition |
 |---|---|---|---|
-| progress-tracker | [modules/progress-tracker.md](modules/progress-tracker.md) | P01 (check history), P03 (create entry), P04–P20 (update) | **ALWAYS** — persistent run history across projects |
 | refactor-plan | [modules/refactor-plan.md](modules/refactor-plan.md) | Created in P03; updated by EVERY subsequent phase | **ALWAYS** — living document in project root |
 | treemap | [modules/treemap.md](modules/treemap.md) | P03 baseline, P18 comparison | **ALWAYS** — twice per run |
 | git | [modules/git.md](modules/git.md) | P04, P20 | Optional — user opt-in |
@@ -122,7 +120,6 @@ Phases 1–3 only read and measure the project. **No file is modified in Stage A
 
 Build a factual inventory before touching anything.
 
-- Run [modules/progress-tracker.md](modules/progress-tracker.md) — **check for previous runs** on this project path. If history exists, present it and ask the user: resume, archive, or start fresh.
 - Read the build descriptor (`pom.xml`, `build.gradle`, or `build.gradle.kts`): Quarkus platform version, plugin config, extensions, all dependencies
 - Query Context7 for the latest stable Quarkus version ([references/context7-queries.md](references/context7-queries.md)) and compare against the project's version
 - List Spring dependencies and plugins still present
@@ -151,7 +148,6 @@ Produce the analysis summary, write the execution plan into the project, and get
 
 - Run [modules/treemap.md](modules/treemap.md) — **Before Refactoring (Capture Baseline)**
 - Generate **`<project-root>/refactor-plan.md`** following [modules/refactor-plan.md](modules/refactor-plan.md): inventory (P01), findings mapped to target phases (P02), and the full ordered 20-phase checklist with per-phase goal/scope/gate pre-filled from this project's data
-- Create a new run entry in [modules/progress-tracker.md](modules/progress-tracker.md) — status `in-progress`, link the tracker run number in `refactor-plan.md` §1
 - Present the summary table: area → findings → complexity, plus the Dependency freshness row from Phase 1
 - Present the projected phase plan: which of P07–P16 will be PASS vs SKIP (based on Phase 2 tallies), exactly as recorded in `refactor-plan.md` §3
 - Inform the user the refactoring will proceed using the internal engineering standards
@@ -403,8 +399,6 @@ Present the review using the report template below.
 ```
 
 > **Phase 19 Gate**: report presented to the user.
-
-Update [modules/progress-tracker.md](modules/progress-tracker.md) — mark the run as `completed` (or `partial` if deferred items remain), record final phase results, verification/validation scores, and TODO count.
 
 ## Phase 20: Commit and PR (only if git workflow was accepted)
 
