@@ -1,0 +1,44 @@
+{
+  "queries": [
+    {
+      "query": "How to migrate a Grails application to Quarkus?",
+      "expected_skill": "grails-to-quarkus"
+    },
+    {
+      "query": "Convert Grails controllers to Quarkus REST endpoints",
+      "expected_skill": "grails-to-quarkus"
+    },
+    {
+      "query": "Migrate GORM to JPA/Hibernate in Quarkus",
+      "expected_skill": "grails-to-quarkus"
+    },
+    {
+      "query": "Convert Grails interceptors to JAX-RS filters",
+      "expected_skill": "grails-to-quarkus"
+    },
+    {
+      "query": "Replace Grails RestBuilder with Quarkus REST client",
+      "expected_skill": "grails-to-quarkus"
+    },
+    {
+      "query": "How to convert Grails multi-datasource to Quarkus Agroal?",
+      "expected_skill": "grails-to-quarkus"
+    },
+    {
+      "query": "Migrate Grails application.yml to Quarkus application.properties",
+      "expected_skill": "grails-to-quarkus"
+    },
+    {
+      "query": "Convert Grails services to CDI beans for Quarkus",
+      "expected_skill": "grails-to-quarkus"
+    },
+    {
+      "query": "How to handle Grails UrlMappings in Quarkus?",
+      "expected_skill": "grails-to-quarkus"
+    },
+    {
+      "query": "Migrate Grails BootStrap.groovy to Quarkus",
+      "expected_skill": "grails-to-quarkus"
+    }
+  ]
+}
