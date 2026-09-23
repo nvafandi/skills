@@ -32,8 +32,9 @@ Execute the following checks in order. If any check fails, stop and fix before c
 | 13 | **Streams** | Search for manual `for`/`for-each`/`while` loops iterating collections in service/repository code | Collection iteration uses Java Streams (filter/map/collect) |
 | 14 | **CDI** | Verify no `@Inject` on private fields/methods, no `@Named` for DI resolution, no dummy no-args constructors | Package-private or constructor injection; `@Identifier` for string qualifiers |
 | 15 | **SOLID** | Verify SRP (focused classes), OCP (no switch chains), ISP (focused interfaces), DIP (interface injection) | All 5 SOLID principles followed — see [references/solid-principles.md](../references/solid-principles.md) |
+| 16 | **Typed Contracts** | Search resource method signatures, resource parameters, and Request/Response DTO fields for map-based, untyped/dynamic, or generic types used as an API contract: `Map<...>`, `Object`, `JsonNode`/`JsonObject`, raw generics | Zero map-based, untyped/dynamic, or generic request/response on any endpoint — every body is a typed DTO whose serialization preserves the original wire shape |
 
-> This module defines the authoritative check list: **15 checks**. If another file mentions a different count, this table wins.
+> This module defines the authoritative check list: **16 checks**. If another file mentions a different count, this table wins.
 
 ## Mechanical Detection Commands
 
@@ -65,6 +66,10 @@ find src/main/java \( -path '*service*' -o -path '*repository*' \) -name '*.java
 
 # Check 14 — dummy no-args constructors in scoped beans
 grep -rn --include='*.java' -A1 '@ApplicationScoped\|@RequestScoped' src/main/java | grep 'public .*() {}'
+
+# Check 16 — map-based / untyped / generic API contracts (inspect each hit; DTO fields vs accidental leak)
+grep -rn --include='*Resource.java' -E '\bMap<|\bObject\b|JsonNode|JsonObject|<[A-Za-z]+>\s+\w+\s*(\)|,)' src/main/java
+grep -rn --include='*Request.java' --include='*Response.java' -E '\bMap<|\bObject\b|JsonNode|JsonObject' src/main/java
 ```
 
 Or run the bundled script for an aggregated JSON report:
@@ -82,8 +87,8 @@ After validation, present results in this format:
 
 ### Summary
 - Standards: PruForce Engineering Standards
-- Checks passed: [X/15]
-- Checks failed: [Y/15]
+- Checks passed: [X/16]
+- Checks failed: [Y/16]
 
 ### Failed Checks
 | # | Check | File | Issue | Required Fix |
@@ -106,7 +111,7 @@ After validation, present results in this format:
 
 ## Compliance Rules
 
-- **All 15 checks must PASS** for the refactoring to be considered complete.
+- **All 16 checks must PASS** for the refactoring to be considered complete.
 - If any check fails, provide specific file paths and line numbers where the issue occurs.
 - Common non-compliant patterns:
   - `@Inject` on fields → move to constructor injection
@@ -120,6 +125,7 @@ After validation, present results in this format:
   - `@Named` for DI resolution → replace with `@Identifier`
   - Dummy no-args constructors → remove (Quarkus generates them)
   - God classes handling multiple concerns → split into focused services (SRP)
+  - Map-based/untyped/generic endpoint bodies (`Map<...>`, `Object`, `JsonNode`, raw generics) → replace with typed Request/Response DTOs preserving the original wire shape
   - Switch/if-else chains for type dispatch → use strategy pattern or map-based dispatch (OCP)
   - Subtypes throwing unexpected exceptions → ensure consistent contracts (LSP)
   - Fat interfaces with unused methods → split into segregated interfaces (ISP)
