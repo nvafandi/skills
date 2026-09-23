@@ -46,7 +46,7 @@ If the file does not exist, create it on first run.
 | Duration | ~4h 45m |
 | Phases completed | 20/20 |
 | Verification checks | 6/6 PASS |
-| Validation checks | 15/15 PASS |
+| Validation checks | 16/16 PASS |
 | TODOs remaining | 0 |
 | Branch | `feature/PLAIPRO-123` |
 | PR | Draft #42 (never merged) |

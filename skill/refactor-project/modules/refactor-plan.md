@@ -173,7 +173,7 @@ Fill every placeholder; delete nothing. Section numbering is fixed.
 - Status: [ ]
 
 #### Phase 18 — Validation & Tree Map Comparison
-- Goal: 15 validation checks + after/before tree map comparison vs Phase 3 baseline.
+- Goal: 16 validation checks + after/before tree map comparison vs Phase 3 baseline.
 - Gate: report produced; violations fixed.
 - Status: [ ]
 

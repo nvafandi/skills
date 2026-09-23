@@ -269,6 +269,8 @@ public record PaymentListResponse(
 | Rule | Detail |
 |---|---|
 | **Immutable** | Use Java records (preferred) or Lombok `@Data` + `@Builder` |
+| **No map-based/untyped contracts** | Request/response types are never `Map<...>`, `Object`, `JsonNode`/`JsonObject`, or raw generics — always a typed DTO; existing dynamic signatures are converted to shape-identical DTOs |
+| **Shape preservation** | DTO fields mirror the existing wire contract exactly (same JSON names, types, nesting, null handling); introducing a DTO must not change serialization |
 | **Separate Request/Response** | Never reuse the same DTO for input and output |
 | **Validation on Request** | All Request DTOs must have Bean Validation annotations (`@NotNull`, `@NotBlank`, `@Size`, `@DecimalMin`, etc.) |
 | **No Validation on Response** | Response DTOs are output-only; no validation needed |
@@ -535,6 +537,7 @@ public class ApiResponse<T> {
 | **Class annotation** | `@Path("/api/v1/{domain}")`, `@ApplicationScoped`, `@Tag(name = ...)` |
 | **Constructor injection** | Service via constructor; no `@Inject` on fields |
 | **All responses wrapped** | Every endpoint returns `ApiResponse<T>` — never raw entities or DTOs |
+| **Typed bodies only** | Request and response bodies are typed DTOs — never `Map<...>`, `Object`, `JsonNode`, or raw generics on any endpoint signature |
 | **Validation** | `@Valid` on all Request DTO parameters |
 | **HTTP methods** | `@POST` (create), `@GET` (read), `@PUT` (full update), `@PATCH` (partial update), `@DELETE` (delete) |
 | **Path params** | `@PathParam("id") Long id` for single-entity operations |

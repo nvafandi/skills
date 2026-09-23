@@ -21,6 +21,8 @@ Fine-grained, gate-driven refactoring of Quarkus projects that have already been
 - **Don't break the build.** Run the compile command after each phase (`./mvnw clean compile -DskipTests` for Maven, `./gradlew clean compileJava -x test` for Gradle). Never move to the next phase with a broken build.
 - **No silent changes.** Every file modification must be intentional and traceable. If a check fails after a phase, diagnose and fix — don't skip the check or delete the failing code.
 - **Preserve behavior.** Refactoring must not change the external behavior of the application. All existing tests must continue to pass.
+- **Preserve API contract shape.** Optimize internals only: every endpoint keeps the exact wire contract it had before — payload field names, nesting, types, null handling, and status codes must not change (the established `ApiResponse<T>` wrapper standard still applies as-is).
+- **No map-based or untyped API surface.** Request and response bodies are always typed DTOs (records preferred). Never accept or return `Map<...>`, `Object`, `JsonNode`/`JsonObject`, raw generics, or other dynamic/generic maps as an endpoint contract. Where such signatures already exist, analyze the current shape first and convert them to a shape-identical DTO — never leave them untyped and never introduce new ones.
 - **One phase, one concern.** Do not pull work from a later phase into the current one. Out-of-scope findings are written down (phase + short note) and handled when that phase arrives.
 
 ## Pacing Protocol
@@ -137,6 +139,7 @@ Scan code and configuration for violations — measurement only.
 - Check package structure against `com.prudential.pruforce.aob.{function}.{layer}` and the standard layer tree ([references/coding-style.md](references/coding-style.md))
 - Read `application.properties` / `application.yml`; flag hardcoded environment values and orphaned profile files
 - **Knowledge graph**: if the `graphify` CLI is available (`command -v graphify`), build or refresh the code map: `graphify extract . --code-only` when `graphify-out/` is missing or stale vs HEAD, then `graphify cluster-only .`. Use god nodes → god-class candidates, communities → subsystem boundaries, `graphify path A B` → coupling between classes you plan to change. If unavailable or it fails, continue without it — do not block this phase
+- **API contract inventory**: list every endpoint (method + path) with its current request type and response type; flag map-based/untyped signatures (`Map<...>`, `Object`, `JsonNode`, raw generics) and record each endpoint's JSON shape (field names, types, nesting) as the contract baseline for Phase 9 — tallied into P09
 - Tally findings per upcoming phase (P07…P16) so later gate decisions are already grounded
 
 **Output:** findings list grouped by target phase, with counts.
@@ -225,11 +228,15 @@ Every phase in Stage C follows the same loop:
 
 ## Phase 9: API Layer (Resources & DTOs)
 
-- **Gate**: PASS if any resource returns raw entities/unwrapped types, request DTOs lack validation, or `@Valid` missing on parameters; SKIP otherwise
+- **Gate**: PASS if any resource returns raw entities/unwrapped types, request DTOs lack validation, `@Valid` missing on parameters, or any endpoint exposes a map-based/untyped request or response (`Map<...>`, `Object`, `JsonNode`, raw generics); SKIP otherwise
 - **Load**: [modules/code.md](modules/code.md) Recipes 2 (ApiResponse wrapping), 7 (Bean Validation on DTOs), 9 (`@Valid`), 10 (interface+impl merge judgment); [references/entity-mapper-metrics.md](references/entity-mapper-metrics.md) §§3 & 5 (DTO standards, REST Resource standards, ApiResponse wrapper pattern); API response rules in [references/coding-style.md](references/coding-style.md)
-- **Execute**: wrap every endpoint return in `ApiResponse<T>`; split/ensure Request & Response DTOs; add constraint annotations + `@Valid`; merge pointless interface+impl pairs
+- **Execute**:
+    1. **Analyze first**: for every endpoint, record the current request/response shape (field names, types, nesting, status codes) from existing DTOs, controllers, tests, and samples — this is the contract that must survive
+    2. Wrap every endpoint return in `ApiResponse<T>` (inner payload shape unchanged)
+    3. Create or complete typed Request & Response DTOs (records preferred) wherever feasible; convert map-based/untyped signatures to DTOs whose serialization is shape-identical to the baseline — wire format must not change
+    4. Add constraint annotations + `@Valid`; merge pointless interface+impl pairs
 
-> **Phase 9 Gate**: every endpoint returns `ApiResponse<T>`; all request DTOs validated; compile green.
+> **Phase 9 Gate**: every endpoint returns `ApiResponse<T>` with a typed DTO payload (zero map-based/untyped request or response), contract shape preserved vs the Phase 2 baseline, all request DTOs validated, compile green.
 
 ## Phase 10: Service Layer Logic
 
@@ -309,7 +316,7 @@ Run each check in order. A check fails = stop and fix before continuing.
 | 3 | **Has Quarkus**        | Search build file for `io.quarkus`                                    | Quarkus BOM and at least one extension present                       |
 | 4 | **Tests pass**         | `./mvnw test` / `./gradlew test`                                     | All tests pass using `@QuarkusTest`                                  |
 | 5 | **Starts up**          | `./mvnw quarkus:dev` / `./gradlew quarkusDev`                         | App starts, `curl http://localhost:8080/q/health` returns UP; stop dev mode afterwards |
-| 6 | **Engineering standards** | Run [modules/validation.md](modules/validation.md) (15 checks)    | All 15 validation checks pass                                        |
+| 6 | **Engineering standards** | Run [modules/validation.md](modules/validation.md) (16 checks)    | All 16 validation checks pass                                        |
 
 If the environment cannot support check 5 (no free port, no database, CI without Docker), record `SKIPPED — <reason>` for that row instead of failing the run.
 
@@ -318,7 +325,7 @@ If the environment cannot support check 5 (no free port, no database, CI without
 ## Phase 18: Validation & Tree Map Comparison
 
 1. Run [modules/validation.md](modules/validation.md) and present the validation report:
-   - All 15 checks passed/failed
+   - All 16 checks passed/failed
    - Violations with file paths and line numbers
    - Fix recommendations per violation
    - Overall compliance status
@@ -357,7 +364,7 @@ Present the review using the report template below.
 - Model: [model name — e.g. claude-sonnet-4-6, check system context]
 - Phases completed: [X/20]
 - Verification checks passed: [X/6]
-- Validation checks passed: [X/15]
+- Validation checks passed: [X/16]
 - Token usage: [input tokens / output tokens — check session stats]
 - Estimated cost: [~$X.XX — token counts × per-model pricing from anthropic.com/pricing]
 
@@ -377,7 +384,7 @@ Present the review using the report template below.
 | Has Quarkus | PASS/FAIL/SKIPPED | |
 | Tests pass | PASS/FAIL/SKIPPED | |
 | Starts up | PASS/FAIL/SKIPPED | |
-| Engineering standards | X/15 | |
+| Engineering standards | X/16 | |
 
 ### Unrefactored Code (TODOs)
 | File | Line | What | Why not refactored |
