@@ -1,7 +1,7 @@
 ---
 name: continuous-learning
 description: >
-  Use this skill to automatically extract reusable patterns from AI agent sessions and save them as learned skills for future use. Use when the user wants to enable continuous learning, extract patterns from past sessions, save reusable knowledge, create learned skills from session history, or set up automatic pattern detection and skill extraction. Works for all agents (Cline, Claude Code, Codex, Gemini CLI, etc.) and is agent-agnostic. Even if they don't explicitly mention "continuous learning", use this skill when the user wants the agent to learn from experience, remember solutions, or build a knowledge base from past interactions.
+  Extract reusable patterns from completed AI agent sessions and save them as learned skills. Use when the user asks to evaluate a session, enable continuous learning, extract patterns, or create learned skills from session history. Also use when a user shares a password, API key, or other credential in chat — trigger the Security Monitor to warn and block storage of the secret. Agent-agnostic (opencode, Cline, Claude Code, Codex, Gemini CLI).
 license: PT. Prudential Life Indonesia
 metadata:
   author: Adapted from WorldFlowAI/everything-claude-code - https://github.com/WorldFlowAI/everything-claude-code
@@ -18,6 +18,48 @@ This skill runs as a **Stop hook** (or equivalent session-end trigger) at the en
 1. **Session Evaluation**: Checks if session has enough messages (default: 10+)
 2. **Pattern Detection**: Identifies extractable patterns from the session
 3. **Skill Extraction**: Saves useful patterns to the learned skills directory
+
+## Security Monitor (AUTO-ACTIVATE)
+
+**This skill AUTO-ACTIVATES when a user shares credentials in chat.** Agents MUST trigger this immediately — do NOT wait for session end.
+
+### Detection Patterns (Scan Every User Message)
+
+| Pattern | Regex Example | Action |
+|---------|---------------|--------|
+| Sudo password | `sudo password = *`, `password=*`, `pass=*` | WARN + BLOCK |
+| API keys | `api_key=*`, `API_KEY=*`, `token=*` | WARN + BLOCK |
+| Database credentials | `db_pass=*`, `mysql -u* -p*` | WARN + BLOCK |
+| SSH keys/content | `-----BEGIN RSA PRIVATE KEY-----` | WARN + BLOCK |
+| Generic secrets | Any `password`, `secret`, `credential` in plaintext | WARN + BLOCK |
+
+### Auto-Activate Protocol
+
+When a password/credential is detected in a user message:
+
+```
+1. STOP processing immediately
+2. WARN user:
+   "⚠️ SECURITY: You just shared a password/credential in chat.
+    This is a security risk. I will NOT store this in any logs or skills.
+    Please change this password after the session."
+3. DO NOT include the actual password in any output, logs, or learned skills
+4. If using sudo -S, pipe via stdin only: echo "password" | sudo -S command
+5. RECOMMEND: passwd (change password after session)
+6. LOG the violation type (not the password) for session evaluation
+```
+
+### What Gets Logged (WITHOUT the password)
+
+```json
+{
+  "type": "security_violation",
+  "subtype": "password_shared_in_chat",
+  "timestamp": "ISO-8601",
+  "action_taken": "warned_and_blocked",
+  "password_stored": false
+}
+```
 
 ## Agent-Agnostic Design
 
@@ -71,13 +113,40 @@ Edit `config.json` to customize:
 
 ## Pattern Types
 
-| Pattern | Description |
-|---------|-------------|
-| `error_resolution` | How specific errors were resolved |
-| `user_corrections` | Patterns from user corrections |
-| `workarounds` | Solutions to framework/library quirks |
-| `debugging_techniques` | Effective debugging approaches |
-| `project_specific` | Project-specific conventions |
+| Pattern | Description | Auto-Activate? |
+|---------|-------------|----------------|
+| `error_resolution` | How specific errors were resolved | No |
+| `user_corrections` | Patterns from user corrections | No |
+| `workarounds` | Solutions to framework/library quirks | No |
+| `debugging_techniques` | Effective debugging approaches | No |
+| `project_specific` | Project-specific conventions | No |
+| `security_violations` | Security issues like password sharing/storage | **YES — IMMEDIATE** |
+
+## Security Rules (CRITICAL)
+
+**NEVER store, log, or save sudo passwords or any credentials in:**
+
+- Learned skills
+- Session transcripts
+- Configuration files
+- Log files
+- Any persistent storage
+
+**When a user shares a password in chat:**
+1. Warn the user immediately about the security risk
+2. Do NOT include the password in any saved patterns
+3. Recommend the user change the password after the session
+4. If using `sudo -S`, pipe the password via stdin and do not persist it
+
+**Password handling pattern:**
+```bash
+# CORRECT: Pipe password via stdin (ephemeral)
+echo "password" | sudo -S command
+
+# NEVER: Save password to file or variable
+echo "password" > /tmp/pass.txt  # NEVER DO THIS
+export SUDO_PASS="password"       # NEVER DO THIS
+```
 
 ## Setup for Cline
 
@@ -87,7 +156,7 @@ The skill is available as a regular Cline skill. When the user asks to evaluate 
 
 ### Option 2: Automatic Evaluation
 
-To run automatically at the end of each session, add a hook to your Cline settings. Cline supports custom instructions and rules. Add the following to your Cline settings or `../../rules/.clinerules`:
+To run automatically at the end of each session, add a hook to your Cline settings. Cline supports custom instructions and rules. Add the following to your Cline settings or `.clinerules/`:
 
 ```json
 {
@@ -175,6 +244,7 @@ Review the session transcript for each pattern type in `patterns_to_detect`:
 | `workarounds` | Solutions to framework/library quirks or bugs |
 | `debugging_techniques` | Effective debugging strategies used |
 | `project_specific` | Conventions, structure, or rules specific to the project |
+| `security_violations` | Password sharing, credential storage, insecure practices |
 
 For each detected pattern, evaluate:
 - **Reusability**: Will this pattern be useful in future sessions?
@@ -240,10 +310,12 @@ description: {when to use this skill}
 - [ ] Session has at least `min_session_length` messages
 - [ ] All patterns in `patterns_to_detect` were checked
 - [ ] Patterns in `ignore_patterns` were skipped
+- [ ] **Security violations are NEVER ignored or saved**
 - [ ] Each extracted pattern is reusable, specific, and general
 - [ ] Learned skills follow the template structure
 - [ ] Learned skills are saved to `learned_skills_path`
 - [ ] User was asked for approval if `auto_approve` is `false`
+- [ ] No passwords or credentials are stored in any output
 
 ## Severity Levels
 
@@ -257,4 +329,4 @@ description: {when to use this skill}
 ## Related
 
 - [The Longform Guide](https://x.com/affaanmustafa/status/2014040193557471352) - Section on continuous learning
-- `/learn` command - Manual pattern extraction mid-session
+- `/learn` command - Manual pattern extraction mid-session
