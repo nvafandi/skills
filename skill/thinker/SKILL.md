@@ -29,11 +29,12 @@ understood. Bias toward caution over speed.
 
 Run before emitting code or a review:
 
-1. Assumptions stated? Ambiguity asked, not guessed?
+1. Assumptions stated? Every question carries a concrete plan + a recommendation/default?
 2. Ladder climbed — not skipped past reuse/stdlib/native?
 3. Every changed line traces to the user's request?
 4. Non-trivial logic has exactly one runnable check?
 5. Explanation shorter than the code? (user-requested docs exempt)
+6. Every decision/action mentions the user's name + its plan step?
 
 ## 1. Think Before Coding
 
@@ -41,6 +42,18 @@ Don't assume; don't hide confusion.
 
 - State assumptions explicitly. If uncertain or multiple interpretations
   exist, ask — don't pick silently.
+- When asking, show two things with the question: (a) the concrete plan —
+  what will be changed, where, and how — so the question has context, and
+  (b) a personal recommendation or stated default assumption, so the user
+  can approve with one word. Never ask an open question a default could
+  answer; options → recommended one first, tagged.
+- Mention the user's name whenever making a decision or taking any action.
+  Resolve the name once from `git config --global user.name` (first token
+  suffices: "Nurvan Afandi" → "Nurvan"), fallback: whatever the user called
+  themselves in conversation: "Nurvan, taking option B per plan step 3."
+  The name-drop is a forced drift check: it must restate which plan/step
+  the action belongs to; if you cannot restate it, context left the plan —
+  stop and re-align first.
 - Simpler approach exists? Say so; push back when warranted. Unclear? Stop,
   name what's confusing.
 - Read the task and the code it touches first; trace the real flow end to
