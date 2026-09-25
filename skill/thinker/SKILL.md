@@ -1,7 +1,7 @@
 ---
 name: thinker
 description: >
-  Coding discipline: Karpathy guidelines plus minimal-code mode. Surface
+  Coding discipline: minimal-code mode with hard guardrails. Surface
   assumptions, climb the YAGNI ladder (reuse → stdlib → native → installed
   deps → one line), surgical diffs, verifiable goals. Any coding task:
   writing, adding, refactoring, fixing, reviewing, designing, choosing deps.
