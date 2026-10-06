@@ -13,7 +13,8 @@
   },
   "scripts": {
     "start": "node src/server.js",
-    "test": "node test/smoke.js"
+    "test": "node test/smoke.js",
+    "build:podman": "podman build -t localhost/powershell-sandbox-mcp:latest -f Dockerfile ."
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.0",

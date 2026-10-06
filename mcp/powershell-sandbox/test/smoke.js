@@ -11,18 +11,35 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 const here = path.dirname(fileURLToPath(import.meta.url));
 const serverEntry = path.join(here, '..', 'src', 'server.js');
 
+/**
+ * Default: jalankan server native di host.
+ * Untuk mode container, set PS_SANDBOX_MCP_COMMAND (JSON array) berisi perintah
+ * podman run, contoh:
+ *   PS_SANDBOX_MCP_COMMAND='["podman","run","-i","--rm","-v","C:/.../ps-sandbox:/sandbox","localhost/powershell-sandbox-mcp:latest"]'
+ *   PS_SANDBOX_MCP_ENV='{"PS_SANDBOX_HOST_ROOT":"C:/.../ps-sandbox"}'
+ */
+const customCommand = process.env.PS_SANDBOX_MCP_COMMAND
+  ? JSON.parse(process.env.PS_SANDBOX_MCP_COMMAND)
+  : null;
+const customEnv = process.env.PS_SANDBOX_MCP_ENV
+  ? JSON.parse(process.env.PS_SANDBOX_MCP_ENV)
+  : {};
+
 const transport = new StdioClientTransport({
-  command: process.execPath,
-  args: [serverEntry],
-  env: {
-    ...process.env,
-    PS_SANDBOX_ROOT: path.join(here, '.tmp-sandbox'),
-    PS_SANDBOX_DEFAULT_TIMEOUT_MS: '30000',
-  },
+  command: customCommand ? customCommand[0] : process.execPath,
+  args: customCommand ? customCommand.slice(1) : [serverEntry],
+  env: customCommand
+    ? { ...process.env, ...customEnv, PS_SANDBOX_DEFAULT_TIMEOUT_MS: '30000' }
+    : {
+        ...process.env,
+        PS_SANDBOX_ROOT: path.join(here, '.tmp-sandbox'),
+        PS_SANDBOX_DEFAULT_TIMEOUT_MS: '30000',
+      },
   stderr: 'inherit',
 });
 
 const client = new Client({ name: 'smoke-test', version: '1.0.0' });
+const mode = customCommand ? `container (${customCommand[0]})` : 'native host';
 
 async function call(name, args = {}) {
   const res = await client.callTool({ name, arguments: args });
@@ -42,7 +59,7 @@ function check(label, condition, extra = '') {
 
 try {
   await client.connect(transport);
-  console.log('connected');
+  console.log(`connected (mode: ${mode})`);
 
   const tools = await client.listTools();
   console.log(`tools: ${tools.tools.map((t) => t.name).join(', ')}`);
@@ -51,10 +68,25 @@ try {
   const info = await call('sandbox_info');
   check('sandbox_info ok', info.data.ok === undefined && !!info.data.root, JSON.stringify(info.data).slice(0, 200));
   check('PowerShell terdeteksi', info.data.powershell?.available === true, info.data.powershell?.error || '');
-  console.log(`  info: root=${info.data.root} ps=${info.data.powershell?.version}`);
+  console.log(
+    `  info: runtime=${JSON.stringify(info.data.runtime)} root=${info.data.root} ` +
+      `host_root=${info.data.host_root} ps=${info.data.powershell?.version}`,
+  );
+  check(
+    'mode container sesuai harvest',
+    customCommand ? info.data.runtime?.in_container === true : true,
+    `in_container=${info.data.runtime?.in_container}`,
+  );
+
+  // Path yang dilaporkan harus yang terlihat dari sisi pemanggil (host).
+  const expectedWorkRoot = info.data.host_root
+    ? `${info.data.host_root}/work`
+    : info.data.work_dir;
+  const normPath = (value) => String(value || '').replace(/\\/g, '/').replace(/\/+$/, '');
 
   await call('write_script', {
     name: 'smoke/hello.ps1',
+    overwrite: true,
     content: [
       'param([string]$Name = "world")',
       '$ErrorActionPreference = "Stop"',
@@ -83,32 +115,39 @@ try {
   const okRun = await call('run_script', { script: 'smoke/hello.ps1', args: ['-Name', 'sandbox'] });
   check('run exit 0', okRun.data.exit_code === 0, JSON.stringify(okRun.data).slice(0, 300));
   check('stdout berisi hello', /hello sandbox/.test(okRun.data.stdout || ''));
-  check('cwd di dalam sandbox', String(okRun.data.cwd || '').startsWith(info.data.work_dir));
-  check('TEMP diarahkan ke run dir', String(okRun.data.stdout || '').includes(String(okRun.data.cwd)));
+  check(
+    'cwd di dalam sandbox',
+    normPath(okRun.data.cwd).startsWith(normPath(expectedWorkRoot)),
+    `cwd=${okRun.data.cwd} expected=${expectedWorkRoot}`,
+  );
+  check(
+    'TEMP diarahkan ke run dir',
+    String(okRun.data.stdout || '').includes(String(okRun.data.sandbox_cwd || okRun.data.cwd)),
+  );
   console.log(`  run_id=${okRun.data.run_id} durasi=${okRun.data.duration_ms}ms log=${okRun.data.stdout_log}`);
 
   const logRead = await call('read_log', { run_id: okRun.data.run_id, which: 'stdout' });
   check('baca log run', /hello sandbox/.test(logRead.data.content || ''));
 
-  await call('write_script', { name: 'smoke/fail.ps1', content: 'Write-Error "boom"; exit 3' });
+  await call('write_script', { name: 'smoke/fail.ps1', overwrite: true, content: 'Write-Error "boom"; exit 3' });
   const failRun = await call('run_script', { script: 'smoke/fail.ps1' });
   check('exit code diteruskan', failRun.data.exit_code === 3, JSON.stringify(failRun.data).slice(0, 200));
   check('stderr tertangkap', /boom/.test(failRun.data.stderr || ''));
 
-  await call('write_script', { name: 'smoke/slow.ps1', content: 'Start-Sleep -Seconds 30' });
+  await call('write_script', { name: 'smoke/slow.ps1', overwrite: true, content: 'Start-Sleep -Seconds 30' });
   const timeoutRun = await call('run_script', { script: 'smoke/slow.ps1', timeout_ms: 2000 });
   check('timeout terpenuhi', timeoutRun.data.timed_out === true, JSON.stringify(timeoutRun.data).slice(0, 200));
 
   const inline = await call('run_code', {
     code: 'Write-Output ("ps=" + $PSVersionTable.PSVersion.ToString())',
   });
-  check('run_code inline', /ps=5\./.test(inline.data.stdout || ''), JSON.stringify(inline.data).slice(0, 200));
+  check('run_code inline', /ps=\d+\./.test(inline.data.stdout || ''), JSON.stringify(inline.data).slice(0, 200));
 
-  await call('write_script', { name: 'smoke/denied.ps1', content: 'Format-Volume -DriveLetter D' });
+  await call('write_script', { name: 'smoke/denied.ps1', overwrite: true, content: 'Format-Volume -DriveLetter D' });
   const denied = await call('run_script', { script: 'smoke/denied.ps1' });
   check('guardrail memblokir', denied.res.isError === true && denied.data.code === 'DENIED', JSON.stringify(denied.data));
 
-  await call('write_script', { name: 'smoke/env.ps1', content: 'Write-Output "custom=$env:PS_SANDBOX_TOKEN"' });
+  await call('write_script', { name: 'smoke/env.ps1', overwrite: true, content: 'Write-Output "custom=$env:PS_SANDBOX_TOKEN"' });
   const envRun = await call('run_script', { script: 'smoke/env.ps1', env: { PS_SANDBOX_TOKEN: 'abc123' } });
   check('env tambahan diteruskan', /custom=abc123/.test(envRun.data.stdout || ''), envRun.data.stderr || '');
 

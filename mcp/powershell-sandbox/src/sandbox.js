@@ -8,6 +8,19 @@ import config from './config.js';
 const RUN_ID_RE = /^\d{8}-\d{6}-[0-9a-f]{6}$/;
 const ENV_NAME_RE = /^[A-Za-z_][A-Za-z0-9_]*$/;
 
+/**
+ * Ubah path in-sandbox jadi path yang terlihat dari host.
+ * Saat server jalan di container Linux, PS_SANDBOX_HOST_ROOT menunjuk ke folder
+ * yang di-bind-mount ke /sandbox, jadi pemanggil (OpenCode di host) tetap bisa
+ * membuka file log/artifact dengan tool filesystem miliknya.
+ */
+export function toHostPath(target) {
+  if (!config.hostRoot || config.hostRoot === config.dirs.root) return target;
+  const rel = path.relative(config.dirs.root, target);
+  if (!rel || rel.startsWith('..') || path.isAbsolute(rel)) return target;
+  return path.join(config.hostRoot, rel);
+}
+
 /* ------------------------------------------------------------------ layout */
 
 export async function ensureLayout() {
@@ -58,10 +71,13 @@ async function assertRealpathInside(base, target, label = 'path') {
   return resolveInside(await fsp.realpath(base), real, label);
 }
 
+/** Deteksi path absolut lintas-platform (POSIX, drive Windows, UNC). */
+const ABSOLUTE_RE = /^(?:[A-Za-z]:[\\/]|\\\\|\/)/;
+
 /** Resolusi nama script relatif terhadap folder scripts/. */
 export async function resolveScriptPath(name) {
   assertNoNul(name);
-  if (path.isAbsolute(name)) {
+  if (path.isAbsolute(name) || ABSOLUTE_RE.test(name)) {
     throw new SandboxError(
       'Gunakan path relatif terhadap folder scripts/ sandbox.',
       'INVALID_PATH',
@@ -225,6 +241,7 @@ function buildEnv(runId, runDir, extra) {
   env.TMP = runDir;
   env.PS_SANDBOX = '1';
   env.PS_SANDBOX_ROOT = config.dirs.root;
+  if (config.hostRoot) env.PS_SANDBOX_HOST_ROOT = config.hostRoot;
   env.PS_SANDBOX_RUN_ID = runId;
   env.POWERSHELL_TELEMETRY_OPTOUT = '1';
   env.POWERSHELL_UPDATECHECK = 'Off';
@@ -309,7 +326,7 @@ export async function runScript({
         kind,
         label: label || null,
         script: path.relative(config.dirs.scripts, scriptPath).split(path.sep).join('/'),
-        script_path: scriptPath,
+        script_path: toHostPath(scriptPath),
         script_size_bytes: stat.size,
         args: args.map(String),
         timeout_ms: limit,
@@ -375,13 +392,16 @@ function execute({ shellArgs, childEnv, runDir, logDir, limit, startedAt, meta }
       cwd: runDir,
       env: childEnv,
       windowsHide: true,
+      // Di Linux spawn jadi leader process group supaya killTree bisa menyapu
+      // seluruh anak pwsh dengan satu sinyal ke -pid.
+      detached: !config.isWindows,
       stdio: ['ignore', 'pipe', 'pipe'],
     });
 
     const timer = setTimeout(() => {
       timedOut = true;
       killTree(child.pid);
-      child.kill('SIGKILL');
+      if (config.isWindows) child.kill('SIGKILL');
     }, limit);
 
     child.stdout.setEncoding('utf8');
@@ -423,10 +443,11 @@ function execute({ shellArgs, childEnv, runDir, logDir, limit, startedAt, meta }
         stderr_truncated: err.truncated,
         stdout_bytes: out.bytes,
         stderr_bytes: err.bytes,
-        cwd: runDir,
-        log_dir: logDir,
-        stdout_log: stdoutFile,
-        stderr_log: stderrFile,
+        cwd: toHostPath(runDir),
+        sandbox_cwd: runDir,
+        log_dir: toHostPath(logDir),
+        stdout_log: toHostPath(stdoutFile),
+        stderr_log: toHostPath(stderrFile),
       };
 
       fsp
@@ -437,16 +458,31 @@ function execute({ shellArgs, childEnv, runDir, logDir, limit, startedAt, meta }
   });
 }
 
-/** Matikan seluruh pohon proses (Windows). */
+/** Matikan seluruh pohon proses: taskkill di Windows, sinyal process group di Linux. */
 function killTree(pid) {
   if (!pid) return;
-  try {
-    spawn('taskkill', ['/PID', String(pid), '/T', '/F'], {
-      windowsHide: true,
-      stdio: 'ignore',
-    }).on('error', () => {});
-  } catch {
-    /* best effort */
+  if (config.isWindows) {
+    try {
+      spawn('taskkill', ['/PID', String(pid), '/T', '/F'], {
+        windowsHide: true,
+        stdio: 'ignore',
+      }).on('error', () => {});
+    } catch {
+      /* best effort */
+    }
+    return;
+  }
+  // detached:true di spawn membuat child jadi leader group, jadi -pid = seluruh grup.
+  for (const signal of ['SIGTERM', 'SIGKILL']) {
+    try {
+      process.kill(-pid, signal);
+    } catch {
+      try {
+        process.kill(pid, signal);
+      } catch {
+        /* proses sudah mati */
+      }
+    }
   }
 }
 
@@ -489,7 +525,13 @@ export async function sandboxInfo() {
   ]);
 
   return {
+    runtime: {
+      platform: process.platform,
+      in_container: fs.existsSync('/.dockerenv') || fs.existsSync('/run/.containerenv'),
+      node_version: process.version,
+    },
     root: config.dirs.root,
+    host_root: config.hostRoot,
     scripts_dir: config.dirs.scripts,
     work_dir: config.dirs.work,
     logs_dir: config.dirs.logs,
