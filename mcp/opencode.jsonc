@@ -31,6 +31,20 @@
       ],
       "enabled": true
     },
+    "powershell-sandbox": {
+      "type": "local",
+      "command": [
+        "node",
+        "C:/Users/irvan/Documents/project/skills/mcp/powershell-sandbox/src/server.js"
+      ],
+      "enabled": true,
+      "environment": {
+        "PS_SANDBOX_ROOT": "C:/Users/irvan/AppData/Local/Temp/opencode/ps-sandbox",
+        "PS_SANDBOX_DEFAULT_TIMEOUT_MS": "120000",
+        "PS_SANDBOX_MAX_CONCURRENT": "2",
+        "PS_SANDBOX_DENY": "1"
+      }
+    },
     "postgres": {
       "type": "local",
       "command": [
