@@ -10,6 +10,7 @@ const ENV_ALLOWLIST = [
   'PATHEXT',
   'PATH',
   'USERPROFILE',
+  'HOME',
   'HOMEDRIVE',
   'HOMEPATH',
   'APPDATA',
@@ -37,20 +38,46 @@ function boolEnv(name, fallback) {
   return ['1', 'true', 'yes', 'on'].includes(raw.toLowerCase());
 }
 
-const root = path.resolve(
-  process.env.PS_SANDBOX_ROOT || path.join(os.tmpdir(), 'opencode', 'ps-sandbox'),
-);
+const IS_WINDOWS = process.platform === 'win32';
+
+/**
+ * Default root:
+ * - di dalam container Linux → /sandbox (bind mount dari host)
+ * - di host Windows → %TEMP%\opencode\ps-sandbox
+ */
+const defaultRoot = IS_WINDOWS
+  ? path.join(os.tmpdir(), 'opencode', 'ps-sandbox')
+  : '/sandbox';
+
+const root = path.resolve(process.env.PS_SANDBOX_ROOT || defaultRoot);
+
+/**
+ * Path sandbox di sisi host, kalau server jalan di dalam container.
+ * Dipakai supaya path yang dilaporkan ke pemanggil tetap bisa dibuka dari host.
+ * Di Linux jangan di-resolve: nilai ini memang path Windows (mis. C:/Users/...)
+ * yang hanya dipakai untuk ditampilkan.
+ */
+const hostRootEnv = process.env.PS_SANDBOX_HOST_ROOT;
+const hostRoot = hostRootEnv
+  ? IS_WINDOWS
+    ? path.resolve(hostRootEnv)
+    : hostRootEnv.replace(/\/+$/, '')
+  : IS_WINDOWS
+    ? root
+    : null;
 
 export const config = {
   root,
+  hostRoot,
+  isWindows: IS_WINDOWS,
   dirs: {
     root,
     scripts: path.join(root, 'scripts'),
     work: path.join(root, 'work'),
     logs: path.join(root, 'logs'),
   },
-  /** Shell yang dipakai untuk eksekusi. */
-  shell: process.env.PS_SANDBOX_SHELL || 'powershell.exe',
+  /** Shell yang dipakai untuk eksekusi (pwsh di container Linux). */
+  shell: process.env.PS_SANDBOX_SHELL || (IS_WINDOWS ? 'powershell.exe' : 'pwsh'),
   /** Argumen dasar; `-File <script>` ditambahkan runtime. */
   shellArgs: ['-NoLogo', '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass'],
   defaultTimeoutMs: intEnv('PS_SANDBOX_DEFAULT_TIMEOUT_MS', 120_000),
