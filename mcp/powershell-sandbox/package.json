@@ -1,8 +1,8 @@
 {
   "name": "powershell-sandbox-mcp",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
-  "description": "MCP server (stdio) untuk menjalankan script PowerShell di sandbox terisolasi ringan: working dir khusus, env minimal, timeout, log, dan penjaga path.",
+  "description": "MCP server (stdio) untuk menjalankan script PowerShell (.ps1) dan bash (.sh) di sandbox terisolasi ringan: working dir khusus, env minimal, timeout, log, dan penjaga path.",
   "type": "module",
   "main": "src/server.js",
   "bin": {
@@ -14,7 +14,8 @@
   "scripts": {
     "start": "node src/server.js",
     "test": "node test/smoke.js",
-    "build:podman": "podman build -t localhost/powershell-sandbox-mcp:latest -f Dockerfile ."
+    "build:podman": "podman build -t localhost/powershell-sandbox-mcp:latest -f Dockerfile .",
+    "launch:podman": "node scripts/launch-stdio.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.0",

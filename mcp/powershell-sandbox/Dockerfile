@@ -1,7 +1,8 @@
 # powershell-sandbox-mcp — image container untuk MCP server.
 #
 # Base = PowerShell 7 (Linux) supaya script PowerShell dieksekusi di dalam container,
-# bukan di host Windows. Node ditambahkan untuk menjalankan MCP stdio server.
+# bukan di host Windows. Bash sudah ada di base Ubuntu untuk file .sh.
+# Node ditambahkan untuk menjalankan MCP stdio server.
 ARG PS_IMAGE=mcr.microsoft.com/powershell:7.5-ubuntu-22.04
 FROM ${PS_IMAGE}
 
@@ -30,7 +31,7 @@ RUN npm ci --omit=dev --no-audit --no-fund
 
 COPY src ./src
 
-# Folder sandbox adalah bind mount dari host (lihat scripts/podman-run.ps1),
+# Folder sandbox adalah bind mount dari host (lihat scripts/launch-stdio.js),
 # jadi di image hanya disiapkan sebagai fallback.
 RUN mkdir -p /sandbox/scripts /sandbox/work /sandbox/logs
 
