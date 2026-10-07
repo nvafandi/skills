@@ -5,5 +5,27 @@
       "path": "./setup",
       "description": "Setup guides and configuration files"
     }
+  },
+  "mcp": {
+    "servers": {
+      "android-mcp": {
+        "type": "local",
+        "command": ["uvx", "--python", "3.13", "android-mcp"]
+      },
+      "python-sandbox": {
+        "type": "local",
+        "enabled": true,
+        "cwd": "C:/Users/irvan/python-sandbox",
+        "timeout": 180000,
+        "command": [
+          "C:/Users/irvan/python-sandbox/.venv/Scripts/python.exe",
+          "-q",
+          "-u",
+          "-X",
+          "utf8",
+          "C:/Users/irvan/python-sandbox/mcp_stdio.py"
+        ]
+      }
+    }
   }
 }
