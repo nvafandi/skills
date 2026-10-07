@@ -143,6 +143,14 @@ try {
   });
   check('run_code inline', /ps=\d+\./.test(inline.data.stdout || ''), JSON.stringify(inline.data).slice(0, 200));
 
+  // run_code harus membersihkan file sementara-nya sendiri.
+  const afterInline = await call('list_scripts');
+  check(
+    'run_code tidak meninggalkan file sementara',
+    !afterInline.data.scripts?.some((s) => s.name.startsWith('__inline/')),
+    JSON.stringify(afterInline.data.scripts?.filter((s) => s.name.startsWith('__inline/'))),
+  );
+
   await call('write_script', { name: 'smoke/denied.ps1', overwrite: true, content: 'Format-Volume -DriveLetter D' });
   const denied = await call('run_script', { script: 'smoke/denied.ps1' });
   check('guardrail memblokir', denied.res.isError === true && denied.data.code === 'DENIED', JSON.stringify(denied.data));
@@ -153,6 +161,97 @@ try {
 
   const del = await call('delete_script', { name: 'smoke/env.ps1' });
   check('hapus script', del.data.deleted === true);
+
+  /* --------------------------------------------------------------- script .sh */
+
+  const shSupported = info.data.extensions?.includes('.sh') === true;
+  if (shSupported) {
+    const bashOk = info.data.shells?.['.sh']?.available === true;
+
+    await call('write_script', {
+      name: 'smoke/hello.sh',
+      overwrite: true,
+      // Sengaja pakai CRLF untuk memastikan normalisasi LF bekerja.
+      content: [
+        '#!/usr/bin/env bash',
+        'set -euo pipefail',
+        'name="${1:-world}"',
+        'echo "hello $name"',
+        'echo "args=$#"',
+        'echo "cwd=$PWD"',
+        'echo "temp=${TEMP:-unset}"',
+        'if [ -n "${PS_SANDBOX_TOKEN:-}" ]; then echo "token=$PS_SANDBOX_TOKEN"; fi',
+      ].join('\r\n'),
+    });
+    check('write .sh dinormalisasi ke LF', true);
+
+    const badExt = await call('write_script', { name: 'smoke/nope.py', content: 'print(1)' });
+    check(
+      'tolak ekstensi di luar daftar',
+      badExt.res.isError === true && badExt.data.code === 'INVALID_SCRIPT',
+      JSON.stringify(badExt.data),
+    );
+
+    const shList = await call('list_scripts');
+    check('.sh masuk daftar script', shList.data.scripts?.some((s) => s.name === 'smoke/hello.sh'));
+
+    if (bashOk) {
+      const shRun = await call('run_script', { script: 'smoke/hello.sh', args: ['sandbox'] });
+      check('.sh exit 0', shRun.data.exit_code === 0, JSON.stringify(shRun.data).slice(0, 300));
+      check('.sh stdout benar', /hello sandbox/.test(shRun.data.stdout || ''), shRun.data.stderr || '');
+      check('.sh meneruskan args', /args=1/.test(shRun.data.stdout || ''), shRun.data.stdout || '');
+      check(
+        '.sh cwd di dalam sandbox',
+        normPath(shRun.data.cwd).startsWith(normPath(expectedWorkRoot)),
+        `cwd=${shRun.data.cwd}`,
+      );
+      // Git Bash (cygwin) menimpa TEMP/TMP jadi /tmp, jadi cek ini khusus POSIX native.
+      if (process.platform !== 'win32') {
+        check('.sh TEMP diarahkan', String(shRun.data.stdout || '').includes(String(shRun.data.sandbox_cwd || '')));
+      }
+      check('.sh interpreter tercatat', /bash/.test(String(shRun.data.interpreter || '')), String(shRun.data.interpreter));
+
+      await call('write_script', {
+        name: 'smoke/fail.sh',
+        overwrite: true,
+        content: 'echo "ke stderr" >&2\nexit 7\n',
+      });
+      const shFail = await call('run_script', { script: 'smoke/fail.sh' });
+      check('.sh exit code diteruskan', shFail.data.exit_code === 7, JSON.stringify(shFail.data).slice(0, 200));
+      check('.sh stderr tertangkap', /ke stderr/.test(shFail.data.stderr || ''));
+
+      await call('write_script', { name: 'smoke/env.sh', overwrite: true, content: 'echo "custom=$PS_SANDBOX_TOKEN"\n' });
+      const shEnv = await call('run_script', {
+        script: 'smoke/env.sh',
+        env: { PS_SANDBOX_TOKEN: 'sh123' },
+      });
+      check('.sh env tambahan diteruskan', /custom=sh123/.test(shEnv.data.stdout || ''), shEnv.data.stderr || '');
+
+      await call('write_script', { name: 'smoke/denied.sh', overwrite: true, content: 'rm -rf /\n' });
+      const shDenied = await call('run_script', { script: 'smoke/denied.sh' });
+      check(
+        'guardrail sh memblokir',
+        shDenied.res.isError === true && shDenied.data.code === 'DENIED',
+        JSON.stringify(shDenied.data),
+      );
+
+      await call('write_script', {
+        name: 'smoke/timeout.sh',
+        overwrite: true,
+        content: 'sleep 30\n',
+      });
+      const shTimeout = await call('run_script', { script: 'smoke/timeout.sh', timeout_ms: 2000 });
+      check(
+        '.sh timeout terpenuhi',
+        shTimeout.data.timed_out === true,
+        JSON.stringify(shTimeout.data).slice(0, 200),
+      );
+    } else {
+      console.log('  SKIP  test .sh (bash tidak tersedia di lingkungan ini)');
+    }
+  } else {
+    console.log('  SKIP  test .sh (ekstensi .sh dinonaktifkan lewat PS_SANDBOX_EXTENSIONS)');
+  }
 
   console.log('\nsmoke test selesai');
 } catch (err) {

@@ -30,13 +30,15 @@ import {
 } from './sandbox.js';
 
 const server = new McpServer(
-  { name: 'powershell-sandbox', version: '1.0.0' },
+  { name: 'powershell-sandbox', version: '1.1.0' },
   {
     capabilities: { tools: {} },
     instructions:
-      'Gunakan tool ini untuk menulis dan menjalankan script PowerShell tanpa mencemari folder kerja utama. ' +
+      'Gunakan tool ini untuk menulis dan menjalankan script tanpa mencemari folder kerja utama. ' +
       'Alur umum: write_script -> run_script -> baca stdout/stderr dari hasil. ' +
-      'Semua path relatif terhadap folder scripts/ di dalam sandbox; path di luar sandbox ditolak.',
+      'Ekstensi .ps1 dieksekusi dengan PowerShell (pwsh), .sh dengan bash; interpreter dipilih ' +
+      'otomatis dari ekstensi file. Semua path relatif terhadap folder scripts/ di dalam sandbox; ' +
+      'path di luar sandbox ditolak.',
   },
 );
 
@@ -92,7 +94,8 @@ server.registerTool(
   {
     title: 'Info sandbox',
     description:
-      'Informasi sandbox: folder root/scripts/work/logs, versi PowerShell, limit, guardrails, env allowlist, dan jumlah file.',
+      'Informasi sandbox: folder root/scripts/work/logs, versi tiap shell (.ps1/.sh), limit, ' +
+      'guardrails, env allowlist, dan jumlah file.',
     inputSchema: {},
   },
   wrap(async () => ok(await sandboxInfo())),
@@ -104,7 +107,8 @@ server.registerTool(
   'list_scripts',
   {
     title: 'Daftar script',
-    description: 'Daftar semua file .ps1 yang ada di folder scripts/ sandbox, diurutkan dari yang terbaru.',
+    description:
+      'Daftar semua file script (.ps1/.sh) yang ada di folder scripts/ sandbox, diurutkan dari yang terbaru.',
     inputSchema: {},
   },
   wrap(async () => ok({ ok: true, scripts: await listScripts() })),
@@ -117,10 +121,12 @@ server.registerTool(
   {
     title: 'Tulis script',
     description:
-      'Membuat atau menimpa file .ps1 di dalam folder scripts/ sandbox. Path relatif saja (subfolder dibolehkan).',
+      'Membuat atau menimpa file script di dalam folder scripts/ sandbox. Path relatif saja ' +
+      '(subfolder dibolehkan). .ps1 ditulis apa adanya; .sh dinormalisasi ke line ending LF ' +
+      'dan dilaporkan lewat normalized_crlf.',
     inputSchema: {
-      name: z.string().describe('Nama file relatif, harus berakhiran .ps1, contoh: deploy/check.ps1'),
-      content: z.string().describe('Isi script PowerShell (UTF-8).'),
+      name: z.string().describe('Nama file relatif, contoh: deploy/check.ps1 atau deploy/check.sh'),
+      content: z.string().describe('Isi script (UTF-8): PowerShell untuk .ps1, bash untuk .sh.'),
       overwrite: z.boolean().optional().describe('Set true untuk menimpa file yang sudah ada.'),
     },
   },
@@ -133,7 +139,7 @@ server.registerTool(
   'read_script',
   {
     title: 'Baca script',
-    description: 'Membaca isi file .ps1 dari folder scripts/ sandbox.',
+    description: 'Membaca isi file script (.ps1/.sh) dari folder scripts/ sandbox.',
     inputSchema: {
       name: z.string().describe('Nama file relatif, contoh: deploy/check.ps1'),
     },
@@ -147,7 +153,7 @@ server.registerTool(
   'delete_script',
   {
     title: 'Hapus script',
-    description: 'Menghapus file .ps1 dari folder scripts/ sandbox.',
+    description: 'Menghapus file script (.ps1/.sh) dari folder scripts/ sandbox.',
     inputSchema: {
       name: z.string().describe('Nama file relatif, contoh: deploy/check.ps1'),
     },
@@ -162,10 +168,12 @@ server.registerTool(
   {
     title: 'Jalankan script',
     description:
-      'Menjalankan file .ps1 di sandbox: proses terpisah, working dir per-run, env minimal, timeout, log, ' +
-      'dan hasil berisi exit_code/duration/stdout/stderr. Path relatif terhadap scripts/.',
+      'Menjalankan file script di sandbox: proses terpisah, working dir per-run, env minimal, timeout, log, ' +
+      'dan hasil berisi exit_code/duration/stdout/stderr. Path relatif terhadap scripts/. ' +
+      'Interpreter dipilih dari ekstensi: .ps1 -> pwsh -File, .sh -> bash <script>. ' +
+      'Argumen tools/call ditulis sebagai array agar spasi tidak terpecah.',
     inputSchema: {
-      script: z.string().describe('Path relatif script, contoh: deploy/check.ps1'),
+      script: z.string().describe('Path relatif script, contoh: deploy/check.ps1 atau deploy/check.sh'),
       args: z.array(z.string()).optional().describe('Argumen tambahan setelah nama script.'),
       timeout_ms: timeoutSchema,
       env: envSchema,

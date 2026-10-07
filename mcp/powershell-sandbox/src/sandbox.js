@@ -3,7 +3,7 @@ import fsp from 'node:fs/promises';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
-import config from './config.js';
+import config, { denyPatternsFor, extOf, shellFor } from './config.js';
 
 const RUN_ID_RE = /^\d{8}-\d{6}-[0-9a-f]{6}$/;
 const ENV_NAME_RE = /^[A-Za-z_][A-Za-z0-9_]*$/;
@@ -83,11 +83,21 @@ export async function resolveScriptPath(name) {
       'INVALID_PATH',
     );
   }
-  if (!name.toLowerCase().endsWith('.ps1')) {
-    throw new SandboxError('Hanya file .ps1 yang bisa dieksekusi.', 'INVALID_SCRIPT');
+  const ext = extOf(name);
+  if (!config.extensions.includes(ext)) {
+    throw new SandboxError(
+      `Ekstensi tidak didukung: ${ext || '(tanpa ekstensi)'}. ` +
+        `Hanya ${config.extensions.join(', ')} yang bisa dipakai.`,
+      'INVALID_SCRIPT',
+    );
   }
   const target = resolveInside(config.dirs.scripts, name, 'script');
   return assertRealpathInside(config.dirs.scripts, target, 'script');
+}
+
+/** True kalau nama file berakhiran salah satu ekstensi yang diizinkan. */
+function isScriptFile(name) {
+  return config.extensions.includes(extOf(name));
 }
 
 /* ------------------------------------------------------------ script files */
@@ -102,7 +112,7 @@ export async function listScripts() {
       const full = path.join(dir, entry.name);
       if (entry.isDirectory()) {
         await walk(full, rel);
-      } else if (entry.name.toLowerCase().endsWith('.ps1')) {
+      } else if (isScriptFile(entry.name)) {
         const stat = await fsp.stat(full);
         out.push({
           name: rel,
@@ -135,8 +145,22 @@ export async function writeScript({ name, content, overwrite = false }) {
     );
   }
   await fsp.mkdir(path.dirname(target), { recursive: true });
-  await fsp.writeFile(target, content.replace(/^\uFEFF/, ''), 'utf8');
-  return { name: path.relative(config.dirs.scripts, target).split(path.sep).join('/'), size_bytes: bytes, created: !existed };
+  let body = content.replace(/^\uFEFF/, '');
+  // bash gagal kalau ada \r di akhir baris (`\r: command not found`), jadi .sh
+  // dinormalisasi ke LF. Dilaporkan balik supaya tidak diam-diam mengubah isi.
+  let normalizedCrlf = false;
+  if (extOf(target) === '.sh' && config.normalizeShLineEndings && /\r/.test(body)) {
+    body = body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    normalizedCrlf = true;
+  }
+  await fsp.writeFile(target, body, 'utf8');
+  return {
+    name: path.relative(config.dirs.scripts, target).split(path.sep).join('/'),
+    size_bytes: bytes,
+    created: !existed,
+    interpreter: shellFor(target)?.shell ?? null,
+    normalized_crlf: normalizedCrlf,
+  };
 }
 
 export async function readScript(name) {
@@ -158,12 +182,14 @@ export async function deleteScript(name) {
 
 /* ------------------------------------------------------------- guardrails */
 
-export function scanDenied(content) {
+export function scanDenied(content, kind = 'powershell') {
+  const patterns = denyPatternsFor(kind);
   const hits = [];
   const lines = String(content).split(/\r?\n/);
   for (const [index, line] of lines.entries()) {
+    // Buang komentar: `#` untuk PowerShell maupun sh.
     const code = line.replace(/^\s*#.*$/, '');
-    for (const { re, reason } of config.denyPatterns) {
+    for (const { re, reason } of patterns) {
       if (re.test(code)) {
         hits.push({ line: index + 1, reason, text: line.trim().slice(0, 160) });
         break;
@@ -198,6 +224,20 @@ function release() {
 function clampTimeout(ms) {
   const value = Number.isFinite(ms) && ms > 0 ? Math.floor(ms) : config.defaultTimeoutMs;
   return Math.min(value, config.maxTimeoutMs);
+}
+
+/**
+ * Susun argumen shell sesuai bahasa script.
+ * PowerShell butuh `-File <script>`, POSIX shell cukup `<script>` lalu args.
+ */
+function buildShellArgs(target, scriptPath, args) {
+  const extra = args.map(String);
+  if (target.kind === 'sh') {
+    // Git Bash (cygwin) menerima path Windows asal ditulis dengan forward slash.
+    const script = config.isWindows ? scriptPath.replace(/\\/g, '/') : scriptPath;
+    return [...target.args, script, ...extra];
+  }
+  return [...target.args, '-File', scriptPath, ...extra];
 }
 
 function truncate(text, maxBytes) {
@@ -277,6 +317,7 @@ export async function runScript({
   script,
   args = [],
   timeoutMs,
+  timeout_ms,
   env = {},
   label,
   kind = 'file',
@@ -284,12 +325,14 @@ export async function runScript({
   await ensureLayout();
 
   const scriptPath = await resolveScriptPath(script);
+  const target = shellFor(scriptPath);
   const extraEnv = validateExtraEnv(env);
   const stat = await fsp.stat(scriptPath);
 
+  const denyPatterns = denyPatternsFor(target.kind);
   let hits = [];
-  if (config.denyPatterns.length > 0) {
-    hits = scanDenied(await fsp.readFile(scriptPath, 'utf8'));
+  if (denyPatterns.length > 0) {
+    hits = scanDenied(await fsp.readFile(scriptPath, 'utf8'), target.kind);
     if (hits.length > 0) {
       throw new SandboxError(
         `Script diblokir guardrail: ${hits.map((h) => `baris ${h.line} (${h.reason})`).join(', ')}. ` +
@@ -299,7 +342,9 @@ export async function runScript({
     }
   }
 
-  const limit = clampTimeout(timeoutMs);
+  // Schema tool menyebut field `timeout_ms`, jadi terima nama itu (dan alias
+  // camelCase) — kalau tidak, nilai yang dikirim pemanggil diam-diam diabaikan.
+  const limit = clampTimeout(timeout_ms ?? timeoutMs);
   const runId = `${stamp()}-${randomBytes(3).toString('hex')}`;
   const runDir = path.join(config.dirs.work, runId);
   const logDir = path.join(config.dirs.logs, runId);
@@ -308,13 +353,14 @@ export async function runScript({
   await fsp.mkdir(logDir, { recursive: true });
 
   const childEnv = buildEnv(runId, runDir, extraEnv);
-  const shellArgs = [...config.shellArgs, '-File', scriptPath, ...args.map(String)];
+  const shellArgs = buildShellArgs(target, scriptPath, args);
   const startedAt = new Date();
 
   await acquire();
   let result;
   try {
     result = await execute({
+      shell: target.shell,
       shellArgs,
       childEnv,
       runDir,
@@ -328,6 +374,8 @@ export async function runScript({
         script: path.relative(config.dirs.scripts, scriptPath).split(path.sep).join('/'),
         script_path: toHostPath(scriptPath),
         script_size_bytes: stat.size,
+        interpreter: target.shell,
+        shell_kind: target.kind,
         args: args.map(String),
         timeout_ms: limit,
         extra_env_keys: Object.keys(extraEnv),
@@ -345,26 +393,26 @@ export async function runScript({
   return result;
 }
 
-/** Jalankan kode inline: ditulis ke file .ps1 di work dir lalu dieksekusi. */
-export async function runCode({ code, args = [], timeoutMs, env = {}, label }) {
+/** Jalankan kode inline: ditulis ke file .ps1 di scripts/ lalu dieksekusi. */
+export async function runCode({ code, args = [], timeoutMs, timeout_ms, env = {}, label }) {
   assertNoNul(code);
   const runId = `${stamp()}-${randomBytes(3).toString('hex')}`;
   await ensureLayout();
-  const tmpDir = path.join(config.dirs.work, '_inline');
-  await fsp.mkdir(tmpDir, { recursive: true });
   const name = `inline-${runId}.ps1`;
-  await writeScript({ name: `__inline/${name}`, content: code, overwrite: true });
+  const relName = `__inline/${name}`;
+  await writeScript({ name: relName, content: code, overwrite: true });
   try {
     return await runScript({
-      script: `__inline/${name}`,
+      script: relName,
       args,
-      timeoutMs,
+      timeoutMs: timeout_ms ?? timeoutMs,
       env,
       label: label || 'inline',
       kind: 'inline',
     });
   } finally {
-    await fsp.rm(path.join(tmpDir, name), { force: true }).catch(() => {});
+    // writeScript menaruh file di scripts/__inline/, jadi hapus dari sana juga.
+    await fsp.rm(path.join(config.dirs.scripts, '__inline', name), { force: true }).catch(() => {});
   }
 }
 
@@ -376,7 +424,7 @@ function stamp(date = new Date()) {
   );
 }
 
-function execute({ shellArgs, childEnv, runDir, logDir, limit, startedAt, meta }) {
+function execute({ shell, shellArgs, childEnv, runDir, logDir, limit, startedAt, meta }) {
   return new Promise((resolve) => {
     const stdoutFile = path.join(logDir, 'stdout.log');
     const stderrFile = path.join(logDir, 'stderr.log');
@@ -388,7 +436,7 @@ function execute({ shellArgs, childEnv, runDir, logDir, limit, startedAt, meta }
     let timedOut = false;
     let spawnError = null;
 
-    const child = spawn(config.shell, shellArgs, {
+    const child = spawn(shell, shellArgs, {
       cwd: runDir,
       env: childEnv,
       windowsHide: true,
@@ -490,30 +538,12 @@ function killTree(pid) {
 
 export async function sandboxInfo() {
   await ensureLayout();
-  let powershell = { available: false, version: null, error: null };
+  const shellsInfo = {};
   await acquire();
   try {
-    const probe = await new Promise((resolve) => {
-      const child = spawn(
-        config.shell,
-        [...config.shellArgs, '-Command', '$PSVersionTable.PSVersion.ToString()'],
-        {
-          cwd: config.dirs.root,
-          env: { ...pickProcessEnv(), TEMP: config.dirs.root, TMP: config.dirs.root },
-          windowsHide: true,
-          stdio: ['ignore', 'pipe', 'pipe'],
-        },
-      );
-      let out = '';
-      child.stdout.on('data', (c) => (out += c.toString()));
-      child.on('error', (err) => resolve({ ok: false, error: err.message }));
-      child.on('close', (code) => resolve({ ok: code === 0, version: out.trim() }));
-    });
-    powershell = {
-      available: probe.ok,
-      version: probe.ok ? probe.version : null,
-      error: probe.ok ? null : probe.error || 'tidak bisa menjalankan PowerShell',
-    };
+    for (const [ext, target] of Object.entries(config.shells)) {
+      shellsInfo[ext] = { ...target, ...(await probeShell(target)) };
+    }
   } finally {
     release();
   }
@@ -537,7 +567,15 @@ export async function sandboxInfo() {
     logs_dir: config.dirs.logs,
     shell: config.shell,
     shell_args: config.shellArgs,
-    powershell,
+    extensions: config.extensions,
+    shells: shellsInfo,
+    powershell: shellsInfo['.ps1']
+      ? {
+          available: shellsInfo['.ps1'].available,
+          version: shellsInfo['.ps1'].version,
+          error: shellsInfo['.ps1'].error,
+        }
+      : { available: false, version: null, error: 'ekstensi .ps1 dinonaktifkan' },
     limits: {
       default_timeout_ms: config.defaultTimeoutMs,
       max_timeout_ms: config.maxTimeoutMs,
@@ -549,10 +587,58 @@ export async function sandboxInfo() {
     guardrails: {
       deny_enabled: config.denyPatterns.length > 0,
       deny_rules: config.denyPatterns.map((d) => d.reason),
+      deny_enabled_sh: config.shDenyPatterns.length > 0,
+      deny_rules_sh: config.shDenyPatterns.map((d) => d.reason),
     },
     env_allowlist: config.envAllowlist,
     counts: { scripts: scriptCount, work_dirs: workCount, log_dirs: logCount },
   };
+}
+
+/**
+ * Jalankan shell sebentar untuk tahu apakah benar-benar bisa dipakai:
+ * cek versi, lalu eksekusi no-op. `available` hanya true kalau keduanya jalan,
+ * jadi launcher yang hanya bisa menampilkan versi tidak ikut terhitung.
+ */
+function probeShell(target) {
+  const base =
+    target.kind === 'sh'
+      ? [...target.args, '-c']
+      : [...target.args, '-Command'];
+  const versionArgs =
+    target.kind === 'sh'
+      ? [...target.args, '--version']
+      : [...target.args, '-Command', '$PSVersionTable.PSVersion.ToString()'];
+  const execArgs = [...base, 'exit 0'];
+
+  return new Promise((resolve) => {
+    const run = (args) =>
+      new Promise((done) => {
+        const child = spawn(target.shell, args, {
+          cwd: config.dirs.root,
+          env: { ...pickProcessEnv(), TEMP: config.dirs.root, TMP: config.dirs.root },
+          windowsHide: true,
+          stdio: ['ignore', 'pipe', 'pipe'],
+        });
+        let out = '';
+        child.stdout.on('data', (c) => (out += c.toString()));
+        child.on('error', (err) => done({ ok: false, output: '', error: err.message }));
+        child.on('close', (code) => done({ ok: code === 0, output: out, error: code === 0 ? null : `exit ${code}` }));
+      });
+
+    (async () => {
+      const exec = await run(execArgs);
+      if (!exec.ok) {
+        return resolve({ available: false, version: null, error: exec.error || 'tidak bisa menjalankan shell' });
+      }
+      const version = await run(versionArgs);
+      return resolve({
+        available: true,
+        version: version.ok ? version.output.split('\n')[0].trim() : null,
+        error: null,
+      });
+    })();
+  });
 }
 
 function pickProcessEnv() {
@@ -577,7 +663,7 @@ async function countScripts(dir) {
   const walk = async (current) => {
     for (const entry of await fsp.readdir(current, { withFileTypes: true })) {
       if (entry.isDirectory()) await walk(path.join(current, entry.name));
-      else if (entry.name.toLowerCase().endsWith('.ps1')) total += 1;
+      else if (isScriptFile(entry.name)) total += 1;
     }
   };
   try {
