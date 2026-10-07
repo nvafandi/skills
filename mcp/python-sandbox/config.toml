@@ -1,0 +1,32 @@
+[server]
+# Server configuration
+# 127.0.0.1 = localhost only (repo default 0.0.0.0 membuka akses ke seluruh LAN)
+host = "127.0.0.1"
+port = 8181
+
+[auth]
+require_auth = false
+# Default user ID when authentication is disabled
+default_user_id = "root"
+# Maximum number of sandboxes a user can create
+user_sandbox_limit = 3
+
+[docker]
+# Default Docker image name
+default_image = "python-sandbox:latest"
+# Dockerfile path
+dockerfile_path = "sandbox_images/Dockerfile"
+# Whether to check for Dockerfile changes and rebuild if needed
+check_dockerfile_changes = true
+# File to store last build information
+build_info_file = ".docker_build_info"
+
+[logging]
+# Logging configuration
+level = "INFO"
+format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+log_file = "python_sandbox.log"
+
+[mirror]
+# Default repo memakai mirror Alibaba (China); ganti ke PyPI resmi agar stabil
+pypi_index_url = "https://pypi.org/simple/"

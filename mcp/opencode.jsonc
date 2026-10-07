@@ -31,6 +31,40 @@
       ],
       "enabled": true
     },
+    "python-sandbox": {
+      "type": "local",
+      "enabled": true,
+      "cwd": "C:/Users/irvan/python-sandbox",
+      "timeout": 180000,
+      "command": [
+        "C:/Users/irvan/python-sandbox/.venv/Scripts/python.exe",
+        "-q",
+        "-u",
+        "-X",
+        "utf8",
+        "C:/Users/irvan/python-sandbox/mcp_stdio.py"
+      ]
+    },
+    "url-downloader": {
+      "type": "local",
+      "command": [
+        "uvx",
+        "--with",
+        "mcp<2",
+        "--from",
+        "mcp-url-downloader",
+        "python",
+        "-c",
+        "from mcp_url_downloader.server import main; main()"
+      ],
+      "timeout": {
+        "startup": 120000
+      }
+    },
+    "android-mcp": {
+      "type": "local",
+      "command": ["uvx", "--python", "3.13", "android-mcp"]
+    },
     "powershell-sandbox": {
       "type": "local",
       "command": [
