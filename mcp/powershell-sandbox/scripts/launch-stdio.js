@@ -2,8 +2,8 @@
 /**
  * Launcher stdio untuk mode podman.
  *
- * Dipakai OpenCode sebagai command MCP:
- *   "command": ["C:/Program Files/nodejs/node.exe", ".../scripts/launch-stdio.js"]
+ * Dipakai OpenCode sebagai command MCP (path node & script menyesuaikan device):
+ *   "command": ["node", "<folder-project>/scripts/launch-stdio.js"]
  *
  * Kenapa perlu launcher, bukan `podman run` langsung?
  * 1. `podman run` yang di-spawn langsung oleh OpenCode (Bun) kadang langsung
@@ -19,16 +19,83 @@
  * stdout = protokol MCP, stderr = diagnostik.
  */
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
 
-const PODMAN = process.env.PS_PODMAN_BIN || 'C:/Program Files/RedHat/Podman/podman.exe';
+/**
+ * Cari executable di PATH (lintas platform) supaya tidak ada path install tetap
+ * yang ditulis di kode. Windows dicek dengan PATHEXT (.exe, .cmd, ...).
+ */
+function which(cmd) {
+  const dirs = (process.env.PATH || '').split(path.delimiter).filter(Boolean);
+  const exts =
+    process.platform === 'win32'
+      ? (process.env.PATHEXT || '.EXE;.CMD;.BAT;.COM').split(';').filter(Boolean)
+      : [''];
+  const names =
+    process.platform === 'win32' ? [cmd, ...exts.map((e) => `${cmd}${e.toLowerCase()}`)] : [cmd];
+  for (const dir of dirs) {
+    for (const name of names) {
+      const candidate = path.join(dir, name);
+      if (fs.existsSync(candidate)) return candidate;
+    }
+  }
+  return null;
+}
+
+/** Path podman: env PS_PODMAN_BIN > PATH > lokasi install umum > 'podman'. */
+function resolvePodman() {
+  if (process.env.PS_PODMAN_BIN) {
+    return { path: process.env.PS_PODMAN_BIN, source: 'env PS_PODMAN_BIN' };
+  }
+  const fromPath = which('podman');
+  if (fromPath) return { path: fromPath, source: 'PATH' };
+  const known =
+    process.platform === 'win32'
+      ? [
+          'C:/Program Files/RedHat/Podman/podman.exe',
+          'C:/Program Files/Podman/podman.exe',
+        ]
+      : ['/usr/bin/podman', '/usr/local/bin/podman'];
+  const hit = known.find((p) => fs.existsSync(p));
+  if (hit) return { path: hit, source: 'lokasi install umum' };
+  return { path: 'podman', source: 'fallback (dicek spawn saat jalan)' };
+}
+
+const PODMAN_RESOLVED = resolvePodman();
+const PODMAN = PODMAN_RESOLVED.path;
 const IMAGE = process.env.PS_PODMAN_IMAGE || 'localhost/powershell-sandbox-mcp:latest';
-const HOST_ROOT = process.env.PS_PODMAN_HOST_ROOT
-  || path.join(process.env.TEMP || process.env.TMP || '.', 'opencode', 'ps-sandbox');
+const HOST_ROOT =
+  process.env.PS_PODMAN_HOST_ROOT || path.join(os.tmpdir(), 'opencode', 'ps-sandbox');
 const MACHINE = process.env.PS_PODMAN_MACHINE || 'podman-machine-default';
 const ATTEMPTS = Number.parseInt(process.env.PS_PODMAN_ATTEMPTS || '3', 10);
 const RETRY_DELAY_MS = Number.parseInt(process.env.PS_PODMAN_RETRY_DELAY_MS || '3000', 10);
+
+/**
+ * Mode diagnostik: tampilkan hasil resolusi path lalu keluar tanpa menjalankan
+ * apa pun. Untuk cek portabilitas di device lain tanpa menyentuh container:
+ *   node scripts/launch-stdio.js --resolve-only
+ */
+if (process.argv.includes('--resolve-only')) {
+  process.stdout.write(
+    `${JSON.stringify(
+      {
+        node: process.execPath,
+        podman: PODMAN,
+        podman_source: PODMAN_RESOLVED.source,
+        podman_exists: fs.existsSync(PODMAN),
+        image: IMAGE,
+        image_exists_note: 'cek: podman image exists ' + IMAGE,
+        host_root: HOST_ROOT,
+        machine: MACHINE,
+      },
+      null,
+      2,
+    )}\n`,
+  );
+  process.exit(0);
+}
 
 const envFlag = (name, fallback) => {
   const raw = process.env[name];

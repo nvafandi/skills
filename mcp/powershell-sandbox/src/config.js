@@ -86,17 +86,49 @@ const psShell = process.env.PS_SANDBOX_SHELL || (IS_WINDOWS ? 'powershell.exe' :
 const psShellArgs = ['-NoLogo', '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass'];
 
 /**
+ * Cari executable pertama di PATH. Windows dicek pakai PATHEXT
+ * (.exe/.cmd/...) supaya bisa juga menemukan `bash` tanpa ekstensi.
+ */
+function findOnPath(names) {
+  const dirs = (process.env.PATH || '').split(path.delimiter).filter(Boolean);
+  for (const dir of dirs) {
+    for (const name of names) {
+      const candidate = path.join(dir, name);
+      try {
+        if (fs.existsSync(candidate)) return candidate;
+      } catch {
+        /* folder tak terbaca, lanjut */
+      }
+    }
+  }
+  return null;
+}
+
+/**
  * Shell POSIX untuk .sh.
  * Di Windows, `bash.exe` bawaan dari WindowsApps cuma launcher interop WSL yang
- * merusak path Windows, jadi Git Bash (cygwin) yang diprioritaskan.
+ * merusak path Windows, jadi Git Bash (cygwin) yang diprioritaskan — urutannya
+ * tidak bergantung pada lokasi install tetap:
+ * 1. PATH, asal bukan WindowsApps dan foldernya mengandung "Git"
+ * 2. lokasi install umum (Git bisa terpasang di luar PATH)
+ * 3. PATH mana pun selain WindowsApps
+ * 4. 'bash' — biarkan spawn yang mencari di PATH
  */
 function defaultShShell() {
   if (!IS_WINDOWS) return 'bash';
+  const onPath = findOnPath(['bash.exe', 'bash']) || '';
+  const usable = (p) => Boolean(p) && !/WindowsApps/i.test(p);
+  if (usable(onPath) && /Git[\\/]/i.test(onPath)) return onPath;
+
   const candidates = [
     'C:/Program Files/Git/bin/bash.exe',
     'C:/Program Files (x86)/Git/bin/bash.exe',
+    'C:/Program Files/Git/usr/bin/bash.exe',
   ];
-  return candidates.find((candidate) => fs.existsSync(candidate)) || 'bash';
+  const known = candidates.find((candidate) => fs.existsSync(candidate));
+  if (known) return known;
+  if (usable(onPath)) return onPath;
+  return 'bash';
 }
 
 const shShell = process.env.PS_SANDBOX_SH_SHELL || defaultShShell();

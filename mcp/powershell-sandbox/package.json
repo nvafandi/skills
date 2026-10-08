@@ -1,21 +1,54 @@
 {
   "name": "powershell-sandbox-mcp",
-  "version": "1.1.0",
-  "private": true,
+  "version": "1.2.1",
   "description": "MCP server (stdio) untuk menjalankan script PowerShell (.ps1) dan bash (.sh) di sandbox terisolasi ringan: working dir khusus, env minimal, timeout, log, dan penjaga path.",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "powershell",
+    "pwsh",
+    "bash",
+    "sandbox",
+    "stdio",
+    "ai-agent"
+  ],
+  "homepage": "https://github.com/nvafandi/skills/tree/main/mcp/powershell-sandbox",
+  "bugs": {
+    "url": "https://github.com/nvafandi/skills/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nvafandi/skills.git",
+    "directory": "mcp/powershell-sandbox"
+  },
+  "license": "MIT",
+  "author": "Nurvan Afandi <nurvan.afandi@gmail.com>",
   "type": "module",
   "main": "src/server.js",
   "bin": {
     "powershell-sandbox-mcp": "src/server.js"
   },
+  "files": [
+    "src",
+    "scripts",
+    "test/config-check.mjs",
+    "test/clients-check.mjs",
+    "Dockerfile"
+  ],
   "engines": {
     "node": ">=18"
   },
   "scripts": {
     "start": "node src/server.js",
-    "test": "node test/smoke.js",
+    "test": "node test/smoke.js && node test/config-check.mjs && node test/clients-check.mjs",
+    "setup:npm": "node scripts/setup-npm.js",
+    "setup:clients": "node scripts/setup-clients.js",
     "build:podman": "podman build -t localhost/powershell-sandbox-mcp:latest -f Dockerfile .",
-    "launch:podman": "node scripts/launch-stdio.js"
+    "launch:podman": "node scripts/launch-stdio.js",
+    "prepublishOnly": "npm test"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.0",

@@ -1,17 +1,37 @@
 // Verifikasi command MCP yang terdaftar di config OpenCode: handshake + 1 run script.
 //
-//   node test/config-check.mjs "C:/Users/irvan/.config/opencode/opencode.json"
+//   node test/config-check.mjs                       # pakai config default
+//   node test/config-check.mjs <path-opencode.json>  # config lain
+//
+// Default mengikuti aturan OpenCode: env OPENCODE_CONFIG dulu, lalu
+// ~/.config/opencode/opencode.json (berlaku sama di Windows/macOS/Linux).
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 
-if (!process.argv[2]) {
-  console.error('usage: node test/config-check.mjs <path-to-opencode.json>');
+function defaultConfigPath() {
+  const fromEnv = process.env.OPENCODE_CONFIG;
+  if (fromEnv && fromEnv.trim()) return path.resolve(fromEnv.trim());
+  return path.join(os.homedir(), '.config', 'opencode', 'opencode.json');
+}
+
+const configPath = process.argv[2] ? path.resolve(process.argv[2]) : defaultConfigPath();
+if (!fs.existsSync(configPath)) {
+  console.error(`usage: node test/config-check.mjs [path-to-opencode.json]`);
+  console.error(`config tidak ditemukan: ${configPath}`);
   process.exit(2);
 }
 
-const cfg = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
-const entry = cfg.mcp.servers['powershell-sandbox'];
+const cfg = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+console.log('config :', configPath);
+const entry = cfg.mcp?.servers?.['powershell-sandbox'];
+if (!entry?.command?.length) {
+  console.error('mcp.servers["powershell-sandbox"] tidak ditemukan / tanpa command di config.');
+  console.error('Jalankan dulu: npm run setup:npm');
+  process.exit(2);
+}
 const [command, ...args] = entry.command;
 console.log('command:', command);
 console.log('args   :', args.join(' '));
