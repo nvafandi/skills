@@ -32,3 +32,17 @@
 14. **Test migration**: `@QuarkusTest`, `@InjectMock`, RestAssured, Testcontainers
 15. **No hardcoded env values**: Use `@ConfigProperty`
 16. **Micrometer metrics**: Timers/counters/gauges per operation
+
+## Infrastructure Keepalive Patterns
+
+- **Instabox idle suspend** triggered by lack of external inbound activity (not local cron)
+- **Use lightweight endpoints**: `/api/health` (11 bytes) not `/v1/models` (200KB+)
+- **Cron-job.org limits**: Response too large errors at ~100K bytes; use `saveResponses: false`
+- **External ping patterns**: Hit public domain with Cloudflare Access headers from outside the machine
+- **Local cron reliability**: `*/25 * * * *` works for internal monitoring; use systemd user timers for guaranteed execution
+
+## External Endpoint Access
+
+- **Cloudflare Access**: Include `CF-Access-Client-Id`, `CF-Access-Client-Secret` headers
+- **Bearer token**: Use in `Authorization` header for API endpoints
+- **Health check endpoints**: Prefer `/api/health` or status endpoints over data endpoints
