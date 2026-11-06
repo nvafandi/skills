@@ -1,7 +1,7 @@
 {
   "name": "script-sandbox",
-  "version": "1.0.1",
-  "description": "MCP server (stdio) to run any script (PowerShell, bash, Python, Node, Ruby, Perl, Lua, PHP, R, batch, VBScript) and any executable inside a lightweight sandbox: per-run working dir, minimal env, timeout, logs, and per-language guardrails.",
+  "version": "1.2.2",
+  "description": "MCP server (stdio) to run any script (PowerShell, bash, Python, Node, Ruby, Perl, Lua, PHP, R, Java, batch, VBScript) and any executable inside a lightweight sandbox: per-run working dir, minimal env, timeout, logs, and per-language guardrails. Plus filesystem tools (read/write/edit/search/tree) restricted to allowed directories.",
   "keywords": [
     "mcp",
     "model-context-protocol",
@@ -15,17 +15,19 @@
     "perl",
     "lua",
     "php",
+    "java",
     "stdio",
-    "ai-agent"
+    "ai-agent",
+    "filesystem",
+    "file-operations"
   ],
-  "homepage": "https://github.com/nvafandi/skills/tree/main/mcp/script-sandbox",
+  "homepage": "https://github.com/nvafandi/script-sandbox",
   "bugs": {
-    "url": "https://github.com/nvafandi/skills/issues"
+    "url": "https://github.com/nvafandi/script-sandbox/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nvafandi/skills.git",
-    "directory": "mcp/script-sandbox"
+    "url": "git+https://github.com/nvafandi/script-sandbox.git"
   },
   "license": "MIT",
   "author": "Nurvan Afandi <nurvan.afandi@gmail.com>",
@@ -45,7 +47,7 @@
   },
   "scripts": {
     "start": "node src/server.js",
-    "test": "node test/smoke.js && node test/config-check.mjs && node test/clients-check.mjs",
+    "test": "node test/smoke.js && node test/config-check.mjs && node test/clients-check.mjs && node test/compat-check.mjs",
     "setup:npm": "node scripts/setup-npm.js",
     "setup:clients": "node scripts/setup-clients.js",
     "prepublishOnly": "npm test"
@@ -54,7 +56,11 @@
     "access": "public"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.12.0",
-    "zod": "^3.23.8"
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "zod": "^4.6.6"
+  },
+  "overrides": {
+    "express": "^5.2.2",
+    "qs": "^6.16.1"
   }
 }

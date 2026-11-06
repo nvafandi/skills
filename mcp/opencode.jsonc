@@ -61,10 +61,6 @@
         "startup": 120000
       }
     },
-    "android-mcp": {
-      "type": "local",
-      "command": ["uvx", "--python", "3.13", "android-mcp"]
-    },
     "powershell-sandbox": {
       "type": "local",
       "command": [

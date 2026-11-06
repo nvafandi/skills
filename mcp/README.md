@@ -28,11 +28,10 @@ Dua isi sekaligus:
 | `python-sandbox` | local | Sandbox container Python (podman) | `python-sandbox/` (source lengkap) |
 | `powershell-sandbox` | local | Sandbox script PowerShell (podman, pwsh 7) | `powershell-sandbox/` (source lengkap) |
 | `url-downloader` | local | Unduh file dari URL ke disk | `url-downloader/` (dokumentasi) |
-| `android-mcp` | local | Kendali perangkat Android via ADB | `android-mcp/` (dokumentasi) |
 
-`url-downloader` dan `android-mcp` tidak punya source di disk: keduanya paket
-PyPI yang dijalankan sekali jalan oleh `uvx`, jadi foldernya berisi README +
-`run.ps1` dengan command yang sama persis seperti di config.
+`url-downloader` tidak punya source di disk: paket PyPI yang dijalankan sekali
+jalan oleh `uvx`, jadi foldernya berisi README + `run.ps1` dengan command yang
+sama persis seperti di config.
 
 > `supergateway` (48 MB) ada di `AppData\Local/mcp-servers/` tapi **tidak**
 > terdaftar di config — sengaja tidak di-vendor.
@@ -41,7 +40,6 @@ PyPI yang dijalankan sekali jalan oleh `uvx`, jadi foldernya berisi README +
 
 ```
 mcp/
-├── android-mcp/        README + run.ps1 (uvx --python 3.13 android-mcp)
 ├── filesystem/         package.json + lock (node_modules tidak ikut)
 ├── postgres-mcp-config.json
 ├── powershell-sandbox/ source MCP Node + Dockerfile (PowerShell 7 + Node 22)
@@ -62,7 +60,7 @@ Yang **tidak** masuk repo: `.venv` (93 MB), `node_modules` (23 MB), `*.log`,
 5. **filesystem** → `cd mcp/filesystem && npm install`, lalu arahkan `command` ke `mcp/filesystem/node_modules/@modelcontextprotocol/server-filesystem/dist/index.js`.
 6. **python-sandbox** → source ada di `mcp/python-sandbox`; tapi yang aktif memakai venv di `C:/Users/irvan/python-sandbox`. Detail modifikasi lokal + rename ada di `mcp/python-sandbox/LOCAL.md`.
 7. **powershell-sandbox** → butuh image podman: `pwsh -File mcp/powershell-sandbox/scripts/podman-build.ps1 -Smoke` (build + smoke test). Ganti `--network none` ke `bridge` kalau script butuh internet. Semua limit/guardrail dikontrol env `PS_SANDBOX_*`.
-8. **url-downloader** & **android-mcp** → tidak perlu install; cukup `uv` tersedia. Jalankan `mcp/<server>/run.ps1` untuk cek koneksinya.
+8. **url-downloader** → tidak perlu install; cukup `uv` tersedia. Jalankan `mcp/url-downloader/run.ps1` untuk cek koneksinya.
 
 ## Keamanan
 

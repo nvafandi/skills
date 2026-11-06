@@ -1,4 +1,4 @@
----
+gi---
 name: thinker
 description: >
   Coding discipline: minimal-code mode with hard guardrails. Surface
