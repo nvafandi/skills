@@ -24,11 +24,12 @@
       ],
       "enabled": true
     },
-    "memory": {
-      "type": "local",
-      "command": [
-        "mcp-server-memory"
-      ],
+    "shared-memory": {
+      "type": "remote",
+      "url": "https://mcp-memory.nurvan.my.id/mcp",
+      "headers": {
+        "Authorization": "Bearer mcp-memory-secret-2026"
+      },
       "enabled": true
     },
     "python-sandbox": {

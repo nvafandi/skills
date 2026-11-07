@@ -22,8 +22,8 @@ Dua isi sekaligus:
 | `context7` | remote | Dokumentasi library/framework terkini | — (remote) |
 | `filesystem` | local | Akses filesystem (`C:/Users/irvan`) | `filesystem/` (manifest saja) |
 | `sequential-thinking` | local | Problem solving bertahap | — |
-| `memory` | local | Knowledge graph memori sesi | — |
-| `postgres` | local | Introspection & monitoring PostgreSQL (multi-DB: aob, newods, nbwf) | — (paket npm) |
+| `memory` | local | Knowledge graph memori sesi (legacy, diganti `shared-memory`) | — |
+| `shared-memory` | remote | Semantic memory service (SQLite-vec) via Cloudflare Tunnel — lihat `shared-memory.md` | — (remote) || `postgres` | local | Introspection & monitoring PostgreSQL (multi-DB: aob, newods, nbwf) | — (paket npm) |
 | `graphify` | local | Query knowledge graph kode (`query_graph`, `shortest_path`, dll.) — menunjuk ke `~/.config/opencode/graph.json` | — (CLI `uv tool`) |
 | `python-sandbox` | local | Sandbox container Python (podman) | `python-sandbox/` (source lengkap) |
 | `powershell-sandbox` | local | Sandbox script PowerShell (podman, pwsh 7) | `powershell-sandbox/` (source lengkap) |
