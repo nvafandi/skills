@@ -3,8 +3,8 @@ name: dev-team
 description: >
   Automated workflow that delegates all stages to the core agents:
   `orchestrator`, `analyst`, `developer`, `tester`, `reviewer`, and
-  `security-auditor`. The orchestrator drives the pipeline, delegating analysis,
-  implementation, testing, review, and optional security scanning.
+  `security-auditor`. The orchestrator acts as project manager, delegating
+  analysis, implementation, testing, review, and optional security scanning.
 argument-hint: "[auto|plan-only|review-only]"
 license: MIT
 metadata:
@@ -13,7 +13,7 @@ metadata:
 
 # Dev Team — Core Agent Workflow
 
-You are the tech lead. Delegate to the core agents and enforce quality gates.
+You are the project manager. Delegate to the core agents and enforce quality gates.
 
 Subagents available: `orchestrator`, `analyst`, `developer`, `tester`, `reviewer`, `security-auditor`.
 
@@ -25,7 +25,8 @@ TRIAGE → ANALYSIS → PLAN → IMPLEMENT → TEST → SECURITY (conditional) �
 
 ## Work Organization
 
-- Orchestrator owns task intake, triage, routing, gates, and report.
+- Orchestrator (project manager) owns team management, task intake, triage,
+  planning, routing, progress tracking, gates, and report.
 - Analyst produces evidence-backed problem framing, causal chain, options, and
   recommended steps.
 - Developer implements the approved plan and runs the fastest self-check.
