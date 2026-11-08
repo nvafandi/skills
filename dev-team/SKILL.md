@@ -3,8 +3,8 @@ name: dev-team
 description: >
   IT-team workflow for software engineering tasks: migration, coding, bug
   fixing, new features, refactoring. Automatically orchestrates subagents
-  (planner, explorer, coder, bug-fixer, tester, reviewer, reporter,
-  migrator) through a staged pipeline with quality gates. Use when the user
+  (planner, explorer, coder, bug-fixer, tester, reviewer, security-auditor,
+  reporter, migrator, docs-writer) through a staged pipeline with quality gates. Use when the user
   says "kerjakan", "implement", "fix", "migrate", "feature", "refactor",
   "build", "develop", or describes any non-trivial code change. Also use for
   "team mode", "auto", or "jalankan pipeline". Not for one-line edits,
@@ -20,12 +20,12 @@ metadata:
 You are the tech lead. You do not do heavy implementation yourself; you
 delegate to the specialist subagents and enforce quality gates between
 stages. Subagents available: `planner`, `explorer`, `coder`, `bug-fixer`,
-`tester`, `reviewer`, `reporter`, `migrator`, `orchestrator`.
+`tester`, `reviewer`, `security-auditor`, `reporter`, `migrator`, `docs-writer`, `orchestrator`.
 
 ## Pipeline (default for any non-trivial task)
 
 ```
-TRIAGE → EXPLORE → PLAN → IMPLEMENT → TEST → REVIEW → REPORT
+TRIAGE → EXPLORE → PLAN → IMPLEMENT → TEST → REVIEW → SECURITY (conditional) → DOCS (optional) → REPORT
 ```
 
 Run stages in order. Do not skip a stage unless the user explicitly says so
@@ -63,8 +63,18 @@ Run stages in order. Do not skip a stage unless the user explicitly says so
 - **Gate:** if Critical/Major findings → route back to IMPLEMENT (max 1
   cycle), then re-test. Minor/Nit → note and continue.
 
+### 6.5 SECURITY (conditional)
+- Delegate to `security-auditor` when the change touches auth, tokens/sessions,
+  authorization, crypto/secrets, public input paths, dependencies, CI/CD, IaC,
+  containers, or when the user asks for security.
+- It chooses and runs the appropriate security tools (secret, SAST, SCA, IaC,
+  container, DAST/API) based on stack and risk; it does not fix code.
+- **Gate:** if Critical/High findings → route back to IMPLEMENT (max 1 cycle),
+  then re-test. Medium/Low → note and continue unless user set a stricter gate.
+
 ### 7. DOCS (optional)
-- Delegate to `docs-writer` when the change affects user-facing behavior, APIs, or setup.
+- Delegate to `docs-writer` when the change affects user-facing behavior,
+  APIs, or setup.
 - Skip for internal-only changes.
 
 ### 8. REPORT
@@ -87,6 +97,7 @@ Run stages in order. Do not skip a stage unless the user explicitly says so
 1. PLAN must be approved (or `auto` given) before IMPLEMENT.
 2. TEST must pass before REVIEW.
 3. REVIEW must have no Critical/Major (or fixed) before REPORT.
+3b. SECURITY, when run, must have no unaccepted Critical/High before REPORT.
 4. REPORT always produced, even on failure (mark status clearly).
 
 ## Parallelism
@@ -97,7 +108,8 @@ Run stages in order. Do not skip a stage unless the user explicitly says so
 
 ## When to ask the user
 
-- Ambiguous scope or missing acceptance criteria.
+- Missing acceptance criteria, ambiguous scope, or security-sensitive change
+without an explicit security gate request.
 - Destructive actions (data deletion, force push, schema drop).
 - After 2 failed test cycles or 1 failed review cycle.
 - When a migration requires a decision (strategy, downtime window).
@@ -108,6 +120,7 @@ A task is done only when:
 - Implementation complete.
 - Tests pass (or explicitly waived by user with reason recorded).
 - Review has no open Critical/Major.
+- If SECURITY ran, it has no unaccepted Critical/High finding.
 - Reporter has produced the final summary.
 
 ## Mode arguments
