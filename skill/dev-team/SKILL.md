@@ -1,140 +1,54 @@
----
+﻿---
 name: dev-team
 description: >
-  IT-team workflow for software engineering tasks: migration, coding, bug
-  fixing, new features, refactoring. Automatically orchestrates subagents
-  (planner, analyst, coder, bug-fixer, tester, reviewer, security-auditor,
-  reporter, migrator, docs-writer) through a staged pipeline with quality gates. Use when the user
-  says "kerjakan", "implement", "fix", "migrate", "feature", "refactor",
-  "build", "develop", or describes any non-trivial code change. Also use for
-  "team mode", "auto", or "jalankan pipeline". Not for one-line edits,
-  pure questions, or reading code only.
+  Automated workflow that delegates all stages to the core agents: `orchestrator`, `developer`, `verifier`, and `security-auditor`. The orchestrator drives the pipeline, delegating implementation, verification, and optional security scanning.
 argument-hint: "[auto|plan-only|review-only]"
 license: MIT
 metadata:
   author: Nurvan Afandi - https://github.com/nvafandi
 ---
 
-# Dev Team — Automated IT Pipeline
+# Dev Team â€” Core Agent Workflow
 
-You are the tech lead. You do not do heavy implementation yourself; you
-delegate to the specialist subagents and enforce quality gates between
-stages. Subagents available: `planner`, `analyst`, `coder`, `bug-fixer`,
-`tester`, `reviewer`, `security-auditor`, `reporter`, `migrator`, `docs-writer`, `orchestrator`.
+You are the tech lead. Delegate to the core agents and enforce quality gates.
 
-## Pipeline (default for any non-trivial task)
+Subagents available: `orchestrator`.
+
+## Pipeline (default)
 
 ```
-TRIAGE → ANALYSIS → PLAN → IMPLEMENT → TEST → REVIEW → SECURITY (conditional) → DOCS (optional) → REPORT
+TRIAGE â†’ ANALYSIS â†’ PLAN â†’ IMPLEMENT â†’ VERIFY â†’ SECURITY (conditional) â†’ REPORT
 ```
 
-Run stages in order. Do not skip a stage unless the user explicitly says so
-(e.g. "skip review", "plan only").
+## Work Organization
 
-### 1. TRIAGE
-- Classify the task: `feature` | `bugfix` | `migration` | `refactor` | `chore`.
-- If migration → route IMPLEMENT to `migrator` (not `coder`).
-- If bugfix → route IMPLEMENT to `bug-fixer`.
-- Otherwise → `coder`.
-- If the request is ambiguous or missing acceptance criteria, ask the user
-  before proceeding. Do not guess scope.
+- Orchestrator aggregates task definitions, acceptance criteria, and risk tiers.
+- Implements a shared memory store for decisions (`memory_store`) to persist across sessions.
+- Provides status updates via the REPORT stage and optional intermediate logs.
+- Allows parallel ANALYSIS with TRIAGE when safe.
 
-### 2. ANALYSIS  (parallel with TRIAGE when possible)
-- Delegate to `analyst`: analyze the problem and system, establish the causal
-  chain, and recommend the steps for planning.
-- Wait for the analysis before planning. Use findings as context for PLAN.
+The **Orchestrator** handles triage, analysis, planning, and routing:
+- **TRIAGE**: classify task, define scope.
+- **ANALYSIS**: identify problem, evidence, and steps.
+- **PLAN**: produce approved plan.
+- **IMPLEMENT**: delegate to `developer`.
+- **VERIFY**: delegate to `verifier` (dynamic tests + static review).
+- **SECURITY** (optional): delegate to `security-auditor` when needed.
+- **REPORT**: orchestrator compiles final summary.
 
-### 3. PLAN
-- Delegate to `planner` with the exploration findings.
-- Present the plan to the user. **Gate:** proceed only if user approves or
-  says "auto"/"lanjut". If `plan-only` argument → stop here.
+## Quality Gates
+- PLAN must be approved (or `auto`).
+- VERIFY must pass dynamic tests and have no Critical/Major review findings.
+- SECURITY, when run, must have no unaccepted Critical/High findings.
+- REPORT always produced.
 
-### 4. IMPLEMENT
-- Delegate to the chosen implementer (`coder` / `bug-fixer` / `migrator`).
-- Pass the approved plan + exploration findings.
-- Foreground (blocking) — implementation must finish before tests.
-
-### 5. TEST
-- Delegate to `tester`: run existing tests + smoke check of changed behavior.
-- **Gate:** if tests fail, route back to IMPLEMENT with the failure details
-  (max 2 retry cycles). If still failing after 2 cycles, stop and ask user.
-
-### 6. REVIEW
-- Delegate to `reviewer`: correctness, security, perf, YAGNI.
-- **Gate:** if Critical/Major findings → route back to IMPLEMENT (max 1
-  cycle), then re-test. Minor/Nit → note and continue.
-
-### 6.5 SECURITY (conditional)
-- Delegate to `security-auditor` when the change touches auth, tokens/sessions,
-  authorization, crypto/secrets, public input paths, dependencies, CI/CD, IaC,
-  containers, or when the user asks for security.
-- It chooses and runs the appropriate security tools (secret, SAST, SCA, IaC,
-  container, DAST/API) based on stack and risk; it does not fix code.
-- **Gate:** if Critical/High findings → route back to IMPLEMENT (max 1 cycle),
-  then re-test. Medium/Low → note and continue unless user set a stricter gate.
-
-### 7. DOCS (optional)
-- Delegate to `docs-writer` when the change affects user-facing behavior,
-  APIs, or setup.
-- Skip for internal-only changes.
-
-### 8. REPORT
-- Delegate to `reporter`: summary, changed files, verification, risks,
-  next steps.
-- This is the final deliverable to the user.
-
-## Delegation rules
-
-- Use `subagent` tool. Foreground for dependent stages; background only for
-  truly independent work (e.g. analyst + a separate research task).
-- Pass concise, structured context (goal, findings, plan) — do not dump
-  entire files unless needed.
-- Do not do heavy implementation in the orchestrator; delegate.
-- If a subagent is unavailable, fall back to doing that stage yourself and
-  note it in the report.
-
-## Quality gates (never skip)
-
-1. PLAN must be approved (or `auto` given) before IMPLEMENT.
-2. TEST must pass before REVIEW.
-3. REVIEW must have no Critical/Major (or fixed) before REPORT.
-3b. SECURITY, when run, must have no unaccepted Critical/High before REPORT.
-4. REPORT always produced, even on failure (mark status clearly).
-
-## Parallelism
-
-- ANALYSIS can run in parallel with TRIAGE.
-- Independent test suites can run in parallel via multiple `tester` calls.
-- Never parallelize IMPLEMENT stages that touch overlapping files.
-
-## When to ask the user
-
-- Missing acceptance criteria, ambiguous scope, or security-sensitive change
-without an explicit security gate request.
-- Destructive actions (data deletion, force push, schema drop).
-- After 2 failed test cycles or 1 failed review cycle.
-- When a migration requires a decision (strategy, downtime window).
-
-## Completion criteria
-
-A task is done only when:
+## Completion Criteria
 - Implementation complete.
-- Tests pass (or explicitly waived by user with reason recorded).
-- Review has no open Critical/Major.
-- If SECURITY ran, it has no unaccepted Critical/High finding.
-- Reporter has produced the final summary.
+- Verification passed.
+- Security clean (if applicable).
+- Reporter delivered.
 
 ## Mode arguments
-
-- `auto` (default): run full pipeline, gate on plan approval only if
-  ambiguous; otherwise proceed.
-- `plan-only`: stop after PLAN, output the plan.
-- `review-only`: run only REVIEW on the current diff.
-
-## Notes
-
-- This skill is about *workflow*, not code style. Combine with `thinker`
-  for minimal-code discipline and `ponytail` for terse output.
-- Config changes apply without restart; new agents discovered on `/reload`.
-- If `shared-memory` MCP is available, store key decisions via
-  `memory_store` at the end of REPORT for future sessions.
+- `auto` (default): run full pipeline.
+- `plan-only`: stop after PLAN.
+- `review-only`: run only verification on existing diff.
