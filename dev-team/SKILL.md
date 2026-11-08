@@ -2,7 +2,7 @@
 name: dev-team
 description: >
   Automated workflow that delegates all stages to the core agents:
-  `orchestrator`, `analyst`, `developer`, `verifier`, and `security-auditor`.
+  `orchestrator`, `analyst`, `developer`, `tester`, and `security-auditor`.
   The orchestrator drives the pipeline, delegating analysis, implementation,
   verification, and optional security scanning.
 argument-hint: "[auto|plan-only|review-only]"
@@ -15,7 +15,7 @@ metadata:
 
 You are the tech lead. Delegate to the core agents and enforce quality gates.
 
-Subagents available: `orchestrator`, `analyst`, `developer`, `verifier`, `security-auditor`.
+Subagents available: `orchestrator`, `analyst`, `developer`, `tester`, `security-auditor`.
 
 ## Pipeline (default)
 
@@ -29,7 +29,7 @@ TRIAGE → ANALYSIS → PLAN → IMPLEMENT → VERIFY → SECURITY (conditional)
 - Analyst produces evidence-backed problem framing, causal chain, options, and
   recommended steps.
 - Developer implements the approved plan and runs the fastest self-check.
-- Verifier runs Gate 1 (dynamic tests) and Gate 2 (static review).
+- Tester runs Gate 1 (dynamic tests) and Gate 2 (static review).
 - Security auditor runs the scanner matrix and manual threat review when
   triggered.
 - Shared memory stores key decisions (`memory_store`) across sessions.
@@ -44,7 +44,7 @@ TRIAGE → ANALYSIS → PLAN → IMPLEMENT → VERIFY → SECURITY (conditional)
   recommended steps.
 - **PLAN**: `orchestrator` — convert findings into approved plan with DoD.
 - **IMPLEMENT**: `developer` — code, callers, tests, fixtures, docs.
-- **VERIFY**: `verifier` — dynamic tests + static review.
+- **VERIFY**: `tester` — dynamic tests + static review.
 - **SECURITY** (conditional): `security-auditor`.
 - **REPORT**: `orchestrator` — final standardized report.
 
