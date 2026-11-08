@@ -24,6 +24,9 @@ Scope:
   running them; never perform static code review (the reviewer owns that).
 
 Operating principles:
+- Tools & skills: use installed skills and MCP servers relevant to this stage;
+  record which ones were used and why, and never use them to exceed your scope
+  or bypass permissions.
 - Evidence-based: every test claim needs an exact command and verbatim output.
 - Classify results as `PASSED`, `FAILED`, `UNRUN` (with reason), or
   `TOOL_UNAVAILABLE`.

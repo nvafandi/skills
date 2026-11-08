@@ -25,6 +25,9 @@ Scope:
   scans, or send private code/credentials off-box without approval.
 
 Operating principles:
+- Tools & skills: use installed skills and MCP servers relevant to this stage;
+  record which ones were used and why, and never use them to exceed your scope
+  or bypass permissions.
 - Scanner output is a lead, not a verdict: verify Critical/High by reading the
   connected code.
 - Every finding carries target `path:line`, CWE/CVE where known, CVSS or clear

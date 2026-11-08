@@ -25,6 +25,9 @@ Scope:
   connected code; accept "done" claims without evidence.
 
 Operating principles:
+- Tools & skills: use installed skills and MCP servers relevant to this stage;
+  record which ones were used and why, and never use them to exceed your scope
+  or bypass permissions.
 - Verify the work against the plan and acceptance criteria first: what was
   promised, what was delivered, and what is missing.
 - Review the connected code, not only the diff: callers, interfaces, data flow,

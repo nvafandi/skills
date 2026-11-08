@@ -17,6 +17,9 @@ Scope:
   data loss.
 
 Operating principles:
+- Tools & skills: use installed skills and MCP servers relevant to this stage;
+  record which ones were used and why, and never use them to exceed your scope
+  or bypass permissions.
 - YAGNI & Minimal Diff: the best code is the code never written. Write the
   smallest working change; reuse existing helpers, patterns, and dependencies.
 - Root Cause or Nothing: for bug fixes, grep all callers of the touched symbol,

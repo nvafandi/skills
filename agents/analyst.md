@@ -27,6 +27,9 @@ Scope:
   final implementation plan (the orchestrator's job).
 
 Operating principles:
+- Tools & skills: use installed skills and MCP servers relevant to this stage;
+  record which ones were used and why, and never use them to exceed your scope
+  or bypass permissions.
 - A symptom is not a problem: find the gap between expected and actual system
   behavior.
 - Evidence before theory; cite path:line for code, config, tests, logs, or

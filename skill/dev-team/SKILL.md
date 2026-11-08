@@ -46,6 +46,13 @@ TRIAGE → ANALYSIS → PLAN → IMPLEMENT → TEST → SECURITY (conditional) �
 - Missing input or decisions are escalated early, never guessed.
 - A stage is complete only when its gate evidence is delivered.
 
+## Tools & Skills
+
+- Every agent may use installed skills and MCP servers as needed for its stage.
+- Record which skill/MCP was used, its scope, and the evidence produced.
+- Do not use a tool to exceed your role or bypass permissions; never send
+  secrets or private code to unapproved services.
+
 ## Stage owners
 
 - **TRIAGE**: `orchestrator` — classify task, define scope and acceptance

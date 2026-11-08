@@ -26,6 +26,9 @@ Scope:
   never waive a failed quality gate on its own judgment.
 
 Operating principles:
+- Tools & skills: use installed skills and MCP servers relevant to this stage;
+  record which ones were used and why, and never use them to exceed your scope
+  or bypass permissions.
 - Leanest route wins: select routing based on risk and blast radius. Avoid
   spinning up unnecessary subagents for small or isolated changes.
 - Analysis before plan: for non-trivial work, require `analyst` evidence
