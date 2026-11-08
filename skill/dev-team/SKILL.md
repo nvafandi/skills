@@ -1,42 +1,55 @@
 ﻿---
 name: dev-team
 description: >
-  Automated workflow that delegates all stages to the core agents: `orchestrator`, `developer`, `verifier`, and `security-auditor`. The orchestrator drives the pipeline, delegating implementation, verification, and optional security scanning.
+  Automated workflow that delegates all stages to the core agents:
+  `orchestrator`, `analyst`, `developer`, `verifier`, and `security-auditor`.
+  The orchestrator drives the pipeline, delegating analysis, implementation,
+  verification, and optional security scanning.
 argument-hint: "[auto|plan-only|review-only]"
 license: MIT
 metadata:
   author: Nurvan Afandi - https://github.com/nvafandi
 ---
 
-# Dev Team â€” Core Agent Workflow
+# Dev Team — Core Agent Workflow
 
 You are the tech lead. Delegate to the core agents and enforce quality gates.
 
-Subagents available: `orchestrator`.
+Subagents available: `orchestrator`, `analyst`, `developer`, `verifier`, `security-auditor`.
 
 ## Pipeline (default)
 
 ```
-TRIAGE â†’ ANALYSIS â†’ PLAN â†’ IMPLEMENT â†’ VERIFY â†’ SECURITY (conditional) â†’ REPORT
+TRIAGE → ANALYSIS → PLAN → IMPLEMENT → VERIFY → SECURITY (conditional) → REPORT
 ```
 
 ## Work Organization
 
-- Orchestrator aggregates task definitions, acceptance criteria, and risk tiers.
-- Implements a shared memory store for decisions (`memory_store`) to persist across sessions.
-- Provides status updates via the REPORT stage and optional intermediate logs.
-- Allows parallel ANALYSIS with TRIAGE when safe.
+- Orchestrator owns task intake, triage, routing, gates, and report.
+- Analyst produces evidence-backed problem framing, causal chain, options, and
+  recommended steps.
+- Developer implements the approved plan and runs the fastest self-check.
+- Verifier runs Gate 1 (dynamic tests) and Gate 2 (static review).
+- Security auditor runs the scanner matrix and manual threat review when
+  triggered.
+- Shared memory stores key decisions (`memory_store`) across sessions.
+- Status updates surface in REPORT and optional intermediate logs.
+- ANALYSIS can run in parallel with TRIAGE when safe.
 
-The **Orchestrator** handles triage, analysis, planning, and routing:
-- **TRIAGE**: classify task, define scope.
-- **ANALYSIS**: identify problem, evidence, and steps.
-- **PLAN**: produce approved plan.
-- **IMPLEMENT**: delegate to `developer`.
-- **VERIFY**: delegate to `verifier` (dynamic tests + static review).
-- **SECURITY** (optional): delegate to `security-auditor` when needed.
-- **REPORT**: orchestrator compiles final summary.
+## Stage owners
+
+- **TRIAGE**: `orchestrator` — classify task, define scope and acceptance
+  criteria.
+- **ANALYSIS**: `analyst` — problem statement, evidence, causal chain, options,
+  recommended steps.
+- **PLAN**: `orchestrator` — convert findings into approved plan with DoD.
+- **IMPLEMENT**: `developer` — code, callers, tests, fixtures, docs.
+- **VERIFY**: `verifier` — dynamic tests + static review.
+- **SECURITY** (conditional): `security-auditor`.
+- **REPORT**: `orchestrator` — final standardized report.
 
 ## Quality Gates
+- ANALYSIS findings present before PLAN for Tier 2-5.
 - PLAN must be approved (or `auto`).
 - VERIFY must pass dynamic tests and have no Critical/Major review findings.
 - SECURITY, when run, must have no unaccepted Critical/High findings.
@@ -46,7 +59,7 @@ The **Orchestrator** handles triage, analysis, planning, and routing:
 - Implementation complete.
 - Verification passed.
 - Security clean (if applicable).
-- Reporter delivered.
+- Orchestrator delivered the final report.
 
 ## Mode arguments
 - `auto` (default): run full pipeline.
