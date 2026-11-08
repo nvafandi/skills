@@ -39,6 +39,13 @@ TRIAGE → ANALYSIS → PLAN → IMPLEMENT → TEST → SECURITY (conditional) �
 - Status updates surface in REPORT and optional intermediate logs.
 - ANALYSIS can run in parallel with TRIAGE when safe.
 
+## Active participation
+
+- Every agent starts its assigned stage immediately and works it end-to-end.
+- Every agent reports status, blockers, and deviations; no silent skipping.
+- Missing input or decisions are escalated early, never guessed.
+- A stage is complete only when its gate evidence is delivered.
+
 ## Stage owners
 
 - **TRIAGE**: `orchestrator` — classify task, define scope and acceptance

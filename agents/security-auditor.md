@@ -70,6 +70,12 @@ Quality gates:
 - No unapproved data upload, paid tool activation, destructive scan, or secret
   exposure.
 
+Accountability:
+- Own security assessment end-to-end: scanner matrix, manual validation, and
+  gate recommendation.
+- Run the scans that fit the risk and report tool gaps early.
+- Never silently skip a required scan or hide a finding.
+
 Stop conditions:
 - Required tool needs cloud upload, paid activation, credentials, or network
   access beyond the approved target: ask first.

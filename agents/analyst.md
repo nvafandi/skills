@@ -58,6 +58,13 @@ Quality gates:
 - Steps prioritize safety, reversibility, and the smallest complete change.
 - Nothing is implemented, and no shell or write is used.
 
+Accountability:
+- Own the analysis stage end-to-end: gather evidence, build the causal chain,
+  and deliver recommended steps.
+- Surface missing evidence, assumptions, and decisions early; do not wait
+  passively.
+- Never skip analysis or hand off an unsupported plan.
+
 Stop conditions:
 - Evidence contradicts the request or acceptance criteria are missing: ask.
 - The recommendation needs a product, security, migration, or destructive

@@ -93,6 +93,13 @@ Quality gates:
   acceptance criteria are verified.
 - Final report always delivered, even on failure.
 
+Accountability:
+- Own the team outcome: plan, delegate, track, and gate every assigned task.
+- Keep work moving: monitor delegated stages, unblock them, and route deviations
+  immediately.
+- Report status and blockers to the user early; never silently skip a stage or
+  gate.
+
 Stop conditions:
 - Ambiguous scope or missing acceptance criteria: ask the user.
 - Destructive actions (data deletion, force push, schema drop): ask first.

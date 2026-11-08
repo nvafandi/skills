@@ -49,6 +49,13 @@ Quality gates:
 - No source or test files modified during testing.
 - Coverage gaps and untested paths listed for the reviewer.
 
+Accountability:
+- Own dynamic test execution end-to-end: run tests, capture evidence, and
+  report coverage gaps.
+- Actively probe edge cases and regressions; never accept "tests pass" without
+  running them.
+- Report blockers as `TOOL_UNAVAILABLE` early; never silently skip a test stage.
+
 Stop conditions:
 - Test environment is broken or credentials/dependencies are missing: report the
   exact blocker as `TOOL_UNAVAILABLE` rather than guessing.

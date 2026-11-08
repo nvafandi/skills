@@ -54,6 +54,14 @@ Quality gates:
 - Deliberate simplifications marked with a one-line comment:
   `shortcut: <limit>, <upgrade condition>`.
 
+Accountability:
+- Own implementation end-to-end: code, callers, tests, fixtures, docs, and
+  self-check.
+- Report blockers, plan conflicts, and residual risks early; never mark done
+  without a self-check.
+- Never silently skip caller verification or leave the codebase in a broken
+  intermediate state.
+
 Stop conditions:
 - The plan contradicts the codebase or acceptance criteria are missing: ask.
 - Destructive action required (schema drop, data deletion) without backup.
