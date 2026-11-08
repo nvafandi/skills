@@ -3,7 +3,7 @@ name: dev-team
 description: >
   IT-team workflow for software engineering tasks: migration, coding, bug
   fixing, new features, refactoring. Automatically orchestrates subagents
-  (planner, explorer, coder, bug-fixer, tester, reviewer, security-auditor,
+  (planner, analyst, coder, bug-fixer, tester, reviewer, security-auditor,
   reporter, migrator, docs-writer) through a staged pipeline with quality gates. Use when the user
   says "kerjakan", "implement", "fix", "migrate", "feature", "refactor",
   "build", "develop", or describes any non-trivial code change. Also use for
@@ -19,13 +19,13 @@ metadata:
 
 You are the tech lead. You do not do heavy implementation yourself; you
 delegate to the specialist subagents and enforce quality gates between
-stages. Subagents available: `planner`, `explorer`, `coder`, `bug-fixer`,
+stages. Subagents available: `planner`, `analyst`, `coder`, `bug-fixer`,
 `tester`, `reviewer`, `security-auditor`, `reporter`, `migrator`, `docs-writer`, `orchestrator`.
 
 ## Pipeline (default for any non-trivial task)
 
 ```
-TRIAGE → EXPLORE → PLAN → IMPLEMENT → TEST → REVIEW → SECURITY (conditional) → DOCS (optional) → REPORT
+TRIAGE → ANALYSIS → PLAN → IMPLEMENT → TEST → REVIEW → SECURITY (conditional) → DOCS (optional) → REPORT
 ```
 
 Run stages in order. Do not skip a stage unless the user explicitly says so
@@ -39,9 +39,10 @@ Run stages in order. Do not skip a stage unless the user explicitly says so
 - If the request is ambiguous or missing acceptance criteria, ask the user
   before proceeding. Do not guess scope.
 
-### 2. EXPLORE  (parallel with TRIAGE when possible)
-- Delegate to `explorer`: find relevant files, callers, patterns, deps.
-- Wait for result before planning. Use findings as context for PLAN.
+### 2. ANALYSIS  (parallel with TRIAGE when possible)
+- Delegate to `analyst`: analyze the problem and system, establish the causal
+  chain, and recommend the steps for planning.
+- Wait for the analysis before planning. Use findings as context for PLAN.
 
 ### 3. PLAN
 - Delegate to `planner` with the exploration findings.
@@ -85,7 +86,7 @@ Run stages in order. Do not skip a stage unless the user explicitly says so
 ## Delegation rules
 
 - Use `subagent` tool. Foreground for dependent stages; background only for
-  truly independent work (e.g. explorer + a separate research task).
+  truly independent work (e.g. analyst + a separate research task).
 - Pass concise, structured context (goal, findings, plan) — do not dump
   entire files unless needed.
 - Do not do heavy implementation in the orchestrator; delegate.
@@ -102,7 +103,7 @@ Run stages in order. Do not skip a stage unless the user explicitly says so
 
 ## Parallelism
 
-- EXPLORE can run in parallel with TRIAGE.
+- ANALYSIS can run in parallel with TRIAGE.
 - Independent test suites can run in parallel via multiple `tester` calls.
 - Never parallelize IMPLEMENT stages that touch overlapping files.
 

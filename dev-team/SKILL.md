@@ -20,6 +20,13 @@ Subagents available: `orchestrator`.
 TRIAGE → ANALYSIS → PLAN → IMPLEMENT → VERIFY → SECURITY (conditional) → REPORT
 ```
 
+## Work Organization
+
+- Orchestrator aggregates task definitions, acceptance criteria, and risk tiers.
+- Implements a shared memory store for decisions (`memory_store`) to persist across sessions.
+- Provides status updates via the REPORT stage and optional intermediate logs.
+- Allows parallel ANALYSIS with TRIAGE when safe.
+
 The **Orchestrator** handles triage, analysis, planning, and routing:
 - **TRIAGE**: classify task, define scope.
 - **ANALYSIS**: identify problem, evidence, and steps.
